@@ -1,0 +1,49 @@
+:root {
+  --color-spotify-green: #1DB954;
+  --color-black: #191414;
+  --color-dark-gray: #121212;
+  --color-light-gray: #282828;
+  --color-white: #FFFFFF;
+  --color-subtitle: #B3B3B3;
+  --font-family: 'Inter', sans-serif;
+  
+  --gradient-bg: linear-gradient(135deg, #1e1e1e 0%, #000000 100%);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  background: var(--color-dark-gray);
+  color: var(--color-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-light-gray);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-subtitle);
+}
