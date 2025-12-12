@@ -1,0 +1,176 @@
+.main-header {
+    margin-bottom: 40px;
+    display: flex;
+    align-items: end;
+    animation: slideIn 0.6s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.playlist-info img {
+    width: 230px;
+    height: 230px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    margin-right: 32px;
+    border-radius: 8px;
+    transition: transform 0.3s;
+}
+
+.playlist-info img:hover {
+    transform: scale(1.02);
+}
+
+.playlist-info h1 {
+    font-size: 5rem;
+    margin: 0;
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* View Controls */
+.view-controls {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+    align-self: flex-end;
+}
+
+.view-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ccc;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.view-btn:hover,
+.view-btn.active {
+    background: white;
+    color: black;
+}
+
+/* Content Area */
+.content-area.list {
+    display: flex;
+    flex-direction: column;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.content-area.card {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 24px;
+    padding: 0;
+}
+
+/* List Item Styles */
+.track-item.list {
+    display: grid;
+    grid-template-columns: 40px 60px 1fr 1fr 60px;
+    padding: 10px;
+    border-radius: 4px;
+    color: #b3b3b3;
+    align-items: center;
+    gap: 16px;
+}
+
+.track-item.list:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.track-item.list .track-art img {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+}
+
+.track-item.list .play-overlay {
+    display: none;
+}
+
+/* Card Item Styles */
+.track-item.card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 16px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.track-item.card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-5px);
+}
+
+.track-item.card .track-art {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    margin-bottom: 16px;
+}
+
+.track-item.card .track-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.track-item.card .play-overlay {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: #1DB954;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+}
+
+.track-item.card:hover .play-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.track-item.card .track-name {
+    font-size: 1rem;
+    color: white;
+    font-weight: 700;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.track-item.card .track-artist {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+    min-width: 180px;
+}

@@ -1,4 +1,5 @@
 import React from 'react';
+import "../styles/Sidebar.css";
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, playlists, selectedPlaylist, handleSelectPlaylist, loading, error }) => {
     return (

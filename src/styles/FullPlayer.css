@@ -1,0 +1,204 @@
+/* --- Refined Full Player Overlay --- */
+
+.full-player-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    /* Fallback */
+    overflow: hidden;
+    z-index: 3000;
+    /* Above everything */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    color: white;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.fp-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    filter: blur(60px) brightness(0.4);
+    transform: scale(1.2);
+    /* Avoid blur edges */
+    z-index: -2;
+    transition: background-image 0.5s ease;
+}
+
+.fp-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    /* Subtle overlay */
+    z-index: -1;
+}
+
+.fp-content {
+    z-index: 10;
+    padding: 40px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.fp-art-container {
+    width: 350px;
+    height: 350px;
+    margin-bottom: 50px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+    border-radius: 12px;
+    position: relative;
+    /* Optional: reflection logic could go here */
+}
+
+.fp-art {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.fp-track-info {
+    width: 100%;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.fp-title {
+    font-size: 2.5rem;
+    margin: 0 0 12px 0;
+    font-weight: 700;
+    line-height: 1.2;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.fp-artist {
+    font-size: 1.2rem;
+    opacity: 0.8;
+    font-weight: 500;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.fp-progress-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 50px;
+}
+
+.fp-slider {
+    flex-grow: 1;
+    height: 6px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    -webkit-appearance: none;
+    cursor: pointer;
+    /* Filled Progress Gradient */
+    background-image: linear-gradient(to right,
+            var(--accent-color),
+            var(--accent-color));
+    background-repeat: no-repeat;
+    background-size: var(--progress, 0%) 100%;
+}
+
+.fp-slider::-webkit-slider-thumb {
+    width: 12px;
+    height: 12px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    -webkit-appearance: none;
+    background: white;
+    border-radius: 50%;
+}
+
+.fp-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    width: 100%;
+}
+
+.fp-controls .control-btn.secondary {
+    transform: scale(1.2);
+    /* Make secondary buttons slightly bigger in full view */
+    background: transparent;
+}
+
+.fp-controls .control-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.3);
+}
+
+.fp-play-btn {
+    width: 80px;
+    height: 80px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    background: white;
+    border: none;
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.fp-play-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.fp-close-btn {
+    position: absolute;
+    top: 50px;
+    left: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 20;
+}
+
+.fp-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+    /* Playful interaction */
+}

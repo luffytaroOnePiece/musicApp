@@ -1,4 +1,5 @@
 import React from "react";
+import "../styles/PlaylistView.css";
 
 const PlaylistView = ({
   selectedPlaylist,

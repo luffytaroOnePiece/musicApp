@@ -1,0 +1,214 @@
+/* ==============
+   PLAYER BAR LAYOUT
+   Reference: Floating Island, Left: Info+Vol, Center: Progress, Right: Controls
+   ============== */
+
+.player-bar {
+    position: fixed;
+    bottom: 24px;
+    left: 20px;
+    right: 20px;
+    height: 90px;
+
+    background: rgba(0, 0, 0, 0.3);
+    /* Translucent dark for glossy effect */
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+
+    border-radius: 90px;
+    /* Full pill shape */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    display: grid;
+    grid-template-columns: 2fr 4fr 2fr;
+    /* Explicit grid */
+    align-items: center;
+    padding: 0 32px;
+    z-index: 2000;
+}
+
+/* --- LEFT SECTION: Info + Art + Volume --- */
+.player-section-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+    /* Enable truncation */
+}
+
+.pb-art {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.pb-art:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.pb-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    margin-right: 24px;
+}
+
+.pb-name {
+    color: white;
+    font-weight: 700;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pb-artist {
+    color: #999;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pb-volume {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vol-icon {
+    color: #888;
+}
+
+.volume-slider {
+    -webkit-appearance: none;
+    width: 60px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+/* --- CENTER SECTION: Progress Bar --- */
+.player-section-center {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.time-text {
+    font-size: 0.8rem;
+    color: #888;
+    font-variant-numeric: tabular-nums;
+    min-width: 35px;
+    text-align: center;
+}
+
+.progress-slider {
+    -webkit-appearance: none;
+    flex-grow: 1;
+    height: 4px;
+    /* Track Background (Unfilled Fade) */
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    /* Filled Progress Gradient */
+    background-image: linear-gradient(to right,
+            var(--accent-color),
+            var(--accent-color));
+    background-repeat: no-repeat;
+    background-size: var(--progress, 0%) 100%;
+}
+
+/* Custom Thumb for Main Progress */
+.progress-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    /* Position fix for webkit thumbs on some browsers */
+    margin-top: -5px;
+    transform: scale(1);
+    /* Always visible per design */
+}
+
+/* Firefox Thumb */
+.progress-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: white;
+    border: none;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* --- RIGHT SECTION: Controls --- */
+.player-section-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+}
+
+.control-btn.secondary {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    /* Very subtle circle */
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    z-index: 10;
+}
+
+.control-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+}
+
+.control-btn.primary-play {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: white;
+    border: none;
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    /* Glowing Effect */
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.control-btn.primary-play:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+}
+
+.pb-context {
+    font-size: 0.8rem;
+    color: #666;
+    margin-left: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

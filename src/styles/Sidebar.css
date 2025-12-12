@@ -1,0 +1,139 @@
+/* Sidebar with Frosted Glass */
+.sidebar {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border-right: 1px solid var(--glass-border);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transition: opacity 0.3s, transform 0.3s;
+    white-space: nowrap;
+    /* Prevent text wrap during collapse */
+}
+
+.sidebar.hidden {
+    opacity: 0;
+    transform: translateX(-20px);
+    pointer-events: none;
+}
+
+.sidebar-toggle-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.sidebar-open-floating {
+    position: absolute;
+    top: 24px;
+    left: 20px;
+    z-index: 200;
+    /* Ensure it's above everything */
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.sidebar-open-floating:hover {
+    background: white;
+    color: black;
+    transform: scale(1.1);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.sidebar-header h2 {
+    padding: 0 12px;
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+    font-weight: 700;
+    background: linear-gradient(to right, #1DB954, #fff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+}
+
+.playlist-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.playlist-list li {
+    padding: 12px 16px;
+    margin-bottom: 4px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--color-subtitle);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+}
+
+.playlist-list li:hover {
+    background: var(--glass-bg);
+    color: white;
+    transform: translateX(4px);
+}
+
+.playlist-list li.active {
+    background: rgba(29, 185, 84, 0.2);
+    color: var(--color-spotify-green);
+    border-left: 3px solid var(--color-spotify-green);
+}
+
+.logout-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 12px;
+    margin-top: 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 59, 59, 0.2);
+    border-color: rgba(255, 59, 59, 0.4);
+    transform: translateY(-2px);
+}

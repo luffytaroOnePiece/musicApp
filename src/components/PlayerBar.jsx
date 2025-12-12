@@ -1,13 +1,14 @@
 import React from 'react';
+import '../styles/PlayerBar.css';
 
-const PlayerBar = ({ currentTrack, paused, player, duration, position, handleVolume, handleSeek, formatTime }) => {
+const PlayerBar = ({ currentTrack, paused, player, duration, position, handleVolume, handleSeek, formatTime, onOpenFullPlayer }) => {
     return (
         <div className="player-bar">
             {/* LEFT: Album Art + Info + Volume */}
             <div className="player-section-left">
                 {currentTrack ? (
                     <>
-                        <img src={currentTrack.album.images[0].url} alt="Album Art" className="pb-art" />
+                        <img src={currentTrack.album.images[0].url} alt="Album Art" className="pb-art" onClick={onOpenFullPlayer} />
                         <div className="pb-info">
                             <div className="pb-name">{currentTrack.name}</div>
                             <div className="pb-artist">{currentTrack.artists.map(a => a.name).join(', ')}</div>
