@@ -10,7 +10,7 @@
   --glass-blur: 20px;
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 
-  --font-family: 'Circular Std', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 
   --gradient-bg: linear-gradient(125deg, #000000 0%, #1a0b2e 50%, #11271f 100%);
 }

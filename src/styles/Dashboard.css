@@ -78,7 +78,8 @@
     position: absolute;
     top: 24px;
     left: 20px;
-    z-index: 100;
+    z-index: 200;
+    /* Ensure it's above everything */
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: white;
@@ -193,6 +194,18 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    /* Transition for smooth sliding when sidebar toggles */
+    transition: left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.top-bar-controls.sidebar-open {
+    left: 40px !important;
+    /* Standard margin relative to main content */
+}
+
+.top-bar-controls.sidebar-closed {
+    left: 130px !important;
+    /* Clear the floating button with extra generous spacing */
 }
 
 /* Modern Glass Buttons (Theme & Logout) */
@@ -726,7 +739,7 @@
 
 .hero-greeting h1 {
     font-size: 4rem;
-    font-weight: 800;
+    font-weight: 700;
     margin: 0;
     background: linear-gradient(to right, #fff, #bbb);
     -webkit-background-clip: text;

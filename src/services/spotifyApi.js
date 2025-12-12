@@ -31,6 +31,7 @@ const apiCall = async (endpoint, method = 'GET', body = null) => {
 export const getClassUserProfile = () => apiCall('/me');
 export const getUserPlaylists = () => apiCall('/me/playlists');
 export const getPlaylistTracks = (playlistId) => apiCall(`/playlists/${playlistId}/tracks`);
+export const searchTracks = (query) => apiCall(`/search?q=${encodeURIComponent(query)}&type=track&limit=20`);
 export const playTrack = async (deviceId, contextUri, offset = 0) => {
     // This requires PUT
     const token = getAccessToken();
