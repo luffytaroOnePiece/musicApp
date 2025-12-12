@@ -1,24 +1,45 @@
 :root {
   --color-spotify-green: #1DB954;
-  --color-black: #191414;
-  --color-dark-gray: #121212;
-  --color-light-gray: #282828;
+  --color-black: #000000;
   --color-white: #FFFFFF;
   --color-subtitle: #B3B3B3;
-  --font-family: 'Inter', sans-serif;
-  
-  --gradient-bg: linear-gradient(135deg, #1e1e1e 0%, #000000 100%);
+
+  /* Glassmorphism Variables */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: 20px;
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+  --font-family: 'Circular Std', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --gradient-bg: linear-gradient(125deg, #000000 0%, #1a0b2e 50%, #11271f 100%);
 }
 
 body {
   margin: 0;
   padding: 0;
   font-family: var(--font-family);
-  background: var(--color-dark-gray);
+  background: var(--gradient-bg);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
   color: var(--color-white);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 #root {
@@ -31,19 +52,23 @@ button {
   cursor: pointer;
   border: none;
   font-family: inherit;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* Scrollbar */
+/* Custom Scrollbar for sleek look */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: var(--color-light-gray);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-subtitle);
+  background: rgba(255, 255, 255, 0.4);
 }

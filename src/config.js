@@ -1,7 +1,13 @@
 export const clientId = '5806d9cdf2f04f71bd7b6c0f95ca97d5';
-// Automatically determine redirect URI based on current browser location
-// This ensures it matches whether you use localhost, 127.0.0.1, or a custom domain.
-export const redirectUri = `${window.location.origin}/callback`;
+// For GitHub Pages, we redirect to the main app URL (root) to avoid 404s on subpaths.
+const getBaseUrl = () => {
+    return window.location.href.split('?')[0].split('#')[0].replace(/\/$/, "");
+};
+
+// Localhost uses /callback, Production uses the App Root.
+export const redirectUri = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://127.0.0.1:5173/callback'
+    : `${getBaseUrl()}/`;
 
 // However, user might deploy to subpath. 
 // A safer bet for GitHub Pages is constructing it based on the current URL foundation or hardcoding if known.

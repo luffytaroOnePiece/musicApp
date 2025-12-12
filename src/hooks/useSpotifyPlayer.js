@@ -6,6 +6,8 @@ const useSpotifyPlayer = () => {
     const [paused, setPaused] = useState(false);
     const [active, setActive] = useState(false);
     const [currentTrack, setCurrentTrack] = useState(null);
+    const [duration, setDuration] = useState(0);
+    const [position, setPosition] = useState(0);
 
     useEffect(() => {
         const script = document.createElement("script");
@@ -19,7 +21,7 @@ const useSpotifyPlayer = () => {
             if (!token) return;
 
             const player = new window.Spotify.Player({
-                name: 'Web Playback SDK Quick Start Player',
+                name: 'Music App Premium Player',
                 getOAuthToken: cb => { cb(token); },
                 volume: 0.5
             });
@@ -41,13 +43,11 @@ const useSpotifyPlayer = () => {
 
                 setPaused(state.paused);
                 setCurrentTrack(state.track_window.current_track);
+                setDuration(state.duration);
+                setPosition(state.position);
 
                 player.getCurrentState().then(state => {
-                    if (!state) {
-                        setActive(false);
-                    } else {
-                        setActive(true);
-                    }
+                    setActive(!!state);
                 });
             }));
 
@@ -55,7 +55,22 @@ const useSpotifyPlayer = () => {
         };
     }, []);
 
-    return { player, paused, active, currentTrack };
+    // Update position every second when playing
+    useEffect(() => {
+        if (!player || paused) return;
+
+        const interval = setInterval(() => {
+            player.getCurrentState().then(state => {
+                if (state) {
+                    setPosition(state.position);
+                }
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [player, paused]);
+
+    return { player, paused, active, currentTrack, duration, position };
 }
 
 export default useSpotifyPlayer;
