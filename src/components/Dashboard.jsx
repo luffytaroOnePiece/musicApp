@@ -11,6 +11,13 @@ const Dashboard = () => {
     const [tracks, setTracks] = useState([]);
     const [deviceId, setDeviceId] = useState(null);
     const [viewMode, setViewMode] = useState('list'); // 'list' or 'card'
+    const [currentTheme, setCurrentTheme] = useState('ocean-depths'); // New Default theme
+    const [themeMenuOpen, setThemeMenuOpen] = useState(false);
+
+    const themes = [
+        { id: 'ocean-depths', name: 'Ocean Depths' },
+        { id: 'sunset-vibes', name: 'Sunset Vibes' }
+    ];
 
     useEffect(() => {
         getUserPlaylists().then(data => {
@@ -63,7 +70,7 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="dashboard-container">
+        <div className={`dashboard-container ${currentTheme}`}>
             <div className="sidebar">
                 <div className="sidebar-header">
                     <h2>Library</h2>
@@ -75,10 +82,42 @@ const Dashboard = () => {
                         </li>
                     ))}
                 </ul>
-                <button onClick={logout} className="logout-btn">Logout</button>
             </div>
 
             <div className="main-content">
+                <div className="top-bar-controls">
+
+                    {/* Custom Dropdown for Modern Look */}
+                    <div className="custom-theme-dropdown" onClick={() => setThemeMenuOpen(!themeMenuOpen)}>
+                        <button className="theme-btn-trigger">
+                            {themes.find(t => t.id === currentTheme)?.name}
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '8px', transform: themeMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+
+                        {themeMenuOpen && (
+                            <div className="theme-dropdown-menu">
+                                {themes.map(t => (
+                                    <div
+                                        key={t.id}
+                                        className={`theme-dropdown-item ${currentTheme === t.id ? 'active' : ''}`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setCurrentTheme(t.id);
+                                            setThemeMenuOpen(false);
+                                        }}
+                                    >
+                                        {t.name}
+                                        {currentTheme === t.id && <span className="check">✓</span>}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <button onClick={logout} className="logout-btn-top">Logout</button>
+                </div>
                 <header className="main-header">
                     {selectedPlaylist ? (
                         <div className="playlist-info">
