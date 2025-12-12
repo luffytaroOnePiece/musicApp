@@ -519,14 +519,15 @@
     right: 20px;
     height: 90px;
 
-    background: #050505;
-    /* Deep black as base for high contrast */
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
+    background: rgba(0, 0, 0, 0.3);
+    /* Translucent dark for glossy effect */
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
 
     border-radius: 90px;
     /* Full pill shape */
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 
     display: grid;
     grid-template-columns: 2fr 4fr 2fr;
@@ -623,9 +624,8 @@
     position: relative;
     /* Filled Progress Gradient */
     background-image: linear-gradient(to right,
-            #a855f7,
-            #3b82f6,
-            #06b6d4);
+            var(--accent-color),
+            var(--accent-color));
     background-repeat: no-repeat;
     background-size: var(--progress, 0%) 100%;
 }
