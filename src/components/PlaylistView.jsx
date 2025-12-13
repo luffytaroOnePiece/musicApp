@@ -172,7 +172,7 @@ const PlaylistView = ({
           <div
             key={track.id}
             className={`track-item ${viewMode}`}
-            onClick={() => handlePlay(track.uri, selectedPlaylist?.uri, index)}
+            onClick={() => handlePlay(track.uri, selectedPlaylist?.uri, tracks.findIndex(t => t.id === track.id))}
           >
             {viewMode === "list" && (
               <div className="track-index">{index + 1}</div>
