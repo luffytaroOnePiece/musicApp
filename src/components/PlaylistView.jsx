@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { setShuffle } from "../services/spotifyApi";
 import "../styles/PlaylistView.css";
 
 const PlaylistView = ({
@@ -9,6 +10,7 @@ const PlaylistView = ({
   handlePlay,
   formatTime,
   searchTerm,
+  deviceId,
 }) => {
   const [sortType, setSortType] = useState("custom"); // custom, name, date, release_date
   const [sortOrder, setSortOrder] = useState("asc"); // asc, desc
@@ -88,6 +90,7 @@ const PlaylistView = ({
         </div>
 
         <div className="view-controls">
+
           <div className="sort-dropdown" style={{ position: 'relative', marginRight: '16px' }}>
             <button
               className="sort-trigger"
@@ -118,6 +121,21 @@ const PlaylistView = ({
               </div>
             )}
           </div>
+
+          <button
+            onClick={async () => {
+              if (deviceId && selectedPlaylist && tracks.length > 0) {
+                const randomIndex = Math.floor(Math.random() * tracks.length);
+                await setShuffle(true, deviceId);
+                handlePlay(null, selectedPlaylist.uri, randomIndex);
+              }
+            }}
+            className="view-btn warning-btn"
+            title="Shuffle Play"
+            style={{ marginRight: '10px' }}
+          >
+            🔊 Shuffle
+          </button>
 
           {sortType !== 'custom' && (
             <button

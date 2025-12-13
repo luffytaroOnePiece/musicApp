@@ -79,3 +79,11 @@ export const prevTrack = async (deviceId) => {
         headers: { 'Authorization': `Bearer ${token}` }
     });
 }
+
+export const setShuffle = async (state, deviceId) => {
+    const token = getAccessToken();
+    await fetch(`${BASE_URL}/me/player/shuffle?state=${state}&device_id=${deviceId}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+}

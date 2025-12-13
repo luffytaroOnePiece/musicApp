@@ -216,6 +216,7 @@ const Dashboard = () => {
                         handlePlay={handlePlay}
                         formatTime={formatTime}
                         searchTerm={searchTerm}
+                        deviceId={deviceId}
                     />
                 ) : (
                     <HomeView
