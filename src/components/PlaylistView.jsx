@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "../styles/PlaylistView.css";
 
 const PlaylistView = ({
@@ -10,6 +10,29 @@ const PlaylistView = ({
   formatTime,
   searchTerm,
 }) => {
+  const [sortType, setSortType] = useState("custom"); // custom, name, date, release_date
+  const [sortOrder, setSortOrder] = useState("asc"); // asc, desc
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
+
+  const handleSortChange = (type) => {
+    if (sortType === type) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortType(type);
+      setSortOrder('asc');
+    }
+    setSortMenuOpen(false);
+  }
+
+  const getSortLabel = () => {
+    switch (sortType) {
+      case 'name': return 'Name';
+      case 'date': return 'Date Added';
+      case 'release_date': return 'Date Produced';
+      default: return 'Custom Order';
+    }
+  }
+
   // Search Filtering
   const filteredTracks = tracks.filter((track) => {
     if (!searchTerm) return true;
@@ -19,6 +42,28 @@ const PlaylistView = ({
       track.artists.some((a) => a.name.toLowerCase().includes(lowSearch)) ||
       track.album.name.toLowerCase().includes(lowSearch)
     );
+  });
+
+  const sortedTracks = [...filteredTracks].sort((a, b) => {
+    if (sortType === "name") {
+      const nameA = a.name.toLowerCase();
+      const nameB = b.name.toLowerCase();
+      if (nameA < nameB) return sortOrder === "asc" ? -1 : 1;
+      if (nameA > nameB) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    }
+    if (sortType === "date") {
+      const dateA = a.added_at ? new Date(a.added_at).getTime() : 0;
+      const dateB = b.added_at ? new Date(b.added_at).getTime() : 0;
+      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+    }
+    if (sortType === "release_date") {
+      // Fallback for tracks without album release date, though rare in Spotify objects
+      const dateA = new Date(a.album.release_date || 0).getTime();
+      const dateB = new Date(b.album.release_date || 0).getTime();
+      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+    }
+    return 0; // custom order (index based effectively)
   });
 
   return (
@@ -43,6 +88,47 @@ const PlaylistView = ({
         </div>
 
         <div className="view-controls">
+          <div className="sort-dropdown" style={{ position: 'relative', marginRight: '16px' }}>
+            <button
+              className="sort-trigger"
+              onClick={() => setSortMenuOpen(!sortMenuOpen)}
+            >
+              {getSortLabel()}
+              <span className="sort-arrow" style={{ transform: sortMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
+            </button>
+
+            {sortMenuOpen && (
+              <div className="sort-menu">
+                <div className={`sort-item ${sortType === 'custom' ? 'active' : ''}`} onClick={() => handleSortChange('custom')}>
+                  Custom Order
+                  {sortType === 'custom' && <span>✓</span>}
+                </div>
+                <div className={`sort-item ${sortType === 'name' ? 'active' : ''}`} onClick={() => handleSortChange('name')}>
+                  Name
+                  {sortType === 'name' && <span>✓</span>}
+                </div>
+                <div className={`sort-item ${sortType === 'date' ? 'active' : ''}`} onClick={() => handleSortChange('date')}>
+                  Date Added
+                  {sortType === 'date' && <span>✓</span>}
+                </div>
+                <div className={`sort-item ${sortType === 'release_date' ? 'active' : ''}`} onClick={() => handleSortChange('release_date')}>
+                  Date Produced
+                  {sortType === 'release_date' && <span>✓</span>}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {sortType !== 'custom' && (
+            <button
+              onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+              className="view-btn"
+              title={sortOrder === 'asc' ? "Ascending" : "Descending"}
+            >
+              {sortOrder === 'asc' ? '↑' : '↓'}
+            </button>
+          )}
+
           <button
             className={`view-btn ${viewMode === "list" ? "active" : ""}`}
             onClick={() => setViewMode("list")}
@@ -64,7 +150,7 @@ const PlaylistView = ({
             No tracks found matching "{searchTerm}"
           </div>
         )}
-        {filteredTracks.map((track, index) => (
+        {sortedTracks.map((track, index) => (
           <div
             key={track.id}
             className={`track-item ${viewMode}`}

@@ -73,7 +73,12 @@ const Dashboard = () => {
         setSelectedPlaylist(playlist);
         setSearchResults(null); // Clear search results when selecting playlist
         const data = await getPlaylistTracks(playlist.id);
-        setTracks(data.items.map((item) => item.track));
+        setTracks(
+            data.items.map((item) => ({
+                ...item.track,
+                added_at: item.added_at,
+            }))
+        );
     };
 
     const performSearch = async () => {
