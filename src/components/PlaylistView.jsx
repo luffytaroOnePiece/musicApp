@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { setShuffle } from "../services/spotifyApi";
+import youtubeLinks from "../data/youtubeLinks.json";
 import "../styles/PlaylistView.css";
 
 const PlaylistView = ({
@@ -319,6 +320,33 @@ const PlaylistView = ({
                   {formatTime(track.duration_ms)}
                 </div>
                 {renderFavButton(track)}
+                {youtubeLinks[track.id] && (
+                  <div
+                    className="fav-btn youtube-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const linkData = youtubeLinks[track.id];
+                      let qualityParam = "";
+                      switch (linkData.format) {
+                        case "4320p": qualityParam = "&vq=hd4320"; break;
+                        case "2160p": qualityParam = "&vq=hd2160"; break;
+                        case "1440p": qualityParam = "&vq=hd1440"; break;
+                        case "1080p": qualityParam = "&vq=hd1080"; break;
+                        case "720p": qualityParam = "&vq=hd720"; break;
+                        case "480p": qualityParam = "&vq=large"; break;
+                        case "360p": qualityParam = "&vq=medium"; break;
+                        case "240p": qualityParam = "&vq=small"; break;
+                        case "144p": qualityParam = "&vq=tiny"; break;
+                        default: qualityParam = "";
+                      }
+                      window.open(`https://www.youtube.com/watch?v=${linkData.youtubelinkID}${qualityParam}`, '_blank');
+                    }}
+                    title={`Watch on YouTube (${youtubeLinks[track.id].format})`}
+                    style={{ marginLeft: '10px', color: '#FF0000', cursor: 'pointer' }}
+                  >
+                    ▶
+                  </div>
+                )}
               </>
             )}
 
@@ -352,7 +380,7 @@ const PlaylistView = ({
               </div>
             )}
 
-            {onRemoveTrack && viewMode === "list" && (
+            {onRemoveTrack && viewMode === "list" && selectedPlaylist?.id !== 'liked-songs' && (
               <div
                 className="track-actions"
                 onClick={(e) => {

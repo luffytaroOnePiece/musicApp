@@ -15,6 +15,7 @@ import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import HomeView from "./HomeView";
 import PlaylistView from "./PlaylistView";
+import YouTubeView from "./YouTubeView";
 import PlayerBar from "./PlayerBar";
 
 import FullPlayer from "./FullPlayer";
@@ -44,6 +45,7 @@ const Dashboard = () => {
 
     const [searchTerm, setSearchTerm] = useState("");
     const [isFullPlayerOpen, setIsFullPlayerOpen] = useState(false);
+    const [showYoutube, setShowYoutube] = useState(false);
 
     const themes = [
         { id: "ocean-depths", name: "Ocean Depths" },
@@ -224,6 +226,14 @@ const Dashboard = () => {
         setSearchTerm(""); // Optional: clear search on home
         setSearchResults(null);
         setIsSearching(false);
+        setShowYoutube(false);
+    };
+
+    const handleShowYoutube = () => {
+        setSelectedPlaylist(null);
+        setSearchResults(null);
+        setIsSearching(false);
+        setShowYoutube(true);
     };
 
     return (
@@ -281,6 +291,7 @@ const Dashboard = () => {
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}
                     performSearch={performSearch}
+                    onShowYoutube={handleShowYoutube}
                 />
 
                 {/* Content Rendering Logic */}
@@ -290,6 +301,8 @@ const Dashboard = () => {
                     >
                         Searching...
                     </div>
+                ) : showYoutube ? (
+                    <YouTubeView handlePlay={handlePlay} />
                 ) : searchResults ? (
                     <PlaylistView
                         selectedPlaylist={{
