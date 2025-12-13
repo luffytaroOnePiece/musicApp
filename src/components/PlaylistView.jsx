@@ -380,20 +380,7 @@ const PlaylistView = ({
               </div>
             )}
 
-            {onRemoveTrack && viewMode === "list" && selectedPlaylist?.id !== 'liked-songs' && (
-              <div
-                className="track-actions"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (window.confirm(`Are you sure you want to delete "${track.name}" from this playlist?`)) {
-                    onRemoveTrack(track.uri);
-                  }
-                }}
-                title="Remove from playlist"
-              >
-                <div className="delete-btn">🗑️</div>
-              </div>
-            )}
+
           </div>
         ))}
       </div>
