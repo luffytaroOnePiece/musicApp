@@ -83,7 +83,7 @@
 /* List Item Styles */
 .track-item.list {
     display: grid;
-    grid-template-columns: 40px 60px 1fr 1fr 60px 40px;
+    grid-template-columns: 40px 60px 1fr 1fr 60px 40px 40px;
     padding: 10px;
     border-radius: 4px;
     color: #b3b3b3;
@@ -114,6 +114,8 @@
     flex-direction: column;
     transition: all 0.3s ease;
     cursor: pointer;
+    position: relative;
+    /* Ensure absolute children are contained */
 }
 
 .track-item.card:hover {
@@ -304,4 +306,42 @@
 .delete-btn {
     font-size: 1.1rem;
     line-height: 1;
+}
+
+/* Favorites Button Styles */
+.fav-btn {
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1.2rem;
+    color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fav-btn:hover {
+    transform: scale(1.1);
+    color: #1DB954;
+    /* Hover color */
+}
+
+.fav-btn.active {
+    color: #1DB954;
+}
+
+.track-item.list .fav-btn {
+    justify-self: center;
+}
+
+.track-item.card .fav-btn {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    /* Removed backdrop-filter to reduce lag */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }

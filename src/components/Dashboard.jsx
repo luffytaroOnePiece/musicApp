@@ -4,7 +4,11 @@ import {
     getPlaylistTracks,
     playTrack,
     searchTracks,
-    removeTrackFromPlaylist
+    removeTrackFromPlaylist,
+    checkUserSavedTracks,
+    saveTracks,
+    removeSavedTracks,
+    getUserSavedTracks
 } from "../services/spotifyApi";
 import useSpotifyPlayer from "../hooks/useSpotifyPlayer";
 import Sidebar from "./Sidebar";
@@ -36,6 +40,7 @@ const Dashboard = () => {
     const [viewMode, setViewMode] = useState("list"); // 'list' or 'card'
     const [currentTheme, setCurrentTheme] = useState("ocean-depths");
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [likedTrackIds, setLikedTrackIds] = useState(new Set()); // Set of strings
 
     const [searchTerm, setSearchTerm] = useState("");
     const [isFullPlayerOpen, setIsFullPlayerOpen] = useState(false);
@@ -54,7 +59,15 @@ const Dashboard = () => {
         setLoading(true);
         getUserPlaylists()
             .then((data) => {
-                setPlaylists(data.items || []);
+                const userPlaylists = data.items || [];
+                const likedSongsPlaylist = {
+                    id: 'liked-songs',
+                    name: 'Liked Songs',
+                    images: [{ url: 'https://misc.scdn.co/liked-songs/liked-songs-300.png' }], // Standard Spotify Liked Songs cover or similar
+                    owner: { display_name: 'You' },
+                    description: 'Your saved tracks'
+                };
+                setPlaylists([likedSongsPlaylist, ...userPlaylists]);
                 setError(null);
             })
             .catch((err) => {
@@ -73,17 +86,50 @@ const Dashboard = () => {
         }
     }, [player]);
 
+    // Check Favorites Status
+    useEffect(() => {
+        const checkFavorites = async () => {
+            if (tracks.length === 0) return;
+            // Get unique IDs only
+            const ids = [...new Set(tracks.map(t => t.id).filter(id => id))];
+            if (ids.length === 0) return;
+
+            try {
+                const results = await checkUserSavedTracks(ids);
+                const newLiked = new Set();
+                results.forEach((isLiked, index) => {
+                    if (isLiked) newLiked.add(ids[index]);
+                });
+                setLikedTrackIds(newLiked);
+            } catch (err) {
+                console.error("Failed to check favorites", err);
+            }
+        };
+        checkFavorites();
+    }, [tracks]); // Re-run when tracks change
+
     // Handlers
     const handleSelectPlaylist = async (playlist) => {
         setSelectedPlaylist(playlist);
         setSearchResults(null); // Clear search results when selecting playlist
-        const data = await getPlaylistTracks(playlist.id);
-        setTracks(
-            data.items.map((item) => ({
-                ...item.track,
-                added_at: item.added_at,
-            }))
-        );
+
+        try {
+            let data;
+            if (playlist.id === 'liked-songs') {
+                data = await getUserSavedTracks();
+            } else {
+                data = await getPlaylistTracks(playlist.id);
+            }
+
+            setTracks(
+                data.items.map((item) => ({
+                    ...item.track,
+                    added_at: item.added_at,
+                }))
+            );
+        } catch (err) {
+            console.error("Failed to load tracks", err);
+        }
     };
 
     const performSearch = async () => {
@@ -121,14 +167,50 @@ const Dashboard = () => {
 
     const handleRemoveTrack = async (trackUri) => {
         if (!selectedPlaylist) return;
+
+        // Optimistic UI update
+        const originalTracks = [...tracks];
+        setTracks(tracks.filter(t => t.uri !== trackUri));
+
         try {
-            await removeTrackFromPlaylist(selectedPlaylist.id, trackUri);
-            setTracks(prev => prev.filter(t => t.uri !== trackUri));
+            if (selectedPlaylist.id === 'liked-songs') {
+                // Determine track ID from URI (spotify:track:ID)
+                const trackId = trackUri.split(':').pop();
+                await removeSavedTracks([trackId]);
+                // Update liked state map too
+                const nextLiked = new Set(likedTrackIds);
+                nextLiked.delete(trackId);
+                setLikedTrackIds(nextLiked);
+            } else {
+                await removeTrackFromPlaylist(selectedPlaylist.id, trackUri);
+            }
         } catch (err) {
             console.error("Failed to remove track", err);
-            // Optionally set an error state here
+            setTracks(originalTracks);
+            alert("Failed to remove track");
         }
     };
+
+    const handleToggleFavorite = async (trackId) => {
+        const isLiked = likedTrackIds.has(trackId);
+        // Optimistic update
+        const nextLiked = new Set(likedTrackIds);
+        if (isLiked) nextLiked.delete(trackId);
+        else nextLiked.add(trackId);
+        setLikedTrackIds(nextLiked);
+
+        try {
+            if (isLiked) {
+                await removeSavedTracks([trackId]);
+            } else {
+                await saveTracks([trackId]);
+            }
+        } catch (err) {
+            console.error("Failed to toggle favorite", err);
+            // Revert
+            setLikedTrackIds(likedTrackIds);
+        }
+    }
 
     const formatTime = (ms) => {
         const totalSeconds = Math.floor(ms / 1000);
@@ -219,9 +301,11 @@ const Dashboard = () => {
                         }}
                         tracks={searchResults}
                         viewMode={viewMode}
-                        setViewMode={setViewMode}
-                        handlePlay={handlePlay}
                         formatTime={formatTime}
+                        onAddTrack={handleAddTrackToPlaylist}
+                        playlists={playlists}
+                        likedTrackIds={likedTrackIds}
+                        onToggleFavorite={handleToggleFavorite}
                     />
                 ) : selectedPlaylist ? (
                     <PlaylistView
@@ -234,6 +318,8 @@ const Dashboard = () => {
                         searchTerm={searchTerm}
                         deviceId={deviceId}
                         onRemoveTrack={handleRemoveTrack}
+                        likedTrackIds={likedTrackIds}
+                        onToggleFavorite={handleToggleFavorite}
                     />
                 ) : (
                     <HomeView

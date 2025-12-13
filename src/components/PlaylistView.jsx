@@ -12,10 +12,18 @@ const PlaylistView = ({
   searchTerm,
   deviceId,
   onRemoveTrack,
+  onAddTrack,
+  playlists,
+  likedTrackIds,
+  onToggleFavorite
 }) => {
-  const [sortType, setSortType] = useState("custom"); // custom, name, date, release_date
+  const [sortType, setSortType] = useState("custom"); // custom, name, date, release_date, favorites
   const [sortOrder, setSortOrder] = useState("asc"); // asc, desc
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
+
+  // Add to Playlist State
+  const [showPlaylistSelect, setShowPlaylistSelect] = useState(false);
+  const [trackToAdd, setTrackToAdd] = useState(null);
 
   const handleSortChange = (type) => {
     if (sortType === type) {
@@ -32,9 +40,40 @@ const PlaylistView = ({
       case 'name': return 'Name';
       case 'date': return 'Date Added';
       case 'release_date': return 'Date Produced';
+      case 'favorites': return 'Favorites';
       default: return 'Custom Order';
     }
   }
+
+  const handleAddToPlaylistClick = (track) => {
+    setTrackToAdd(track);
+    setShowPlaylistSelect(true);
+  }
+
+  const confirmAddToPlaylist = (playlistId) => {
+    if (onAddTrack && trackToAdd) {
+      onAddTrack(trackToAdd.uri, playlistId);
+    }
+    setShowPlaylistSelect(false);
+    setTrackToAdd(null);
+  }
+
+  // Helper for fav button
+  const renderFavButton = (track) => {
+    if (!onToggleFavorite) return null;
+    return (
+      <div
+        className={`fav-btn ${likedTrackIds?.has(track.id) ? 'active' : ''}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggleFavorite(track.id);
+        }}
+        title={likedTrackIds?.has(track.id) ? "Remove from Liked Songs" : "Save to Liked Songs"}
+      >
+        {likedTrackIds?.has(track.id) ? '♥' : '♡'}
+      </div>
+    );
+  };
 
   // Search Filtering
   const filteredTracks = tracks.filter((track) => {
@@ -69,8 +108,65 @@ const PlaylistView = ({
     return 0; // custom order (index based effectively)
   });
 
+  const finalTracks = sortType === 'favorites'
+    ? sortedTracks.filter(t => likedTrackIds?.has(t.id))
+    : sortedTracks;
+
   return (
     <div style={{ paddingTop: "60px" }}>
+      {showPlaylistSelect && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.8)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backdropFilter: 'blur(5px)'
+        }} onClick={() => setShowPlaylistSelect(false)}>
+          <div style={{
+            background: '#1e1e1e',
+            padding: '24px',
+            borderRadius: '12px',
+            width: '300px',
+            maxHeight: '400px',
+            overflowY: 'auto',
+            border: '1px solid #333'
+          }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ marginTop: 0, borderBottom: '1px solid #333', paddingBottom: '12px' }}>Select Playlist</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {playlists?.map(p => (
+                <button key={p.id} onClick={() => confirmAddToPlaylist(p.id)} style={{
+                  background: 'transparent',
+                  border: '1px solid #333',
+                  padding: '12px',
+                  color: 'white',
+                  textAlign: 'left',
+                  borderRadius: '6px',
+                  cursor: 'pointer'
+                }}>
+                  {p.name}
+                </button>
+              ))}
+            </div>
+            <button onClick={() => setShowPlaylistSelect(false)} style={{
+              marginTop: '16px',
+              background: '#333',
+              border: 'none',
+              padding: '8px 16px',
+              color: 'white',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              width: '100%'
+            }}>Cancel</button>
+          </div>
+        </div>
+      )}
+
       <header className="main-header">
         <div className="playlist-info">
           {selectedPlaylist.images?.[0] && (
@@ -119,6 +215,10 @@ const PlaylistView = ({
                   Date Produced
                   {sortType === 'release_date' && <span>✓</span>}
                 </div>
+                <div className={`sort-item ${sortType === 'favorites' ? 'active' : ''}`} onClick={() => handleSortChange('favorites')}>
+                  Favorites
+                  {sortType === 'favorites' && <span>✓</span>}
+                </div>
               </div>
             )}
           </div>
@@ -164,12 +264,12 @@ const PlaylistView = ({
       </header>
 
       <div className={`content-area ${viewMode}`}>
-        {filteredTracks.length === 0 && (
+        {finalTracks.length === 0 && (
           <div style={{ padding: "20px", color: "#888", textAlign: "center" }}>
-            No tracks found matching "{searchTerm}"
+            {sortType === 'favorites' ? "No favorite tracks found in this list" : `No tracks found matching "${searchTerm}"`}
           </div>
         )}
-        {sortedTracks.map((track, index) => (
+        {finalTracks.map((track, index) => (
           <div
             key={track.id}
             className={`track-item ${viewMode}`}
@@ -182,7 +282,9 @@ const PlaylistView = ({
             {/* Card view needs big image, List view needs small/none or layout change */}
             <div className="track-art">
               <img src={track.album.images[0]?.url} alt="" />
-              {viewMode === "card" && <div className="play-overlay">▶</div>}
+              {viewMode === "card" && (
+                <div className="play-overlay">▶</div>
+              )}
             </div>
 
             <div className="track-details">
@@ -198,10 +300,41 @@ const PlaylistView = ({
                 <div className="track-duration">
                   {formatTime(track.duration_ms)}
                 </div>
+                {renderFavButton(track)}
               </>
             )}
 
-            {onRemoveTrack && (
+            {/* Add Button - Show in both list and card (search results) */}
+            {onAddTrack && (
+              <div
+                className={`${viewMode === 'list' ? 'track-actions' : ''}`}
+                style={viewMode === 'card' ? {
+                  position: 'absolute',
+                  bottom: '12px',
+                  right: '12px', // Opposite to fav button
+                  zIndex: 10,
+                  background: 'rgba(0,0,0,0.6)',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: '#1DB954',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                } : {}}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAddToPlaylistClick(track);
+                }}
+                title="Add to playlist"
+              >
+                <div className="delete-btn" style={{ fontSize: '1.5rem', lineHeight: '24px' }}>+</div>
+              </div>
+            )}
+
+            {onRemoveTrack && viewMode === "list" && (
               <div
                 className="track-actions"
                 onClick={(e) => {

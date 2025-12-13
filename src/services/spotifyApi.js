@@ -101,3 +101,39 @@ export const removeTrackFromPlaylist = async (playlistId, trackUri) => {
         })
     });
 }
+export const checkUserSavedTracks = async (trackIds) => {
+    // Spotify allows max 50 IDs per request for checking
+    const token = getAccessToken();
+    // Helper to chunk array
+    const chunk = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+        arr.slice(i * size, i * size + size)
+    );
+
+    const chunks = chunk(trackIds, 50);
+    const results = [];
+
+    for (const c of chunks) {
+        const ids = c.join(',');
+        const data = await apiCall(`/me/tracks/contains?ids=${ids}`);
+        results.push(...data);
+    }
+    return results;
+}
+
+export const saveTracks = async (trackIds) => {
+    const token = getAccessToken();
+    await fetch(`${BASE_URL}/me/tracks?ids=${trackIds.join(',')}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+}
+
+export const removeSavedTracks = async (trackIds) => {
+    const token = getAccessToken();
+    await fetch(`${BASE_URL}/me/tracks?ids=${trackIds.join(',')}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+}
+
+export const getUserSavedTracks = (limit = 50, offset = 0) => apiCall(`/me/tracks?limit=${limit}&offset=${offset}`);
