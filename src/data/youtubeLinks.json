@@ -38,8 +38,8 @@
         "youtubelinkID": "s9NBDKfVg1c",
         "format": "2160p",
         "language": "Telugu",
-        "genre": "Dance",
-        "name": "Nuvvunte Chaley - Andhra King"
+        "genre": "Romance",
+        "name": "Nuvvunte Chaley"
     },
     "7BrpOz8Qjs2lJxLe0xIKrv": {
         "youtubelinkID": "OCg6BWlAXSw",
@@ -47,5 +47,33 @@
         "language": "Telugu",
         "genre": "Romance",
         "name": "Samajavaragamana"
+    },
+    "27rgJzxNJgbgNIL5DmX9JA": {
+        "youtubelinkID": "N4wK3NtVRT0",
+        "format": "2160p",
+        "language": "Telugu",
+        "genre": "Romance",
+        "name": "Pardesiya"
+    },
+    "0M0ANKNzmM4Odd7FNKghzW": {
+        "youtubelinkID": "gqs0oo3FntE",
+        "format": "4320p",
+        "language": "Telugu",
+        "genre": "Romance",
+        "name": "Akhiyaan Gulaab"
+    },
+    "7bDzwZ4T7O7DLEqyQpf3wY": {
+        "youtubelinkID": "HeBJMzrM7hU",
+        "format": "1080p",
+        "language": "Telugu",
+        "genre": "Romance",
+        "name": "Nadaaniyan"
+    },
+    "0eCajpR75pDW0r64U6hP2x": {
+        "youtubelinkID": "ilNt2bikxDI",
+        "format": "1080p",
+        "language": "Telugu",
+        "genre": "Romance",
+        "name": "Jo Tum Mere Ho"
     }
 }
