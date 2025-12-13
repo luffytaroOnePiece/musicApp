@@ -42,6 +42,10 @@ const Dashboard = () => {
     const themes = [
         { id: "ocean-depths", name: "Ocean Depths" },
         { id: "sunset-vibes", name: "Sunset Vibes" },
+        { id: "midnight-nebula", name: "Midnight Nebula" },
+        { id: "forest-rain", name: "Forest Rain" },
+        { id: "cyber-city", name: "Cyber City" },
+        { id: "royal-velvet", name: "Royal Velvet" },
     ];
 
     // Fetch Playlists on Mount

@@ -17,6 +17,32 @@
     --accent-color: #ff5e62;
 }
 
+/* Theme: Midnight Nebula */
+.dashboard-container.midnight-nebula {
+    --bg-gradient: linear-gradient(135deg, #14041e 0%, #34073d 50%, #0a0e29 100%);
+    --accent-color: #b76bf7;
+}
+
+/* Theme: Forest Rain */
+.dashboard-container.forest-rain {
+    --bg-gradient: linear-gradient(135deg, #132714 0%, #224326 50%, #0d1f11 100%);
+    --accent-color: #55d666;
+}
+
+/* Theme: Cyber City */
+.dashboard-container.cyber-city {
+    --bg-gradient: linear-gradient(135deg, #09090b 0%, #1a1a2e 50%, #16213e 100%);
+    --accent-color: #00fff2;
+    --text-primary: #e0e0e0;
+}
+
+/* Theme: Royal Velvet */
+.dashboard-container.royal-velvet {
+    --bg-gradient: linear-gradient(135deg, #2a0808 0%, #4d1010 50%, #1a0000 100%);
+    --accent-color: #ffd700;
+}
+
+
 /* Glass-Morphism Dashboard */
 .dashboard-container {
     display: grid;
