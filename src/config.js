@@ -3,7 +3,7 @@ export const clientId = '5806d9cdf2f04f71bd7b6c0f95ca97d5';
 const getBaseUrl = () => {
     return window.location.href.split('?')[0].split('#')[0].replace(/\/$/, "");
 };
-
+// / Redeploying fix)
 // Localhost uses /callback, Production uses the App Root.
 // Localhost uses /callback, Production uses the App Root with repo name.
 export const redirectUri = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
