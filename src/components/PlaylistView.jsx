@@ -11,6 +11,7 @@ const PlaylistView = ({
   formatTime,
   searchTerm,
   deviceId,
+  onRemoveTrack,
 }) => {
   const [sortType, setSortType] = useState("custom"); // custom, name, date, release_date
   const [sortOrder, setSortOrder] = useState("asc"); // asc, desc
@@ -198,6 +199,21 @@ const PlaylistView = ({
                   {formatTime(track.duration_ms)}
                 </div>
               </>
+            )}
+
+            {onRemoveTrack && (
+              <div
+                className="track-actions"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (window.confirm(`Are you sure you want to delete "${track.name}" from this playlist?`)) {
+                    onRemoveTrack(track.uri);
+                  }
+                }}
+                title="Remove from playlist"
+              >
+                <div className="delete-btn">🗑️</div>
+              </div>
             )}
           </div>
         ))}

@@ -4,6 +4,7 @@ import {
     getPlaylistTracks,
     playTrack,
     searchTracks,
+    removeTrackFromPlaylist
 } from "../services/spotifyApi";
 import useSpotifyPlayer from "../hooks/useSpotifyPlayer";
 import Sidebar from "./Sidebar";
@@ -118,6 +119,17 @@ const Dashboard = () => {
         if (player) player.setVolume(e.target.value / 100);
     };
 
+    const handleRemoveTrack = async (trackUri) => {
+        if (!selectedPlaylist) return;
+        try {
+            await removeTrackFromPlaylist(selectedPlaylist.id, trackUri);
+            setTracks(prev => prev.filter(t => t.uri !== trackUri));
+        } catch (err) {
+            console.error("Failed to remove track", err);
+            // Optionally set an error state here
+        }
+    };
+
     const formatTime = (ms) => {
         const totalSeconds = Math.floor(ms / 1000);
         const minutes = Math.floor(totalSeconds / 60);
@@ -221,6 +233,7 @@ const Dashboard = () => {
                         formatTime={formatTime}
                         searchTerm={searchTerm}
                         deviceId={deviceId}
+                        onRemoveTrack={handleRemoveTrack}
                     />
                 ) : (
                     <HomeView

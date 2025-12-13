@@ -87,3 +87,17 @@ export const setShuffle = async (state, deviceId) => {
         headers: { 'Authorization': `Bearer ${token}` }
     });
 }
+
+export const removeTrackFromPlaylist = async (playlistId, trackUri) => {
+    const token = getAccessToken();
+    await fetch(`${BASE_URL}/playlists/${playlistId}/tracks`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            tracks: [{ uri: trackUri }]
+        })
+    });
+}
