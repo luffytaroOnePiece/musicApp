@@ -302,7 +302,7 @@ const Dashboard = () => {
                         Searching...
                     </div>
                 ) : showYoutube ? (
-                    <YouTubeView handlePlay={handlePlay} />
+                    <YouTubeView handlePlay={handlePlay} searchTerm={searchTerm} />
                 ) : searchResults ? (
                     <PlaylistView
                         selectedPlaylist={{
