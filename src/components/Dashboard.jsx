@@ -34,7 +34,7 @@ const Dashboard = () => {
     // UI State
     const [viewMode, setViewMode] = useState("list"); // 'list' or 'card'
     const [currentTheme, setCurrentTheme] = useState("ocean-depths");
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const [searchTerm, setSearchTerm] = useState("");
     const [isFullPlayerOpen, setIsFullPlayerOpen] = useState(false);
