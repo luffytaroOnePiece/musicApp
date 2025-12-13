@@ -42,7 +42,9 @@ export const playTrack = async (deviceId, contextUri, offset = 0) => {
 
     // contextUri can be an album/playlist URI, or we can pass use uris: [trackUri]
     const body = {};
-    if (contextUri.includes('track')) {
+    if (Array.isArray(contextUri)) {
+        body.uris = contextUri;
+    } else if (contextUri && contextUri.includes('track')) {
         body.uris = [contextUri];
     } else {
         body.context_uri = contextUri;

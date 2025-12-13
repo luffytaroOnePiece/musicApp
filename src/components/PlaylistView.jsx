@@ -226,9 +226,27 @@ const PlaylistView = ({
           <button
             onClick={async () => {
               if (deviceId && selectedPlaylist && tracks.length > 0) {
-                const randomIndex = Math.floor(Math.random() * tracks.length);
-                await setShuffle(true, deviceId);
-                handlePlay(null, selectedPlaylist.uri, randomIndex);
+                // If it's Liked Songs (no context URI), we play list of URIs
+                if (selectedPlaylist.id === 'liked-songs') {
+                  // Fisher-Yates shuffle
+                  const shuffled = [...tracks];
+                  for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                  }
+
+                  // Limit to 50 tracks max for API body
+                  const uris = shuffled.slice(0, 50).map(t => t.uri);
+
+                  // Ensure shuffle is OFF so it plays our shuffled order starting from index 0
+                  // (Or ON if we don't care, but OFF guarantees our order)
+                  await setShuffle(false, deviceId);
+                  handlePlay(null, uris); // pass array as context
+                } else {
+                  const randomIndex = Math.floor(Math.random() * tracks.length);
+                  await setShuffle(true, deviceId);
+                  handlePlay(null, selectedPlaylist.uri, randomIndex);
+                }
               }
             }}
             className="view-btn warning-btn"
