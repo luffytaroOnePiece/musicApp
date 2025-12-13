@@ -8,7 +8,7 @@ const getBaseUrl = () => {
 // Localhost uses /callback, Production uses the App Root with repo name.
 export const redirectUri = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://127.0.0.1:5173/callback'
-    : 'https://luffytaroonepiece.github.io/musicApp/';
+    : 'https://luffytaroonepiece.github.io/musicApp/callback';
 
 // However, user might deploy to subpath. 
 // A safer bet for GitHub Pages is constructing it based on the current URL foundation or hardcoding if known.
