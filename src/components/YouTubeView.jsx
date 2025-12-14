@@ -8,6 +8,8 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
     const [selectedGenre, setSelectedGenre] = useState("All");
     const [selectedFormat, setSelectedFormat] = useState("All");
     const [selectedLanguage, setSelectedLanguage] = useState("All");
+    const [gridColumns, setGridColumns] = useState(3);
+    const [isCinemaMode, setIsCinemaMode] = useState(false);
 
     const videos = useMemo(() => {
         const allVideos = Object.entries(youtubeLinks);
@@ -58,11 +60,32 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
     };
 
     return (
-        <div className="youtube-view-container">
+        <div className={`youtube-view-container ${isCinemaMode ? 'cinema-mode' : ''}`}>
             <div className="youtube-header">
-                <h1 className="youtube-title">
-                    YouTube Library
-                </h1>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <h1 className="youtube-title">
+                        YouTube Library
+                    </h1>
+                    <button
+                        className={`cinema-toggle-btn ${isCinemaMode ? 'active' : ''}`}
+                        onClick={() => setIsCinemaMode(!isCinemaMode)}
+                        title={isCinemaMode ? "Exit Cinema Mode" : "Enter Cinema Mode"}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            {isCinemaMode ? (
+                                <>
+                                    <line x1="8" y1="3" x2="8" y2="21"></line>
+                                    <line x1="16" y1="3" x2="16" y2="21"></line>
+                                    <line x1="3" y1="3" x2="21" y2="3"></line>
+                                    <line x1="3" y1="21" x2="21" y2="21"></line>
+                                </>
+                            ) : (
+                                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                            )}
+                        </svg>
+                        {isCinemaMode ? "Exit Cinema" : "Cinema Mode"}
+                    </button>
+                </div>
 
                 <YouTubeFilters
                     selectedGenre={selectedGenre}
@@ -76,6 +99,18 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
                     languages={languages}
                     onReset={handleReset}
                 />
+
+                <div className="grid-slider-control">
+                    <label>Grid: {gridColumns}</label>
+                    <input
+                        type="range"
+                        min="1"
+                        max="6"
+                        value={gridColumns}
+                        onChange={(e) => setGridColumns(Number(e.target.value))}
+                        className="grid-range-slider"
+                    />
+                </div>
             </div>
 
             {filteredVideos.length === 0 ? (
@@ -85,7 +120,12 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
                         : "No videos match your search or filters"}
                 </div>
             ) : (
-                <div className="youtube-grid">
+                <div
+                    className="youtube-grid"
+                    style={{
+                        gridTemplateColumns: `repeat(${gridColumns}, 1fr)`
+                    }}
+                >
                     {filteredVideos.map(([trackId, data]) => (
                         <YouTubeCard
                             key={trackId}
