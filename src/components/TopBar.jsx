@@ -13,6 +13,7 @@ const TopBar = ({
     setSearchTerm,
     performSearch,
     onShowYoutube,
+    onShowZenMode,
 }) => {
     const [themeMenuOpen, setThemeMenuOpen] = useState(false);
 
@@ -94,6 +95,43 @@ const TopBar = ({
                     marginLeft: "20px",
                 }}
             >
+                {/* Zen Mode Button */}
+                <button
+                    onClick={onShowZenMode}
+                    className="zen-mode-btn-top"
+                    title="Enter Zen Mode"
+                    style={{
+                        background: "rgba(255,255,255,0.1)",
+                        border: "none",
+                        color: "white",
+                        padding: "8px 12px",
+                        borderRadius: "20px",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        fontWeight: 500,
+                        fontSize: "0.9rem",
+                        transition: "all 0.2s",
+                        backdropFilter: "blur(10px)",
+                    }}
+                >
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ color: "#4CAF50" }}
+                    >
+                        <path d="M2 12h5l3 5 5-11 4 8 3-2" />
+                    </svg>
+                    Zen Mode
+                </button>
+
                 {/* YouTube Library Button */}
                 <button
                     onClick={onShowYoutube}

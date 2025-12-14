@@ -90,6 +90,14 @@ export const setShuffle = async (state, deviceId) => {
     });
 }
 
+export const setRepeat = async (state, deviceId) => {
+    const token = getAccessToken();
+    await fetch(`${BASE_URL}/me/player/repeat?state=${state}&device_id=${deviceId}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+}
+
 export const removeTrackFromPlaylist = async (playlistId, trackUri) => {
     const token = getAccessToken();
     await fetch(`${BASE_URL}/playlists/${playlistId}/tracks`, {

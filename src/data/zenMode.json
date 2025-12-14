@@ -1,0 +1,18 @@
+{
+    "songs": [
+        {
+            "name": "Wings",
+            "trackid": "0LADFXNdSsJFkEprbRZY3q"
+        }
+    ],
+    "lwps": [
+        {
+            "name": "Purple Sakura River",
+            "url": "https://raw.githubusercontent.com/luffytaroOnePiece/lwp/main/one.mp4"
+        },
+        {
+            "name": "Temple Mount Fuji",
+            "url": "https://raw.githubusercontent.com/luffytaroOnePiece/lwp/main/two.mp4"
+        }
+    ]
+}

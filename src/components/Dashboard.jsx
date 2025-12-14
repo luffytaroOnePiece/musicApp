@@ -19,6 +19,7 @@ import YouTubeView from "./YouTubeView";
 import PlayerBar from "./PlayerBar";
 
 import FullPlayer from "./FullPlayer";
+import ZenMode from "./ZenMode";
 import "../styles/Dashboard.css";
 
 const Dashboard = () => {
@@ -46,6 +47,7 @@ const Dashboard = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [isFullPlayerOpen, setIsFullPlayerOpen] = useState(false);
     const [showYoutube, setShowYoutube] = useState(false);
+    const [isZenModeOpen, setIsZenModeOpen] = useState(false);
 
     const themes = [
         { id: "ocean-depths", name: "Ocean Depths" },
@@ -236,6 +238,10 @@ const Dashboard = () => {
         setShowYoutube(true);
     };
 
+    const handleShowZenMode = () => {
+        setIsZenModeOpen(true);
+    };
+
     return (
         <div
             className={`dashboard-container ${currentTheme} ${!isSidebarOpen ? "sidebar-collapsed" : ""
@@ -292,6 +298,7 @@ const Dashboard = () => {
                     setSearchTerm={setSearchTerm}
                     performSearch={performSearch}
                     onShowYoutube={handleShowYoutube}
+                    onShowZenMode={handleShowZenMode}
                 />
 
                 {/* Content Rendering Logic */}
@@ -368,6 +375,13 @@ const Dashboard = () => {
                     handleSeek={handleSeek}
                     formatTime={formatTime}
                     onClose={() => setIsFullPlayerOpen(false)}
+                />
+            )}
+
+            {isZenModeOpen && (
+                <ZenMode
+                    onClose={() => setIsZenModeOpen(false)}
+                    deviceId={deviceId}
                 />
             )}
         </div>
