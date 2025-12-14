@@ -11,6 +11,7 @@
     align-items: center;
     margin-bottom: 30px;
     flex-wrap: wrap;
+    /* Prevent title and controls from splitting lines */
     gap: 20px;
 }
 
@@ -121,7 +122,6 @@
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.15);
     margin-left: auto;
-    /* Push to right if space available or wrap */
 }
 
 .grid-slider-control label {
@@ -264,6 +264,17 @@
     color: #888;
     margin-top: 50px;
     font-size: 1.1rem;
+}
+
+/* Group controls to prevent wrapping */
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    /* Ensure it spans full width if needed */
+    flex-wrap: nowrap;
+    /* Force single line */
 }
 
 /* Cinema Mode */

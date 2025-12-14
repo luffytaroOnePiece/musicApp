@@ -62,10 +62,11 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
     return (
         <div className={`youtube-view-container ${isCinemaMode ? 'cinema-mode' : ''}`}>
             <div className="youtube-header">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    <h1 className="youtube-title">
-                        YouTube Library
+                <div className="header-controls">
+                    <h1 className="youtube-title" style={{ marginRight: '20px' }}>
+                        YouTube
                     </h1>
+
                     <button
                         className={`cinema-toggle-btn ${isCinemaMode ? 'active' : ''}`}
                         onClick={() => setIsCinemaMode(!isCinemaMode)}
@@ -85,31 +86,31 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
                         </svg>
                         {isCinemaMode ? "Exit Cinema" : "Cinema Mode"}
                     </button>
-                </div>
 
-                <YouTubeFilters
-                    selectedGenre={selectedGenre}
-                    setSelectedGenre={setSelectedGenre}
-                    selectedFormat={selectedFormat}
-                    setSelectedFormat={setSelectedFormat}
-                    selectedLanguage={selectedLanguage}
-                    setSelectedLanguage={setSelectedLanguage}
-                    genres={genres}
-                    formats={formats}
-                    languages={languages}
-                    onReset={handleReset}
-                />
-
-                <div className="grid-slider-control">
-                    <label>Grid: {gridColumns}</label>
-                    <input
-                        type="range"
-                        min="1"
-                        max="6"
-                        value={gridColumns}
-                        onChange={(e) => setGridColumns(Number(e.target.value))}
-                        className="grid-range-slider"
+                    <YouTubeFilters
+                        selectedGenre={selectedGenre}
+                        setSelectedGenre={setSelectedGenre}
+                        selectedFormat={selectedFormat}
+                        setSelectedFormat={setSelectedFormat}
+                        selectedLanguage={selectedLanguage}
+                        setSelectedLanguage={setSelectedLanguage}
+                        genres={genres}
+                        formats={formats}
+                        languages={languages}
+                        onReset={handleReset}
                     />
+
+                    <div className="grid-slider-control">
+                        <label>Grid: {gridColumns}</label>
+                        <input
+                            type="range"
+                            min="1"
+                            max="6"
+                            value={gridColumns}
+                            onChange={(e) => setGridColumns(Number(e.target.value))}
+                            className="grid-range-slider"
+                        />
+                    </div>
                 </div>
             </div>
 

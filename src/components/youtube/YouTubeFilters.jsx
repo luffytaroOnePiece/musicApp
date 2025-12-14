@@ -35,28 +35,32 @@ const YouTubeFilters = ({
                 options={formats}
             />
 
-            {isFiltered && (
-                <button
-                    className="yt-filter-btn"
-                    onClick={onReset}
-                    style={{ marginLeft: "8px" }}
+            <button
+                className="yt-filter-btn"
+                onClick={onReset}
+                disabled={!isFiltered}
+                title="Reset Filters"
+                style={{
+                    marginLeft: "8px",
+                    opacity: isFiltered ? 1 : 0.5,
+                    cursor: isFiltered ? 'pointer' : 'default',
+                    padding: '8px' /* Square shape for icon only */
+                }}
+            >
+                <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                 >
-                    Reset
-                    <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            )}
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
         </div>
     );
 };
