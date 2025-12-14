@@ -9,12 +9,26 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
     const [selectedFormat, setSelectedFormat] = useState("All");
     const [selectedLanguage, setSelectedLanguage] = useState("All");
 
-    const videos = useMemo(() => Object.entries(youtubeLinks), []);
+    const videos = useMemo(() => {
+        const allVideos = Object.entries(youtubeLinks);
+        // Fisher-Yates Shuffle
+        for (let i = allVideos.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [allVideos[i], allVideos[j]] = [allVideos[j], allVideos[i]];
+        }
+        return allVideos;
+    }, []);
 
     // Extract unique genres, formats, and languages
-    const genres = useMemo(() => ["All", ...new Set(videos.map(([, data]) => data.genre).filter(Boolean))], [videos]);
-    const formats = useMemo(() => ["All", ...new Set(videos.map(([, data]) => data.format).filter(Boolean))], [videos]);
-    const languages = useMemo(() => ["All", ...new Set(videos.map(([, data]) => data.language).filter(Boolean))], [videos]);
+    const genres = useMemo(() => ["All", ...new Set(videos.map(([, data]) => data.genre).filter(Boolean))].sort(), [videos]);
+    const formats = useMemo(() => {
+        const uniqueFormats = [...new Set(videos.map(([, data]) => data.format).filter(Boolean))];
+        // Sort formats descending (e.g. 4320p -> 2160p -> 1080p)
+        // ParseInt ensures we sort by numerical resolution, not string (though string works for fixed width usually)
+        uniqueFormats.sort((a, b) => parseInt(b) - parseInt(a));
+        return ["All", ...uniqueFormats];
+    }, [videos]);
+    const languages = useMemo(() => ["All", ...new Set(videos.map(([, data]) => data.language).filter(Boolean))].sort(), [videos]);
 
     // Filter videos
     const filteredVideos = videos.filter(([id, data]) => {
