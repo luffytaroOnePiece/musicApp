@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/ZenMode.css';
+import GlossySelect from './GlossySelect';
 import zenData from '../data/zenMode.json';
 import { playTrack, setRepeat } from '../services/spotifyApi';
 
@@ -88,33 +89,29 @@ const ZenMode = ({ onClose, deviceId }) => {
             <div className="zen-controls-container">
                 <div className="zen-selectors">
                     <div className="zen-select-group">
-                        <label>Live Wallpaper</label>
-                        <select
+                        {/* <label>Live Wallpaper</label> */}
+                        <GlossySelect
+                            label="Live Wallpaper"
                             value={selectedLwpIndex}
                             onChange={handleLwpChange}
-                            className="zen-select"
-                        >
-                            {zenData.lwps.map((lwp, idx) => (
-                                <option key={idx} value={idx}>
-                                    {lwp.name}
-                                </option>
-                            ))}
-                        </select>
+                            options={zenData.lwps.map((lwp, idx) => ({
+                                value: idx,
+                                label: lwp.name
+                            }))}
+                        />
                     </div>
 
                     <div className="zen-select-group">
-                        <label>Soundtrack</label>
-                        <select
+                        {/* <label>Soundtrack</label> */}
+                        <GlossySelect
+                            label="Soundtrack"
                             value={selectedSongIndex}
                             onChange={handleSongChange}
-                            className="zen-select"
-                        >
-                            {zenData.songs.map((song, idx) => (
-                                <option key={idx} value={idx}>
-                                    {song.name}
-                                </option>
-                            ))}
-                        </select>
+                            options={zenData.songs.map((song, idx) => ({
+                                value: idx,
+                                label: song.name
+                            }))}
+                        />
                     </div>
                 </div>
             </div>

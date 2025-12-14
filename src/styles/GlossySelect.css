@@ -1,0 +1,168 @@
+.glossy-select-container {
+    position: relative;
+    width: 200px;
+    /* Default width, can be overridden */
+    font-family: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 10;
+}
+
+.glossy-select-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-left: 4px;
+}
+
+.glossy-select-trigger {
+    appearance: none;
+    -webkit-appearance: none;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 30px;
+    /* Match theme-btn-trigger pill shape */
+    padding: 10px 20px;
+    /* Match theme-btn-trigger padding */
+    color: white;
+    font-size: 0.9rem;
+    /* Match theme-btn-trigger size approx */
+    font-weight: 600;
+    /* Match theme-btn-trigger weight */
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
+    user-select: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.glossy-select-trigger:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.glossy-select-trigger.open {
+    /* No change to border radius for floating style */
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.glossy-select-value {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.glossy-select-arrow {
+    margin-left: 10px;
+    opacity: 0.8;
+    transition: transform 0.2s ease;
+    display: flex;
+    /* alignment fix */
+}
+
+.glossy-select-trigger.open .glossy-select-arrow {
+    transform: rotate(180deg);
+}
+
+.glossy-select-dropdown {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    /* Open upwards */
+    top: auto;
+    left: 0;
+    width: 100%;
+    max-height: 250px;
+    overflow-y: auto;
+    background: rgba(30, 30, 30, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    /* Match theme-dropdown-menu radius */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 100;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+    /* Shadow upwards */
+    padding: 8px;
+    /* Match theme padding */
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    animation: fadeInDropUp 0.2s ease-out;
+    /* New animation for upward opening */
+}
+
+.glossy-select-option {
+    padding: 10px 16px;
+    /* Match theme-dropdown-item padding */
+    color: #ccc;
+    /* Match theme item color */
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.glossy-select-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.glossy-select-option.selected {
+    /* Match theme-dropdown-item.active */
+    background: var(--accent-color, cyan);
+    /* Use var with fallback */
+    color: #000;
+    /* Contrast text */
+    font-weight: 700;
+    box-shadow: none;
+    /* Theme doesn't seem to have box-shadow on active item */
+}
+
+.glossy-check {
+    display: flex;
+    align-items: center;
+    font-weight: 800;
+    /* Make check thicker */
+}
+
+/* Custom Scrollbar for dropdown */
+.glossy-select-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.glossy-select-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.glossy-select-dropdown::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.glossy-select-dropdown::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes fadeInDropUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
