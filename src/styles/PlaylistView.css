@@ -67,8 +67,6 @@
 .content-area.list {
     display: flex;
     flex-direction: column;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 16px;
     padding: 20px 20px 100px 20px;
     backdrop-filter: blur(10px);
 }
@@ -85,7 +83,7 @@
     display: grid;
     grid-template-columns: 40px 60px 1fr 1fr 60px 40px 40px;
     padding: 10px;
-    border-radius: 4px;
+    border-radius: 0;
     color: #b3b3b3;
     align-items: center;
     gap: 16px;
@@ -116,6 +114,10 @@
     cursor: pointer;
     position: relative;
     /* Ensure absolute children are contained */
+    min-width: 0;
+    /* Critical for grid/flex truncation */
+    overflow: hidden;
+    /* Ensure nothing spills out */
 }
 
 .track-item.card:hover {
@@ -161,6 +163,11 @@
     transform: translateY(0);
 }
 
+.track-item.card .track-details {
+    width: 100%;
+    overflow: hidden;
+}
+
 .track-item.card .track-name {
     font-size: 1rem;
     color: white;
@@ -174,7 +181,9 @@
 .track-item.card .track-artist {
     font-size: 0.9rem;
     color: #b3b3b3;
-    min-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Sort Dropdown Styles */
