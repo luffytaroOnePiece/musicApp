@@ -2,41 +2,65 @@ import React, { useState, useEffect } from 'react';
 import '../styles/ZenMode.css';
 import GlossySelect from './GlossySelect';
 import zenData from '../data/zenMode.json';
-import { playTrack, setRepeat } from '../services/spotifyApi';
+import { playTrack, setRepeat, getPlaylistTracks } from '../services/spotifyApi';
 
 const ZenMode = ({ onClose, deviceId }) => {
     const [selectedSongIndex, setSelectedSongIndex] = useState(0);
     const [selectedLwpIndex, setSelectedLwpIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [songs, setSongs] = useState([]);
 
-    // Initial setup
+    // Fetch songs from playlist
     useEffect(() => {
-        if (!deviceId) return;
+        const fetchSongs = async () => {
+            if (!zenData.playlistId) return;
+            try {
+                const data = await getPlaylistTracks(zenData.playlistId);
+                if (data && data.items) {
+                    const fetchedSongs = data.items
+                        .filter(item => item.track) // Ensure track exists
+                        .map(item => ({
+                            name: item.track.name,
+                            trackid: item.track.id,
+                            uri: item.track.uri
+                        }));
+                    setSongs(fetchedSongs);
+                }
+            } catch (err) {
+                console.error("Failed to fetch Zen Mode songs", err);
+            }
+        };
+        fetchSongs();
+    }, []);
 
-        // Play the initial song
-        playSelectedSong(0);
+    // Initial setup - Play once songs are loaded
+    useEffect(() => {
+        if (!deviceId || songs.length === 0) return;
+
+        // Play the initial song if not already playing
+        // We check !isPlaying to avoid restarting on re-renders if logic overlaps
+        if (!isPlaying) {
+            playSelectedSong(0);
+        }
 
         // Cleanup on unmount
         return () => {
-            // We don't necessarily want to stop playback, but maybe reset repeat?
-            // The user said "until i exist from full model" implying the loopback is bound to this mode.
             if (deviceId) {
                 setRepeat('off', deviceId).catch(err => console.error("Failed to turn off repeat", err));
             }
         };
-    }, [deviceId]);
+    }, [deviceId, songs]); // Depend on songs so it triggers after fetch
 
     const playSelectedSong = async (index) => {
         if (!deviceId) return;
-        const song = zenData.songs[index];
+        const song = songs[index];
         if (!song) return;
 
         try {
-            const trackUri = `spotify:track:${song.trackid}`;
+            const trackUri = song.uri || `spotify:track:${song.trackid}`;
             await playTrack(deviceId, trackUri);
 
             // Set repeat to track (loop one song)
-            // Small delay to ensure playback started might be safer, but try immediately
             setTimeout(() => {
                 setRepeat('track', deviceId).catch(err => console.error("Repeat error", err));
             }, 500);
@@ -107,7 +131,7 @@ const ZenMode = ({ onClose, deviceId }) => {
                             label="Soundtrack"
                             value={selectedSongIndex}
                             onChange={handleSongChange}
-                            options={zenData.songs.map((song, idx) => ({
+                            options={songs.map((song, idx) => ({
                                 value: idx,
                                 label: song.name
                             }))}
