@@ -242,6 +242,24 @@ const Dashboard = () => {
         setIsZenModeOpen(true);
     };
 
+    const getActiveModule = () => {
+        if (isZenModeOpen) return 'zen';
+        if (showYoutube) return 'youtube';
+        return 'home';
+    };
+
+    const handleModuleSelect = (moduleId) => {
+        if (moduleId === 'home') {
+            goHome();
+            setIsZenModeOpen(false); // Ensure Zen Mode is closed when going home
+        } else if (moduleId === 'youtube') {
+            handleShowYoutube();
+            setIsZenModeOpen(false);
+        } else if (moduleId === 'zen') {
+            handleShowZenMode();
+        }
+    };
+
     return (
         <div
             className={`dashboard-container ${currentTheme} ${!isSidebarOpen ? "sidebar-collapsed" : ""
@@ -250,12 +268,8 @@ const Dashboard = () => {
             <Sidebar
                 isSidebarOpen={isSidebarOpen}
                 setIsSidebarOpen={setIsSidebarOpen}
-                playlists={playlists}
-                selectedPlaylist={selectedPlaylist}
-                handleSelectPlaylist={handleSelectPlaylist}
-                loading={loading}
-                error={error}
-                goHome={goHome}
+                activeModule={getActiveModule()}
+                onModuleSelect={handleModuleSelect}
             />
 
             <div className="main-content" style={{ position: "relative" }}>
