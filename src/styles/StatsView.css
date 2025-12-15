@@ -92,7 +92,7 @@
 .genre-name {
     width: 120px;
     font-size: 0.9rem;
-    text-transform: capitalization;
+    text-transform: capitalize;
 }
 
 .genre-bar-container {
@@ -245,4 +245,13 @@
 .track-time {
     color: var(--text-secondary);
     font-size: 0.9rem;
+}
+
+.genre-percentage {
+    margin-left: 12px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    min-width: 36px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
 }

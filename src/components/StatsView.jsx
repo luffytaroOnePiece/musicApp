@@ -107,6 +107,7 @@ const StatsView = ({ handlePlay, formatTime }) => {
                                 <div className="genre-bar-container">
                                     <div className="genre-bar" style={{ width: `${genre.percentage * 5}%`, minWidth: '5px' }}></div>
                                 </div>
+                                <span className="genre-percentage">{genre.percentage}%</span>
                             </div>
                         ))}
                     </div>
