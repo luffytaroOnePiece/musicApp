@@ -147,3 +147,7 @@ export const removeSavedTracks = async (trackIds) => {
 }
 
 export const getUserSavedTracks = (limit = 50, offset = 0) => apiCall(`/me/tracks?limit=${limit}&offset=${offset}`);
+
+export const getUserTopItems = (type = 'artists', time_range = 'medium_term', limit = 20) => {
+    return apiCall(`/me/top/${type}?time_range=${time_range}&limit=${limit}`);
+};

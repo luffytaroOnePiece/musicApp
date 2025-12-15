@@ -17,6 +17,7 @@ import HomeView from "./HomeView";
 import PlaylistView from "./PlaylistView";
 import YouTubeView from "./YouTubeView";
 import PlayerBar from "./PlayerBar";
+import StatsView from "./StatsView";
 
 import FullPlayer from "./FullPlayer";
 import ZenMode from "./ZenMode";
@@ -48,6 +49,7 @@ const Dashboard = () => {
     const [isFullPlayerOpen, setIsFullPlayerOpen] = useState(false);
     const [showYoutube, setShowYoutube] = useState(false);
     const [isZenModeOpen, setIsZenModeOpen] = useState(false);
+    const [isStatsOpen, setIsStatsOpen] = useState(false);
 
     const themes = [
         { id: "ocean-depths", name: "Ocean Depths" },
@@ -229,6 +231,7 @@ const Dashboard = () => {
         setSearchResults(null);
         setIsSearching(false);
         setShowYoutube(false);
+        setIsStatsOpen(false);
     };
 
     const handleShowYoutube = () => {
@@ -236,28 +239,46 @@ const Dashboard = () => {
         setSearchResults(null);
         setIsSearching(false);
         setShowYoutube(true);
+        setIsStatsOpen(false);
     };
 
     const handleShowZenMode = () => {
         setIsZenModeOpen(true);
     };
 
+    const handleShowStats = () => {
+        setSelectedPlaylist(null);
+        setSearchResults(null);
+        setIsSearching(false);
+        setShowYoutube(false);
+        setIsStatsOpen(true);
+    }
+
     const getActiveModule = () => {
         if (isZenModeOpen) return 'zen';
         if (showYoutube) return 'youtube';
+        if (isStatsOpen) return 'stats';
         return 'home';
     };
 
     const handleModuleSelect = (moduleId) => {
         if (moduleId === 'home') {
             goHome();
-            setIsZenModeOpen(false); // Ensure Zen Mode is closed when going home
+            setIsZenModeOpen(false);
         } else if (moduleId === 'youtube') {
             handleShowYoutube();
             setIsZenModeOpen(false);
         } else if (moduleId === 'zen') {
             handleShowZenMode();
+        } else if (moduleId === 'stats') {
+            handleShowStats();
+            setIsZenModeOpen(false);
         }
+    };
+
+    // Helper for add track (missing function in view but logic likely similar to other handlers)
+    const handleAddTrackToPlaylist = () => {
+        // Placeholder if needed or derived from context
     };
 
     return (
@@ -324,6 +345,8 @@ const Dashboard = () => {
                     </div>
                 ) : showYoutube ? (
                     <YouTubeView handlePlay={handlePlay} searchTerm={searchTerm} />
+                ) : isStatsOpen ? (
+                    <StatsView handlePlay={handlePlay} formatTime={formatTime} />
                 ) : searchResults ? (
                     <PlaylistView
                         selectedPlaylist={{

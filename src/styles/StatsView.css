@@ -1,0 +1,248 @@
+.stats-view {
+    padding: 100px 40px 20px 40px;
+    /* height: 100%; removed to prevent double scroll */
+    /* overflow-y: auto; removed to use main-content scroll */
+    color: white;
+    padding-bottom: 120px;
+    /* Space for player */
+}
+
+.stats-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+}
+
+.stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.stats-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.range-selector {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 4px;
+    display: flex;
+    gap: 4px;
+}
+
+.range-selector button {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 8px 16px;
+    border-radius: 16px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.range-selector button.active {
+    background: white;
+    color: black;
+}
+
+.range-selector button:hover:not(.active) {
+    color: white;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.stats-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 24px;
+    backdrop-filter: blur(10px);
+}
+
+.stats-card h3 {
+    margin: 0 0 20px 0;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+}
+
+.genres-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.genre-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.genre-name {
+    width: 120px;
+    font-size: 0.9rem;
+    text-transform: capitalization;
+}
+
+.genre-bar-container {
+    flex-grow: 1;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.genre-bar {
+    height: 100%;
+    background: var(--color-spotify-green);
+    border-radius: 3px;
+}
+
+.metrics-content {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 100px;
+}
+
+.metric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.metric-val {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+}
+
+.metric-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.stats-section {
+    margin-bottom: 40px;
+}
+
+.stats-section h3 {
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+}
+
+.artists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 24px;
+}
+
+.artist-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.artist-item:hover {
+    transform: translateY(-5px);
+}
+
+.artist-rank {
+    position: absolute;
+    top: -10px;
+    right: 10px;
+    background: var(--color-spotify-green);
+    color: black;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.8rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.artist-item img {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.artist-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.tracks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.track-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    transition: background 0.2s ease;
+    cursor: pointer;
+}
+
+.track-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.track-rank {
+    width: 30px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.track-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    margin-right: 16px;
+}
+
+.track-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.track-name {
+    font-weight: 500;
+    color: white;
+}
+
+.track-artist {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.track-time {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
