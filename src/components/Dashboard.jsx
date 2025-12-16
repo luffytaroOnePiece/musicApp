@@ -277,8 +277,14 @@ const Dashboard = () => {
     };
 
     // Helper for add track (missing function in view but logic likely similar to other handlers)
-    const handleAddTrackToPlaylist = () => {
-        // Placeholder if needed or derived from context
+    const handleAddTrackToPlaylist = async (trackUri, playlistId) => {
+        try {
+            await import("../services/spotifyApi").then(module => module.addTrackToPlaylist(playlistId, trackUri));
+            alert("Track added to playlist!");
+        } catch (err) {
+            console.error("Failed to add track", err);
+            alert("Failed to add track to playlist.");
+        }
     };
 
     return (
@@ -349,6 +355,9 @@ const Dashboard = () => {
                         }}
                         tracks={searchResults}
                         viewMode={viewMode}
+                        setViewMode={setViewMode}
+                        handlePlay={handlePlay}
+                        deviceId={deviceId}
                         formatTime={formatTime}
                         onAddTrack={handleAddTrackToPlaylist}
                         playlists={playlists}

@@ -111,6 +111,23 @@ export const removeTrackFromPlaylist = async (playlistId, trackUri) => {
         })
     });
 }
+
+export const addTrackToPlaylist = async (playlistId, trackUri) => {
+    const token = getAccessToken();
+    const response = await fetch(`${BASE_URL}/playlists/${playlistId}/tracks`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            uris: [trackUri]
+        })
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to add track: ${response.status} ${response.statusText}`);
+    }
+}
 export const checkUserSavedTracks = async (trackIds) => {
     // Spotify allows max 50 IDs per request for checking
     const token = getAccessToken();
