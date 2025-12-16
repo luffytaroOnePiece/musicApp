@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { setShuffle } from "../services/spotifyApi";
-import youtubeLinks from "../data/youtubeLinks.json";
+import TrackItem from './TrackItem';
 import "../styles/PlaylistView.css";
 
 const PlaylistView = ({
@@ -46,10 +46,10 @@ const PlaylistView = ({
     }
   }
 
-  const handleAddToPlaylistClick = (track) => {
+  const handleAddToPlaylistClick = useCallback((track) => {
     setTrackToAdd(track);
     setShowPlaylistSelect(true);
-  }
+  }, []);
 
   const confirmAddToPlaylist = (playlistId) => {
     if (onAddTrack && trackToAdd) {
@@ -59,22 +59,7 @@ const PlaylistView = ({
     setTrackToAdd(null);
   }
 
-  // Helper for fav button
-  const renderFavButton = (track) => {
-    if (!onToggleFavorite) return null;
-    return (
-      <div
-        className={`fav-btn ${likedTrackIds?.has(track.id) ? 'active' : ''}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggleFavorite(track.id);
-        }}
-        title={likedTrackIds?.has(track.id) ? "Remove from Liked Songs" : "Save to Liked Songs"}
-      >
-        {likedTrackIds?.has(track.id) ? '♥' : '♡'}
-      </div>
-    );
-  };
+
 
   // Search Filtering
   const filteredTracks = tracks.filter((track) => {
@@ -114,56 +99,23 @@ const PlaylistView = ({
     : sortedTracks;
 
   return (
-    <div style={{ paddingTop: "60px" }}>
+    <div className="playlist-view-container">
       {showPlaylistSelect && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.8)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backdropFilter: 'blur(5px)'
-        }} onClick={() => setShowPlaylistSelect(false)}>
-          <div style={{
-            background: '#1e1e1e',
-            padding: '24px',
-            borderRadius: '12px',
-            width: '300px',
-            maxHeight: '400px',
-            overflowY: 'auto',
-            border: '1px solid #333'
-          }} onClick={e => e.stopPropagation()}>
-            <h3 style={{ marginTop: 0, borderBottom: '1px solid #333', paddingBottom: '12px' }}>Select Playlist</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div className="playlist-modal-overlay" onClick={() => setShowPlaylistSelect(false)}>
+          <div className="playlist-modal-content" onClick={e => e.stopPropagation()}>
+            <h3 className="playlist-modal-title">Select Playlist</h3>
+            <div className="playlist-modal-list">
               {playlists?.map(p => (
-                <button key={p.id} onClick={() => confirmAddToPlaylist(p.id)} style={{
-                  background: 'transparent',
-                  border: '1px solid #333',
-                  padding: '12px',
-                  color: 'white',
-                  textAlign: 'left',
-                  borderRadius: '6px',
-                  cursor: 'pointer'
-                }}>
+                <button
+                  key={p.id}
+                  onClick={() => confirmAddToPlaylist(p.id)}
+                  className="playlist-modal-item"
+                >
                   {p.name}
                 </button>
               ))}
             </div>
-            <button onClick={() => setShowPlaylistSelect(false)} style={{
-              marginTop: '16px',
-              background: '#333',
-              border: 'none',
-              padding: '8px 16px',
-              color: 'white',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              width: '100%'
-            }}>Cancel</button>
+            <button onClick={() => setShowPlaylistSelect(false)} className="playlist-modal-cancel">Cancel</button>
           </div>
         </div>
       )}
@@ -177,10 +129,10 @@ const PlaylistView = ({
             />
           )}
           <div>
-            <h1 style={{ fontSize: "3rem", marginBottom: "10px" }}>
+            <h1 className="playlist-header-title">
               {selectedPlaylist.name}
             </h1>
-            <p style={{ color: "#aaa" }}>
+            <p className="playlist-header-desc">
               {selectedPlaylist.description ||
                 `By ${selectedPlaylist.owner.display_name}`}
             </p>
@@ -189,13 +141,13 @@ const PlaylistView = ({
 
         <div className="view-controls">
 
-          <div className="sort-dropdown" style={{ position: 'relative', marginRight: '16px' }}>
+          <div className="sort-dropdown sort-dropdown-container">
             <button
               className="sort-trigger"
               onClick={() => setSortMenuOpen(!sortMenuOpen)}
             >
               {getSortLabel()}
-              <span className="sort-arrow" style={{ transform: sortMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
+              <span className={`sort-arrow ${sortMenuOpen ? 'rotate-180' : 'rotate-0'}`}>▼</span>
             </button>
 
             {sortMenuOpen && (
@@ -250,9 +202,8 @@ const PlaylistView = ({
                 }
               }
             }}
-            className="view-btn warning-btn"
+            className="view-btn warning-btn shuffle-btn-margin"
             title="Shuffle Play"
-            style={{ marginRight: '10px' }}
           >
             🔊 Shuffle
           </button>
@@ -284,104 +235,25 @@ const PlaylistView = ({
 
       <div className={`content-area ${viewMode}`}>
         {finalTracks.length === 0 && (
-          <div style={{ padding: "20px", color: "#888", textAlign: "center" }}>
+          <div className="no-tracks-msg">
             {sortType === 'favorites' ? "No favorite tracks found in this list" : `No tracks found matching "${searchTerm}"`}
           </div>
         )}
         {finalTracks.map((track, index) => (
-          <div
+          <TrackItem
             key={track.id}
-            className={`track-item ${viewMode}`}
-            onClick={() => handlePlay(track.uri, selectedPlaylist?.uri, tracks.findIndex(t => t.id === track.id))}
-          >
-            {viewMode === "list" && (
-              <div className="track-index">{index + 1}</div>
-            )}
-
-            {/* Card view needs big image, List view needs small/none or layout change */}
-            <div className="track-art">
-              <img src={track.album.images[0]?.url} alt="" />
-              {viewMode === "card" && (
-                <div className="play-overlay">▶</div>
-              )}
-            </div>
-
-            <div className="track-details">
-              <div className="track-name">{track.name}</div>
-              <div className="track-artist">
-                {track.artists.map((a) => a.name).join(", ")}
-              </div>
-            </div>
-
-            {viewMode === "list" && (
-              <>
-                <div className="track-album">{track.album.name}</div>
-                <div className="track-duration">
-                  {formatTime(track.duration_ms)}
-                </div>
-                {renderFavButton(track)}
-                {youtubeLinks[track.id] && (
-                  <div
-                    className="fav-btn youtube-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const linkData = youtubeLinks[track.id];
-                      let qualityParam = "";
-                      switch (linkData.format) {
-                        case "4320p": qualityParam = "&vq=hd4320"; break;
-                        case "2160p": qualityParam = "&vq=hd2160"; break;
-                        case "1440p": qualityParam = "&vq=hd1440"; break;
-                        case "1080p": qualityParam = "&vq=hd1080"; break;
-                        case "720p": qualityParam = "&vq=hd720"; break;
-                        case "480p": qualityParam = "&vq=large"; break;
-                        case "360p": qualityParam = "&vq=medium"; break;
-                        case "240p": qualityParam = "&vq=small"; break;
-                        case "144p": qualityParam = "&vq=tiny"; break;
-                        default: qualityParam = "";
-                      }
-                      window.open(`https://www.youtube.com/watch?v=${linkData.youtubelinkID}${qualityParam}`, '_blank');
-                    }}
-                    title={`Watch on YouTube (${youtubeLinks[track.id].format})`}
-                    style={{ marginLeft: '10px', color: '#FF0000', cursor: 'pointer' }}
-                  >
-                    ▶
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* Add Button - Show in both list and card (search results) */}
-            {onAddTrack && (
-              <div
-                className={`${viewMode === 'list' ? 'track-actions' : ''}`}
-                style={viewMode === 'card' ? {
-                  position: 'absolute',
-                  bottom: '12px',
-                  right: '12px', // Opposite to fav button
-                  zIndex: 10,
-                  background: 'rgba(0,0,0,0.6)',
-                  borderRadius: '50%',
-                  width: '32px',
-                  height: '32px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  color: '#1DB954',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
-                } : {}}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAddToPlaylistClick(track);
-                }}
-                title="Add to playlist"
-              >
-                <div className="delete-btn" style={{ fontSize: '1.5rem', lineHeight: '24px' }}>+</div>
-              </div>
-            )}
-
-
-          </div>
+            track={track}
+            index={index}
+            viewMode={viewMode}
+            handlePlay={handlePlay}
+            selectedPlaylistUri={selectedPlaylist?.uri}
+            trackIndex={tracks.findIndex(t => t.id === track.id)}
+            formatTime={formatTime}
+            likedTrackIds={likedTrackIds}
+            onToggleFavorite={onToggleFavorite}
+            onAddTrack={onAddTrack}
+            onAddToPlaylistClick={handleAddToPlaylistClick}
+          />
         ))}
       </div>
     </div>

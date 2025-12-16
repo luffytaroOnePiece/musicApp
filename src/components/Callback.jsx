@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { getToken } from '../services/auth';
+import '../styles/Callback.css';
 
 const Callback = () => {
     const called = useRef(false);
@@ -35,36 +36,14 @@ const Callback = () => {
 
     if (errorMsg) {
         return (
-            <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100vh',
-                color: 'white',
-                background: '#000',
-                gap: '20px'
-            }}>
-                <h2 style={{ color: '#ff5555', margin: 0 }}>Login Failed</h2>
-                <div style={{
-                    background: '#222',
-                    padding: '20px',
-                    borderRadius: '8px',
-                    maxWidth: '80%',
-                    wordBreak: 'break-all',
-                    fontFamily: 'monospace'
-                }}>
+            <div className="callback-error-container">
+                <h2 className="callback-title">Login Failed</h2>
+                <div className="callback-error-message">
                     {errorMsg}
                 </div>
                 <button
                     onClick={() => window.location.href = '/#/login'}
-                    style={{
-                        padding: '10px 20px',
-                        borderRadius: '20px',
-                        background: '#1DB954',
-                        color: 'white',
-                        fontWeight: 'bold'
-                    }}
+                    className="callback-button"
                 >
                     Back to Login
                 </button>
@@ -73,13 +52,7 @@ const Callback = () => {
     }
 
     return (
-        <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100vh',
-            color: 'white'
-        }}>
+        <div className="callback-loading-container">
             {status}
         </div>
     );

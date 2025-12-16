@@ -13,8 +13,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, activeModule, onModuleSelect
     return (
         <div className={`sidebar ${!isSidebarOpen ? 'hidden' : ''}`}>
             <div className="sidebar-header">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h2 style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px', color: '#b3b3b3', margin: 0 }}>Menu</h2>
+                <div className="sidebar-header-container">
+                    <h2 className="sidebar-header-title">Menu</h2>
                     <button onClick={() => setIsSidebarOpen(false)} className="sidebar-toggle-btn" title="Hide Menu">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                     </button>
@@ -25,8 +25,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, activeModule, onModuleSelect
                     <li
                         key={module.id}
                         onClick={() => onModuleSelect(module.id)}
-                        className={activeModule === module.id ? 'active' : ''}
-                        style={{ display: 'flex', alignItems: 'center', gap: '12px' }}
+                        className={`sidebar-module-item ${activeModule === module.id ? 'active' : ''}`}
                     >
                         {module.icon}
                         <span>{module.name}</span>

@@ -68,3 +68,30 @@
     position: relative;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
+
+/* Sidebar floating toggle button */
+.sidebar-open-floating {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    margin: 0;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.sidebar-open-floating:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Searching State */
+.dashboard-searching {
+    padding-top: 80px;
+    text-align: center;
+    color: #fff;
+}

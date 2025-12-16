@@ -1,0 +1,10 @@
+.track-item-youtube-btn {
+    margin-left: 10px;
+    color: #FF0000;
+    cursor: pointer;
+}
+
+.track-item-add-icon {
+    font-size: 1.5rem;
+    line-height: 24px;
+}

@@ -63,7 +63,7 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
         <div className={`youtube-view-container ${isCinemaMode ? 'cinema-mode' : ''}`}>
             <div className="youtube-header">
                 <div className="header-controls">
-                    <h1 className="youtube-title" style={{ marginRight: '20px' }}>
+                    <h1 className="youtube-title">
                         YouTube
                     </h1>
 

@@ -293,19 +293,12 @@ const Dashboard = () => {
                 onModuleSelect={handleModuleSelect}
             />
 
-            <div className="main-content" style={{ position: "relative" }}>
+            <div className="main-content">
                 {!isSidebarOpen && (
                     <button
                         onClick={() => setIsSidebarOpen(true)}
                         className="sidebar-open-floating"
                         title="Show Library"
-                        style={{
-                            position: "absolute",
-                            top: "20px",
-                            left: "20px",
-                            zIndex: 100,
-                            margin: 0,
-                        }}
                     >
                         <svg
                             width="24"
@@ -338,9 +331,7 @@ const Dashboard = () => {
 
                 {/* Content Rendering Logic */}
                 {isSearching ? (
-                    <div
-                        style={{ paddingTop: "80px", textAlign: "center", color: "#fff" }}
-                    >
+                    <div className="dashboard-searching">
                         Searching...
                     </div>
                 ) : showYoutube ? (

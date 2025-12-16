@@ -137,3 +137,24 @@
     border-color: rgba(255, 59, 59, 0.4);
     transform: translateY(-2px);
 }
+
+/* Refactored Inline Styles */
+.sidebar-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-header-title {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #b3b3b3;
+    margin: 0;
+}
+
+.sidebar-module-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}

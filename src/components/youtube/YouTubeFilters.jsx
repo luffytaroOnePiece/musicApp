@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import '../../styles/YouTubeFilters.css';
 
 const YouTubeFilters = ({
     selectedGenre,
@@ -36,16 +37,10 @@ const YouTubeFilters = ({
             />
 
             <button
-                className="yt-filter-btn"
+                className={`yt-filter-btn yt-reset-btn ${isFiltered ? 'active' : 'disabled'}`}
                 onClick={onReset}
                 disabled={!isFiltered}
                 title="Reset Filters"
-                style={{
-                    marginLeft: "8px",
-                    opacity: isFiltered ? 1 : 0.5,
-                    cursor: isFiltered ? 'pointer' : 'default',
-                    padding: '8px' /* Square shape for icon only */
-                }}
             >
                 <svg
                     width="16"
@@ -89,7 +84,7 @@ const Dropdown = ({ label, selected, onSelect, options }) => {
                 onClick={() => setIsOpen(!isOpen)}
             >
                 {/* Show "Label: Value" to avoid "All" vs "All" confusion */}
-                <span style={{ opacity: 0.7, marginRight: "4px" }}>{label}:</span>
+                <span className="yt-dropdown-label">{label}:</span>
                 {selected}
                 <svg
                     width="12"
@@ -100,10 +95,7 @@ const Dropdown = ({ label, selected, onSelect, options }) => {
                     strokeWidth="3"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    style={{
-                        transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                        transition: "transform 0.2s",
-                    }}
+                    className={`yt-arrow-icon ${isOpen ? 'open' : ''}`}
                 >
                     <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>

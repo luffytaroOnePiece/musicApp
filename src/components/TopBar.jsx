@@ -19,20 +19,14 @@ const TopBar = ({
 
     return (
         <div
-            className={`top-bar-controls ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"
+            className={`top-bar-controls top-bar-container-flex ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"
                 }`}
-            style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-            }}
         >
             {/* Center - Search Bar (Expanded to Left) */}
             <div
-                className="search-container"
-                style={{ flex: 1, display: "flex", justifyContent: "flex-start" }}
+                className="search-container search-container-flex"
             >
-                <div style={{ position: "relative", width: "90%" }}>
+                <div className="search-wrapper-relative">
                     <svg
                         width="18"
                         height="18"
@@ -42,13 +36,7 @@ const TopBar = ({
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        style={{
-                            position: "absolute",
-                            left: "12px",
-                            top: "50%",
-                            transform: "translateY(-50%)",
-                            color: "rgba(255,255,255,0.5)",
-                        }}
+                        className="search-icon-absolute"
                     >
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -63,58 +51,18 @@ const TopBar = ({
                                 performSearch();
                             }
                         }}
-                        style={{
-                            width: "90%",
-                            padding: "10px 12px 10px 40px",
-                            background: "rgba(255,255,255,0.1)",
-                            border: "1px solid rgba(255,255,255,0.1)",
-                            borderRadius: "25px",
-                            color: "white",
-                            fontSize: "0.95rem",
-                            outline: "none",
-                            backdropFilter: "blur(10px)",
-                            transition: "all 0.2s",
-                        }}
-                        onFocus={(e) =>
-                            (e.target.style.background = "rgba(255,255,255,0.15)")
-                        }
-                        onBlur={(e) =>
-                            (e.target.style.background = "rgba(255,255,255,0.1)")
-                        }
+                        className="search-input-field"
                     />
                 </div>
             </div>
 
             {/* Right Section - Controls */}
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "10px",
-                    flexShrink: 0,
-                    marginLeft: "20px",
-                }}
-            >
+            <div className="right-controls-flex">
                 {/* Zen Mode Button */}
                 <button
                     onClick={onShowZenMode}
-                    className="zen-mode-btn-top"
+                    className="zen-mode-btn-top topbar-nav-btn"
                     title="Enter Zen Mode"
-                    style={{
-                        background: "rgba(255,255,255,0.1)",
-                        border: "none",
-                        color: "white",
-                        padding: "8px 12px",
-                        borderRadius: "20px",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        fontWeight: 500,
-                        fontSize: "0.9rem",
-                        transition: "all 0.2s",
-                        backdropFilter: "blur(10px)",
-                    }}
                 >
                     <svg
                         width="20"
@@ -125,7 +73,7 @@ const TopBar = ({
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        style={{ color: "#4CAF50" }}
+                        className="accent-green"
                     >
                         <path d="M2 12h5l3 5 5-11 4 8 3-2" />
                     </svg>
@@ -135,23 +83,8 @@ const TopBar = ({
                 {/* YouTube Library Button */}
                 <button
                     onClick={onShowYoutube}
-                    className="youtube-btn-top"
+                    className="youtube-btn-top topbar-nav-btn"
                     title="YouTube Library"
-                    style={{
-                        background: "rgba(255,255,255,0.1)",
-                        border: "none",
-                        color: "white",
-                        padding: "8px 12px",
-                        borderRadius: "20px",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        fontWeight: 500,
-                        fontSize: "0.9rem",
-                        transition: "all 0.2s",
-                        backdropFilter: "blur(10px)",
-                    }}
                 >
                     <svg
                         width="20"
@@ -171,23 +104,8 @@ const TopBar = ({
 
                 <button
                     onClick={goHome}
-                    className="home-btn-top"
+                    className="home-btn-top topbar-nav-btn"
                     title="Go Home"
-                    style={{
-                        background: "rgba(255,255,255,0.1)",
-                        border: "none",
-                        color: "white",
-                        padding: "8px 12px",
-                        borderRadius: "20px",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        fontWeight: 500,
-                        fontSize: "0.9rem",
-                        transition: "all 0.2s",
-                        backdropFilter: "blur(10px)",
-                    }}
                 >
                     <svg
                         width="18"
@@ -221,11 +139,7 @@ const TopBar = ({
                             strokeWidth="3"
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            style={{
-                                marginLeft: "8px",
-                                transform: themeMenuOpen ? "rotate(180deg)" : "rotate(0deg)",
-                                transition: "transform 0.2s",
-                            }}
+                            className={`theme-arrow-icon ${themeMenuOpen ? "rotate-180" : "rotate-0"}`}
                         >
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
