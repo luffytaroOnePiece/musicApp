@@ -136,6 +136,23 @@ const PlaylistView = ({
               {selectedPlaylist.description ||
                 `By ${selectedPlaylist.owner.display_name}`}
             </p>
+            <div className="playlist-stats">
+              {(() => {
+                const totalDurationMs = tracks.reduce((acc, t) => acc + t.duration_ms, 0);
+                const hrs = Math.floor(totalDurationMs / 3600000);
+                const mins = Math.floor((totalDurationMs % 3600000) / 60000);
+                const uniqueArtists = new Set(tracks.flatMap(t => t.artists.map(a => a.id))).size;
+                return (
+                  <>
+                    <span>{tracks.length} Songs</span>
+                    <span className="stats-dot">•</span>
+                    <span>{hrs > 0 ? `${hrs} hr ` : ''}{mins} min</span>
+                    <span className="stats-dot">•</span>
+                    <span>{uniqueArtists} Artists</span>
+                  </>
+                );
+              })()}
+            </div>
           </div>
         </div>
 
