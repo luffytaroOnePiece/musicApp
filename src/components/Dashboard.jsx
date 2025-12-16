@@ -8,7 +8,9 @@ import {
     checkUserSavedTracks,
     saveTracks,
     removeSavedTracks,
-    getUserSavedTracks
+    getUserSavedTracks,
+    getArtistTopTracks,
+    getAlbum
 } from "../services/spotifyApi";
 import useSpotifyPlayer from "../hooks/useSpotifyPlayer";
 import Sidebar from "./Sidebar";
@@ -18,6 +20,7 @@ import PlaylistView from "./PlaylistView";
 import YouTubeView from "./YouTubeView";
 import PlayerBar from "./PlayerBar";
 import StatsView from "./StatsView";
+import ExploreView from "./ExploreView";
 
 import FullPlayer from "./FullPlayer";
 import ZenMode from "./ZenMode";
@@ -52,6 +55,7 @@ const Dashboard = () => {
     const [isZenModeOpen, setIsZenModeOpen] = useState(false);
     const [isStatsOpen, setIsStatsOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [isExploreOpen, setIsExploreOpen] = useState(false);
 
     const themes = [
         { id: "ocean-depths", name: "Ocean Depths" },
@@ -120,6 +124,7 @@ const Dashboard = () => {
     const handleSelectPlaylist = async (playlist) => {
         setSelectedPlaylist(playlist);
         setSearchResults(null); // Clear search results when selecting playlist
+        setSearchTerm(""); // Clear search term when selecting playlist
 
         try {
             let data;
@@ -140,8 +145,59 @@ const Dashboard = () => {
         }
     };
 
+    const handleExploreSelect = async (item, type) => {
+        try {
+            if (type === 'artist') {
+                const data = await getArtistTopTracks(item.id);
+                // Artist top tracks usually have album info on them
+                setTracks(data.tracks);
+                setSelectedPlaylist({
+                    name: item.name,
+                    description: 'Artist Top Tracks',
+                    images: item.images,
+                    owner: { display_name: 'Artist' },
+                    uri: item.uri,
+                    id: item.id,
+                    source: 'explore'
+                });
+            } else if (type === 'album') {
+                const data = await getAlbum(item.id);
+                // Album tracks don't always have the full album object attached to each track
+                // We need to attach it so TrackItem can render cover art
+                const albumTracks = data.tracks.items.map(t => ({
+                    ...t,
+                    album: data // Attach the full album object to the track
+                }));
+                setTracks(albumTracks);
+                setSelectedPlaylist({
+                    name: data.name,
+                    description: `Album • ${data.release_date.split('-')[0]}`,
+                    images: data.images,
+                    owner: { display_name: data.artists[0].name },
+                    uri: data.uri,
+                    id: data.id,
+                    source: 'explore'
+                });
+            }
+
+            // Keep isExploreOpen true to maintain sidebar state
+            setSearchResults(null);
+            setIsSearching(false);
+            setSearchTerm(""); // Clear search request
+
+
+        } catch (err) {
+            console.error("Failed to load explore item", err);
+        }
+    };
+
     const performSearch = async () => {
         if (!searchTerm) return;
+
+        // If in Explore mode, we don't trigger global track search
+        // ExploreView listens to searchTerm changes directly
+        if (isExploreOpen) return;
+
         setIsSearching(true);
         setSearchResults(null);
         setSelectedPlaylist(null); // Clear playlist selection
@@ -164,7 +220,7 @@ const Dashboard = () => {
 
         // If contextUri is provided (playlist/album) and it's a real Spotify context, play that
         // However, for search results, contextUri is usually empty or custom.
-        if (contextUri && !Array.isArray(contextUri) && contextUri.includes("spotify:")) {
+        if (contextUri && !Array.isArray(contextUri) && contextUri.includes("spotify:") && !contextUri.includes(":artist:")) {
             playTrack(deviceId, contextUri, offset);
         } else {
             // Otherwise, play the current list of tracks (search results or playlist) as a queue
@@ -253,6 +309,7 @@ const Dashboard = () => {
         setShowYoutube(false);
         setIsStatsOpen(false);
         setIsProfileOpen(false);
+        setIsExploreOpen(false);
     };
 
     const handleShowYoutube = () => {
@@ -262,6 +319,7 @@ const Dashboard = () => {
         setShowYoutube(true);
         setIsStatsOpen(false);
         setIsProfileOpen(false);
+        setIsExploreOpen(false);
     };
 
     const handleShowZenMode = () => {
@@ -275,6 +333,7 @@ const Dashboard = () => {
         setShowYoutube(false);
         setIsStatsOpen(true);
         setIsProfileOpen(false);
+        setIsExploreOpen(false);
     }
 
     const handleShowProfile = () => {
@@ -284,6 +343,17 @@ const Dashboard = () => {
         setShowYoutube(false);
         setIsStatsOpen(false);
         setIsProfileOpen(true);
+        setIsExploreOpen(false);
+    }
+
+    const handleShowExplore = () => {
+        setSelectedPlaylist(null); // Clear selected playlist when explicitly clicking Explore tab
+        setSearchResults(null);
+        setIsSearching(false);
+        setShowYoutube(false);
+        setIsStatsOpen(false);
+        setIsProfileOpen(false);
+        setIsExploreOpen(true);
     }
 
     const getActiveModule = () => {
@@ -291,6 +361,7 @@ const Dashboard = () => {
         if (showYoutube) return 'youtube';
         if (isStatsOpen) return 'stats';
         if (isProfileOpen) return 'profile';
+        if (isExploreOpen) return 'explore';
         return 'home';
     };
 
@@ -308,6 +379,9 @@ const Dashboard = () => {
             setIsZenModeOpen(false);
         } else if (moduleId === 'profile') {
             handleShowProfile();
+            setIsZenModeOpen(false);
+        } else if (moduleId === 'explore') {
+            handleShowExplore();
             setIsZenModeOpen(false);
         }
     };
@@ -380,6 +454,34 @@ const Dashboard = () => {
                     <YouTubeView handlePlay={handlePlay} searchTerm={searchTerm} />
                 ) : isStatsOpen ? (
                     <StatsView handlePlay={handlePlay} formatTime={formatTime} />
+                ) : isExploreOpen ? (
+                    selectedPlaylist && selectedPlaylist.source === 'explore' ? (
+                        <div className="explore-details-wrapper">
+                            <button className="back-btn" onClick={() => {
+                                setSelectedPlaylist(null);
+                                setSearchTerm("");
+                            }}>
+                                ← Back
+                            </button>
+                            <PlaylistView
+                                selectedPlaylist={selectedPlaylist}
+                                tracks={tracks}
+                                viewMode={viewMode}
+                                setViewMode={setViewMode}
+                                handlePlay={handlePlay}
+                                formatTime={formatTime}
+                                searchTerm={searchTerm}
+                                deviceId={deviceId}
+                                onAddTrack={handleAddTrackToPlaylist}
+                                playlists={playlists}
+                                likedTrackIds={likedTrackIds}
+                                onToggleFavorite={handleToggleFavorite}
+                            // No onRemoveTrack passed here
+                            />
+                        </div>
+                    ) : (
+                        <ExploreView query={searchTerm} onSelectContext={handleExploreSelect} />
+                    )
                 ) : isProfileOpen ? (
                     <UserProfile />
                 ) : searchResults ? (

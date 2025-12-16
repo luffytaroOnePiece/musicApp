@@ -189,3 +189,8 @@ export const transferPlayback = async (deviceId, play = false) => {
         })
     });
 };
+
+export const searchAlbums = (query) => apiCall(`/search?q=${encodeURIComponent(query)}&type=album&limit=20`);
+export const searchArtists = (query) => apiCall(`/search?q=${encodeURIComponent(query)}&type=artist&limit=20`);
+export const getArtistTopTracks = (artistId) => apiCall(`/artists/${artistId}/top-tracks?market=US`);
+export const getAlbum = (albumId) => apiCall(`/albums/${albumId}`);

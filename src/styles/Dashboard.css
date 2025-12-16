@@ -95,3 +95,32 @@
     text-align: center;
     color: #fff;
 }
+
+/* Explore Details Wrapper */
+.explore-details-wrapper {
+    padding: 80px 40px 20px 40px;
+    /* Match ExploreView padding */
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Back Button for Explore Details - Matches Explore Filter Btn */
+.back-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(-3px);
+}
