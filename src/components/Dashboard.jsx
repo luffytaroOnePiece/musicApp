@@ -21,6 +21,7 @@ import StatsView from "./StatsView";
 
 import FullPlayer from "./FullPlayer";
 import ZenMode from "./ZenMode";
+import UserProfile from "./UserProfile";
 import "../styles/Dashboard.css";
 
 const Dashboard = () => {
@@ -50,6 +51,7 @@ const Dashboard = () => {
     const [showYoutube, setShowYoutube] = useState(false);
     const [isZenModeOpen, setIsZenModeOpen] = useState(false);
     const [isStatsOpen, setIsStatsOpen] = useState(false);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     const themes = [
         { id: "ocean-depths", name: "Ocean Depths" },
@@ -232,6 +234,7 @@ const Dashboard = () => {
         setIsSearching(false);
         setShowYoutube(false);
         setIsStatsOpen(false);
+        setIsProfileOpen(false);
     };
 
     const handleShowYoutube = () => {
@@ -240,6 +243,7 @@ const Dashboard = () => {
         setIsSearching(false);
         setShowYoutube(true);
         setIsStatsOpen(false);
+        setIsProfileOpen(false);
     };
 
     const handleShowZenMode = () => {
@@ -252,12 +256,23 @@ const Dashboard = () => {
         setIsSearching(false);
         setShowYoutube(false);
         setIsStatsOpen(true);
+        setIsProfileOpen(false);
+    }
+
+    const handleShowProfile = () => {
+        setSelectedPlaylist(null);
+        setSearchResults(null);
+        setIsSearching(false);
+        setShowYoutube(false);
+        setIsStatsOpen(false);
+        setIsProfileOpen(true);
     }
 
     const getActiveModule = () => {
         if (isZenModeOpen) return 'zen';
         if (showYoutube) return 'youtube';
         if (isStatsOpen) return 'stats';
+        if (isProfileOpen) return 'profile';
         return 'home';
     };
 
@@ -272,6 +287,9 @@ const Dashboard = () => {
             handleShowZenMode();
         } else if (moduleId === 'stats') {
             handleShowStats();
+            setIsZenModeOpen(false);
+        } else if (moduleId === 'profile') {
+            handleShowProfile();
             setIsZenModeOpen(false);
         }
     };
@@ -344,6 +362,8 @@ const Dashboard = () => {
                     <YouTubeView handlePlay={handlePlay} searchTerm={searchTerm} />
                 ) : isStatsOpen ? (
                     <StatsView handlePlay={handlePlay} formatTime={formatTime} />
+                ) : isProfileOpen ? (
+                    <UserProfile />
                 ) : searchResults ? (
                     <PlaylistView
                         selectedPlaylist={{
