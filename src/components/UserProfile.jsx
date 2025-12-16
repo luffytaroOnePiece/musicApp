@@ -8,7 +8,7 @@ const UserProfile = () => {
     const [error, setError] = useState(null);
 
     // Hardcoded for now, could be from package.json in a real build process if exposed
-    const APP_VERSION = "4.3.0";
+    const APP_VERSION = "4.4.0";
 
     const features = [
         "Smart Search & Direct Playback",
@@ -17,6 +17,7 @@ const UserProfile = () => {
         "Zen Mode (Ambient Sounds & Visuals)",
         "Stats & Listening Insights",
         "Transfer Playback to Other Devices",
+        "Add & Remove Tracks from Playlists",
     ];
 
     useEffect(() => {

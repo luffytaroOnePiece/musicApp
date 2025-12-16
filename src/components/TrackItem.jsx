@@ -30,7 +30,8 @@ const TrackItem = ({
     likedTrackIds,
     onToggleFavorite,
     onAddTrack,
-    onAddToPlaylistClick
+    onAddToPlaylistClick,
+    onRemoveTrack
 }) => {
 
     const handleYoutubeClick = (e) => {
@@ -95,7 +96,7 @@ const TrackItem = ({
                             </div>
                         )}
 
-                        {onAddTrack && (
+                        {onAddTrack && !onRemoveTrack && (
                             <div
                                 className="track-actions"
                                 onClick={(e) => {
@@ -105,6 +106,19 @@ const TrackItem = ({
                                 title="Add to playlist"
                             >
                                 <div className="delete-btn track-item-add-icon">+</div>
+                            </div>
+                        )}
+
+                        {onRemoveTrack && (
+                            <div
+                                className="track-actions delete-action"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onRemoveTrack(track.uri);
+                                }}
+                                title="Remove from playlist"
+                            >
+                                <div className="delete-btn">−</div>
                             </div>
                         )}
                     </div>

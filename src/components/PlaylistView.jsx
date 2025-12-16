@@ -270,6 +270,7 @@ const PlaylistView = ({
             onToggleFavorite={onToggleFavorite}
             onAddTrack={onAddTrack}
             onAddToPlaylistClick={handleAddToPlaylistClick}
+            onRemoveTrack={onRemoveTrack}
           />
         ))}
       </div>
