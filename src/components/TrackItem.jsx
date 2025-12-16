@@ -71,34 +71,50 @@ const TrackItem = ({
                         {formatTime(track.duration_ms)}
                     </div>
 
-                    {onToggleFavorite && (
-                        <div
-                            className={`fav-btn ${isLiked ? 'active' : ''}`}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onToggleFavorite(track.id);
-                            }}
-                            title={isLiked ? "Remove from Liked Songs" : "Save to Liked Songs"}
-                        >
-                            {isLiked ? '♥' : '♡'}
-                        </div>
-                    )}
+                    <div className="list-actions">
+                        {hasYoutubeLink && (
+                            <div
+                                className="fav-btn youtube-btn track-item-youtube-btn"
+                                onClick={handleYoutubeClick}
+                                title="Watch on YouTube"
+                            >
+                                ▶
+                            </div>
+                        )}
 
-                    {hasYoutubeLink && (
-                        <div
-                            className="fav-btn youtube-btn track-item-youtube-btn"
-                            onClick={handleYoutubeClick}
-                            title="Watch on YouTube"
-                        >
-                            ▶
-                        </div>
-                    )}
+                        {onToggleFavorite && (
+                            <div
+                                className={`fav-btn ${isLiked ? 'active' : ''}`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onToggleFavorite(track.id);
+                                }}
+                                title={isLiked ? "Remove from Liked Songs" : "Save to Liked Songs"}
+                            >
+                                {isLiked ? '♥' : '♡'}
+                            </div>
+                        )}
+
+                        {onAddTrack && (
+                            <div
+                                className="track-actions"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onAddToPlaylistClick(track);
+                                }}
+                                title="Add to playlist"
+                            >
+                                <div className="delete-btn track-item-add-icon">+</div>
+                            </div>
+                        )}
+                    </div>
                 </>
             )}
 
-            {onAddTrack && (
+            {/* In Card View, Add Track button is standalone (Fav btn missing in original code for card?) */}
+            {viewMode === "card" && onAddTrack && (
                 <div
-                    className={`${viewMode === 'list' ? 'track-actions' : 'track-actions'}`}
+                    className="track-actions"
                     onClick={(e) => {
                         e.stopPropagation();
                         onAddToPlaylistClick(track);

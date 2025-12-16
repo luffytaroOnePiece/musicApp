@@ -158,17 +158,25 @@ const Dashboard = () => {
 
     const handlePlay = (trackUri, contextUri = null, offset = 0) => {
         if (!deviceId) return;
-        // If contextUri is provided (playlist/album), play that context
+
+        // Determine which list of tracks to use
+        const activeTracks = searchResults || tracks;
+
+        // If contextUri is provided (playlist/album) and it's a real Spotify context, play that
+        // However, for search results, contextUri is usually empty or custom.
         if (contextUri && !Array.isArray(contextUri) && contextUri.includes("spotify:")) {
             playTrack(deviceId, contextUri, offset);
         } else {
-            // Otherwise, play the current list of tracks as a queue
-            const uris = tracks.map(t => t.uri);
+            // Otherwise, play the current list of tracks (search results or playlist) as a queue
+            const uris = activeTracks.map(t => t.uri);
             // If the passed trackUri is in our list, use its index as offset
             // otherwise fallback to passed offset or 0
             const trackIndex = uris.indexOf(trackUri);
             const finalOffset = trackIndex !== -1 ? trackIndex : offset;
-            playTrack(deviceId, uris, finalOffset);
+
+            if (uris.length > 0) {
+                playTrack(deviceId, uris, finalOffset);
+            }
         }
     };
 

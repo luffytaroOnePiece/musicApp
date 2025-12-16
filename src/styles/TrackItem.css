@@ -1,7 +1,13 @@
 .track-item-youtube-btn {
-    margin-left: 10px;
-    color: #FF0000;
+    /* margin-left: 10px; handled by gap in parent */
+    color: #1DB954 !important;
     cursor: pointer;
+}
+
+.track-item-youtube-btn:hover {
+    color: #1ed760 !important;
+    /* Slightly lighter green for hover */
+    transform: scale(1.1);
 }
 
 .track-item-add-icon {
