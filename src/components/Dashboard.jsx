@@ -168,10 +168,13 @@ const Dashboard = () => {
             playTrack(deviceId, contextUri, offset);
         } else {
             // Otherwise, play the current list of tracks (search results or playlist) as a queue
-            const uris = activeTracks.map(t => t.uri);
+            // If contextUri is an array (e.g. from Shuffle), use it.
+            // Otherwise derive from active tracks.
+            const uris = Array.isArray(contextUri) ? contextUri : activeTracks.map(t => t.uri);
+
             // If the passed trackUri is in our list, use its index as offset
             // otherwise fallback to passed offset or 0
-            const trackIndex = uris.indexOf(trackUri);
+            const trackIndex = trackUri ? uris.indexOf(trackUri) : -1;
             const finalOffset = trackIndex !== -1 ? trackIndex : offset;
 
             if (uris.length > 0) {
