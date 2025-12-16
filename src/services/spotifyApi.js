@@ -172,3 +172,20 @@ export const getUserSavedTracks = (limit = 50, offset = 0) => apiCall(`/me/track
 export const getUserTopItems = (type = 'artists', time_range = 'medium_term', limit = 20) => {
     return apiCall(`/me/top/${type}?time_range=${time_range}&limit=${limit}`);
 };
+
+export const getAvailableDevices = () => apiCall('/me/player/devices');
+
+export const transferPlayback = async (deviceId, play = false) => {
+    const token = getAccessToken();
+    await fetch(`${BASE_URL}/me/player`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            device_ids: [deviceId],
+            play: play
+        })
+    });
+};
