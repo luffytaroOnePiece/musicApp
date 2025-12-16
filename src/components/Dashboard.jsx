@@ -158,10 +158,17 @@ const Dashboard = () => {
 
     const handlePlay = (trackUri, contextUri = null, offset = 0) => {
         if (!deviceId) return;
-        if (contextUri) {
+        // If contextUri is provided (playlist/album), play that context
+        if (contextUri && !Array.isArray(contextUri) && contextUri.includes("spotify:")) {
             playTrack(deviceId, contextUri, offset);
         } else {
-            playTrack(deviceId, trackUri);
+            // Otherwise, play the current list of tracks as a queue
+            const uris = tracks.map(t => t.uri);
+            // If the passed trackUri is in our list, use its index as offset
+            // otherwise fallback to passed offset or 0
+            const trackIndex = uris.indexOf(trackUri);
+            const finalOffset = trackIndex !== -1 ? trackIndex : offset;
+            playTrack(deviceId, uris, finalOffset);
         }
     };
 

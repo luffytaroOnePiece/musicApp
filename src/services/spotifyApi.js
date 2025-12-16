@@ -44,6 +44,10 @@ export const playTrack = async (deviceId, contextUri, offset = 0) => {
     const body = {};
     if (Array.isArray(contextUri)) {
         body.uris = contextUri;
+        // Support offset for URI arrays too
+        if (offset || offset === 0) {
+            body.offset = { position: offset };
+        }
     } else if (contextUri && contextUri.includes('track')) {
         body.uris = [contextUri];
     } else {
