@@ -1,0 +1,159 @@
+/* YouTubeView.css */
+
+.youtube-view-container {
+    padding: 80px 40px 100px 40px;
+    color: white;
+}
+
+.youtube-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    /* Prevent title and controls from splitting lines */
+    gap: 20px;
+}
+
+.youtube-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0 20px 0 0;
+}
+
+.filters-container {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+/* Dropdown Styles moved to YouTubeFilters.css */
+
+/* Grid Slider */
+.grid-slider-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    margin-left: auto;
+}
+
+.grid-slider-control label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: white;
+    min-width: 50px;
+}
+
+.grid-range-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 120px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    outline: none;
+}
+
+.grid-range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s;
+}
+
+.grid-range-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+/* Card Grid */
+.youtube-grid {
+    display: grid;
+    gap: 24px;
+}
+
+/* YouTube Card styles moved to YouTubeCard.css */
+
+
+.no-videos-msg {
+    text-align: center;
+    color: #888;
+    margin-top: 50px;
+    font-size: 1.1rem;
+}
+
+/* Group controls to prevent wrapping */
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    /* Ensure it spans full width if needed */
+    flex-wrap: nowrap;
+    /* Force single line */
+}
+
+/* Cinema Mode */
+.cinema-mode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+    z-index: 2000;
+    background: #050505;
+    /* Deep black for immersion */
+    padding: 20px 60px;
+    /* Increased side padding */
+    box-sizing: border-box;
+    overflow-y: auto;
+    transition: background 0.5s ease;
+}
+
+.cinema-mode .youtube-header {
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+}
+
+.cinema-mode .youtube-header:hover {
+    opacity: 1;
+}
+
+.cinema-toggle-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+}
+
+.cinema-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+.cinema-toggle-btn.active {
+    background: rgba(255, 50, 50, 0.2);
+    border-color: rgba(255, 50, 50, 0.4);
+    color: #ffcccc;
+}

@@ -44,20 +44,22 @@ const YouTubeCard = ({ data, trackId, handlePlay }) => {
                     </div>
 
                     {/* Green Spotify Play Button */}
-                    <div
-                        className="spotify-play-btn"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            if (handlePlay) {
-                                handlePlay(`spotify:track:${trackId}`);
-                            }
-                        }}
-                        title="Play on Spotify"
-                    >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="black">
-                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                        </svg>
-                    </div>
+                    {trackId && (
+                        <div
+                            className="spotify-play-btn"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (handlePlay) {
+                                    handlePlay(`spotify:track:${trackId}`);
+                                }
+                            }}
+                            title="Play on Spotify"
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="black">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

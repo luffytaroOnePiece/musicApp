@@ -22,6 +22,8 @@ import PlayerBar from "./PlayerBar";
 import StatsView from "./StatsView";
 import ExploreView from "./ExploreView";
 
+import LiveView from "./LiveView";
+
 import FullPlayer from "./FullPlayer";
 import ZenMode from "./ZenMode";
 import UserProfile from "./UserProfile";
@@ -52,6 +54,7 @@ const Dashboard = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [isFullPlayerOpen, setIsFullPlayerOpen] = useState(false);
     const [showYoutube, setShowYoutube] = useState(false);
+    const [showLive, setShowLive] = useState(false);
     const [isZenModeOpen, setIsZenModeOpen] = useState(false);
     const [isStatsOpen, setIsStatsOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -307,6 +310,7 @@ const Dashboard = () => {
         setSearchResults(null);
         setIsSearching(false);
         setShowYoutube(false);
+        setShowLive(false);
         setIsStatsOpen(false);
         setIsProfileOpen(false);
         setIsExploreOpen(false);
@@ -317,6 +321,18 @@ const Dashboard = () => {
         setSearchResults(null);
         setIsSearching(false);
         setShowYoutube(true);
+        setShowLive(false);
+        setIsStatsOpen(false);
+        setIsProfileOpen(false);
+        setIsExploreOpen(false);
+    };
+
+    const handleShowLive = () => {
+        setSelectedPlaylist(null);
+        setSearchResults(null);
+        setIsSearching(false);
+        setShowYoutube(false);
+        setShowLive(true);
         setIsStatsOpen(false);
         setIsProfileOpen(false);
         setIsExploreOpen(false);
@@ -331,6 +347,7 @@ const Dashboard = () => {
         setSearchResults(null);
         setIsSearching(false);
         setShowYoutube(false);
+        setShowLive(false);
         setIsStatsOpen(true);
         setIsProfileOpen(false);
         setIsExploreOpen(false);
@@ -341,6 +358,7 @@ const Dashboard = () => {
         setSearchResults(null);
         setIsSearching(false);
         setShowYoutube(false);
+        setShowLive(false);
         setIsStatsOpen(false);
         setIsProfileOpen(true);
         setIsExploreOpen(false);
@@ -351,6 +369,7 @@ const Dashboard = () => {
         setSearchResults(null);
         setIsSearching(false);
         setShowYoutube(false);
+        setShowLive(false);
         setIsStatsOpen(false);
         setIsProfileOpen(false);
         setIsExploreOpen(true);
@@ -359,6 +378,7 @@ const Dashboard = () => {
     const getActiveModule = () => {
         if (isZenModeOpen) return 'zen';
         if (showYoutube) return 'youtube';
+        if (showLive) return 'live';
         if (isStatsOpen) return 'stats';
         if (isProfileOpen) return 'profile';
         if (isExploreOpen) return 'explore';
@@ -371,6 +391,9 @@ const Dashboard = () => {
             setIsZenModeOpen(false);
         } else if (moduleId === 'youtube') {
             handleShowYoutube();
+            setIsZenModeOpen(false);
+        } else if (moduleId === 'live') {
+            handleShowLive();
             setIsZenModeOpen(false);
         } else if (moduleId === 'zen') {
             handleShowZenMode();
@@ -452,6 +475,8 @@ const Dashboard = () => {
                     </div>
                 ) : showYoutube ? (
                     <YouTubeView handlePlay={handlePlay} searchTerm={searchTerm} />
+                ) : showLive ? (
+                    <LiveView />
                 ) : isStatsOpen ? (
                     <StatsView handlePlay={handlePlay} formatTime={formatTime} />
                 ) : isExploreOpen ? (

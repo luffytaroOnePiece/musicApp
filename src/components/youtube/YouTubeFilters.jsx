@@ -11,14 +11,15 @@ const YouTubeFilters = ({
     genres,
     formats,
     languages,
-    onReset
+    onReset,
+    genreLabel = "Genre"
 }) => {
     const isFiltered = selectedGenre !== "All" || selectedFormat !== "All" || selectedLanguage !== "All";
 
     return (
         <div className="filters-container">
             <Dropdown
-                label="Genre"
+                label={genreLabel}
                 selected={selectedGenre}
                 onSelect={setSelectedGenre}
                 options={genres}
