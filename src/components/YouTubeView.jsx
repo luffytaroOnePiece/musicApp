@@ -60,9 +60,31 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
     };
 
     const handleVideoPlay = (trackUri) => {
-        // Create list of all URIs in the current filtered view
-        const allUris = filteredVideos.map(([id]) => `spotify:track:${id}`);
-        handlePlay(trackUri, allUris);
+        // Find index of the selected track
+        const currentIndex = filteredVideos.findIndex(([id]) => `spotify:track:${id}` === trackUri);
+
+        if (currentIndex === -1) {
+            // Fallback if not found (search filtered out?)
+            handlePlay(trackUri, [trackUri]);
+            return;
+        }
+
+        // Create a window of ~50 tracks centered on the current one
+        const WINDOW_SIZE = 50;
+        const halfWindow = Math.floor(WINDOW_SIZE / 2);
+
+        let start = Math.max(0, currentIndex - halfWindow);
+        let end = Math.min(filteredVideos.length, start + WINDOW_SIZE);
+
+        // Adjust start if we hit the end
+        if (end - start < WINDOW_SIZE) {
+            start = Math.max(0, end - WINDOW_SIZE);
+        }
+
+        const subset = filteredVideos.slice(start, end);
+        const subsetUris = subset.map(([id]) => `spotify:track:${id}`);
+
+        handlePlay(trackUri, subsetUris);
     };
 
     return (

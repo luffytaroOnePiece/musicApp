@@ -444,9 +444,20 @@
     opacity: 1;
 }
 
+.fp-overlay-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+}
+
+.fp-youtube-card:hover .fp-overlay-buttons {
+    transform: translateY(0);
+}
+
 .fp-watch-btn {
-    background: #FF0000;
-    color: white;
     border: none;
     padding: 12px 24px;
     border-radius: 30px;
@@ -456,18 +467,28 @@
     align-items: center;
     gap: 10px;
     cursor: pointer;
-    transform: translateY(20px);
-    transition: all 0.3s ease;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s ease;
+    width: 200px;
+    /* Fixed width for alignment */
+    justify-content: center;
 }
 
-.fp-youtube-card:hover .fp-watch-btn {
-    transform: translateY(0);
+.fp-watch-btn.transparent-play {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    padding: 0;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
-.fp-watch-btn:hover {
-    background: #ff3333;
-    transform: scale(1.05);
+.fp-watch-btn.transparent-play:hover {
+    background: rgba(255, 0, 0, 0.8);
+    border-color: transparent;
+    transform: scale(1.1);
 }
 
 .fp-youtube-info {
