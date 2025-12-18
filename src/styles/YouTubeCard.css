@@ -74,6 +74,13 @@
     flex: 1;
     margin-right: 12px;
     line-height: 1.4;
+
+    /* Truncate text after 2 lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .spotify-play-btn {

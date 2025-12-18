@@ -59,6 +59,12 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
         setSelectedLanguage("All");
     };
 
+    const handleVideoPlay = (trackUri) => {
+        // Create list of all URIs in the current filtered view
+        const allUris = filteredVideos.map(([id]) => `spotify:track:${id}`);
+        handlePlay(trackUri, allUris);
+    };
+
     return (
         <div className={`youtube-view-container ${isCinemaMode ? 'cinema-mode' : ''}`}>
             <div className="youtube-header">
@@ -132,7 +138,7 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
                             key={trackId}
                             trackId={trackId}
                             data={data}
-                            handlePlay={handlePlay}
+                            handlePlay={handleVideoPlay}
                         />
                     ))}
                 </div>

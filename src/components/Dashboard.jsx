@@ -216,7 +216,11 @@ const Dashboard = () => {
     };
 
     const handlePlay = (trackUri, contextUri = null, offset = 0) => {
-        if (!deviceId) return;
+        if (!deviceId) {
+            console.warn("Player not ready yet");
+            alert("Spotify Player is connecting... Please wait a moment.");
+            return;
+        }
 
         // Determine which list of tracks to use
         const activeTracks = searchResults || tracks;
@@ -229,12 +233,18 @@ const Dashboard = () => {
             // Otherwise, play the current list of tracks (search results or playlist) as a queue
             // If contextUri is an array (e.g. from Shuffle), use it.
             // Otherwise derive from active tracks.
-            const uris = Array.isArray(contextUri) ? contextUri : activeTracks.map(t => t.uri);
+            let uris = Array.isArray(contextUri) ? contextUri : activeTracks.map(t => t.uri);
 
             // If the passed trackUri is in our list, use its index as offset
             // otherwise fallback to passed offset or 0
-            const trackIndex = trackUri ? uris.indexOf(trackUri) : -1;
-            const finalOffset = trackIndex !== -1 ? trackIndex : offset;
+            let trackIndex = trackUri ? uris.indexOf(trackUri) : -1;
+            let finalOffset = trackIndex !== -1 ? trackIndex : offset;
+
+            // FALLBACK: If track not in list (or list empty), play just this track
+            if (trackIndex === -1 && trackUri) {
+                uris = [trackUri];
+                finalOffset = 0;
+            }
 
             if (uris.length > 0) {
                 playTrack(deviceId, uris, finalOffset);
