@@ -1,0 +1,188 @@
+/* Main container for the right column header actions */
+.header-actions-container {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    align-self: flex-end;
+    justify-content: flex-end;
+    padding-bottom: 20px;
+}
+
+/* Upgrade view controls alignment */
+.view-controls {
+    margin-left: 0;
+    align-self: flex-end;
+}
+
+.top-tracks-header {
+    width: 100%;
+    max-width: 452px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    margin-right: auto;
+}
+
+.top-tracks-title {
+    color: #b3b3b3;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+.time-range-selector {
+    position: relative;
+}
+
+.time-range-trigger {
+    background: transparent;
+    border: none;
+    color: #1DB954;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.time-range-trigger:hover {
+    background: rgba(29, 185, 84, 0.1);
+}
+
+.time-range-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 140px;
+    background: #282828;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+}
+
+.time-range-option {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    color: #ccc;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s;
+    display: flex;
+    justify-content: space-between;
+}
+
+.time-range-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.time-range-option.active {
+    color: #1DB954;
+    font-weight: 600;
+}
+
+/* Grid for the top 3 songs - Compact Fixed Width */
+.top-tracks-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 140px);
+    gap: 16px;
+    margin-bottom: 4px;
+}
+
+/* Styles for the "hero card" version of TrackItem */
+.top-tracks-grid .track-item.card {
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+    border-radius: 6px;
+}
+
+.top-tracks-grid .track-item.card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.top-tracks-grid .track-item.card .track-art {
+    margin-bottom: 8px;
+    aspect-ratio: 1;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.top-tracks-grid .track-item.card .track-art img {
+    border-radius: 4px;
+}
+
+.top-tracks-grid .track-item.card .track-name {
+    font-size: 0.85rem;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.top-tracks-grid .track-item.card .track-artist {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+/* Hide action buttons in the mini cards to keep it clean */
+.top-tracks-grid .track-item.card .track-actions {
+    display: none;
+}
+
+/* Badge for Rank (1, 2, 3) */
+.rank-badge {
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    width: 26px;
+    height: 26px;
+    background: #1DB954;
+    color: white;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    z-index: 5;
+    border: 2px solid #121212;
+    /* Add border to separate from background */
+}
+
+.rank-1 {
+    background: #FFD700;
+    color: #000;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+
+.rank-2 {
+    background: #C0C0C0;
+    color: #000;
+}
+
+.rank-3 {
+    background: #CD7F32;
+    color: #000;
+}

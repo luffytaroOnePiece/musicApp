@@ -8,7 +8,7 @@ const UserProfile = () => {
   const [error, setError] = useState(null);
 
   // Hardcoded for now, could be from package.json in a real build process if exposed
-  const APP_VERSION = "5.3.0";
+  const APP_VERSION = "5.5.0";
 
   const features = [
     "Smart Search & Direct Playback",
@@ -19,6 +19,8 @@ const UserProfile = () => {
     "Transfer Playback to Other Devices",
     "Add & Remove Tracks from Playlists",
     "Explore Albums & Artists",
+    "Top Picks from Playlists",
+    "Enhanced Full Split View Player",
   ];
 
   useEffect(() => {

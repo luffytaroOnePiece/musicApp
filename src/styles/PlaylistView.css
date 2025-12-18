@@ -4,6 +4,7 @@
 @import './playlist/PlaylistSort.css';
 @import './playlist/PlaylistActions.css';
 @import './playlist/PlaylistModal.css';
+@import './playlist/PlaylistTopSongs.css';
 
 .playlist-view-container {
     padding-top: 60px;
