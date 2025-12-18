@@ -1,0 +1,85 @@
+/* Delete Button Styles */
+.track-actions {
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0.6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.track-actions:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.track-item.list .track-actions {
+    justify-self: center;
+}
+
+.track-item.card .track-actions {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    color: #1DB954;
+}
+
+.track-item.card .track-actions:hover {
+    transform: scale(1.1);
+    background: rgba(0, 0, 0, 0.8);
+    color: #1ed760;
+}
+
+.delete-btn {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+/* Favorites Button Styles */
+.fav-btn {
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1.2rem;
+    color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fav-btn:hover {
+    transform: scale(1.1);
+    color: #1DB954;
+    /* Hover color */
+}
+
+.fav-btn.active {
+    color: #1DB954;
+}
+
+.track-item.list .fav-btn {
+    justify-self: center;
+}
+
+.track-item.card .fav-btn {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Utilities */
+.shuffle-btn-margin {
+    margin-right: 10px;
+}

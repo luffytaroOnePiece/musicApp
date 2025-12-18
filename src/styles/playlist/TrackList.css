@@ -1,0 +1,165 @@
+/* Content Area */
+.content-area.list {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 20px 100px 20px;
+    backdrop-filter: blur(10px);
+    gap: 8px;
+}
+
+.content-area.card {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 24px;
+    padding: 0 0 100px 0;
+}
+
+/* List Item Styles */
+.track-item.list {
+    display: grid;
+    /* Index, Art, Name/Artist, Album, Duration, Actions (Grouped) */
+    grid-template-columns: 40px 60px 1fr 1fr 60px minmax(130px, auto);
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #b3b3b3;
+    align-items: center;
+    gap: 16px;
+    transition: background 0.2s ease;
+}
+
+.list-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.track-item.list:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.track-item.list .track-art img {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+}
+
+.track-item.list .play-overlay {
+    display: none;
+}
+
+.track-item.list .track-details {
+    overflow: hidden;
+    min-width: 0;
+    /* Essential for flex/grid child truncation */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.track-item.list .track-name {
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.track-item.list .track-artist {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.track-item.list .track-album {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+/* Card Item Styles */
+.track-item.card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 16px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    /* Ensure absolute children are contained */
+    min-width: 0;
+    /* Critical for grid/flex truncation */
+    overflow: hidden;
+    /* Ensure nothing spills out */
+}
+
+.track-item.card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-5px);
+}
+
+.track-item.card .track-art {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    margin-bottom: 16px;
+}
+
+.track-item.card .track-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.track-item.card .play-overlay {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: #1DB954;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+}
+
+.track-item.card:hover .play-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.track-item.card .track-details {
+    width: 100%;
+    overflow: hidden;
+}
+
+.track-item.card .track-name {
+    font-size: 1rem;
+    color: white;
+    font-weight: 700;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.track-item.card .track-artist {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
