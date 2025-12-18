@@ -24,9 +24,13 @@ const YouTubeCard = ({ data, trackId, handlePlay }) => {
         <div className="youtube-card" onClick={handleVideoClick}>
             <div className="card-thumbnail-container">
                 <img
-                    src={`https://img.youtube.com/vi/${data.youtubelinkID}/hqdefault.jpg`}
+                    src={`https://img.youtube.com/vi/${data.youtubelinkID}/maxresdefault.jpg`}
                     alt="Thumbnail"
                     className="card-thumbnail"
+                    onError={(e) => {
+                        e.target.onerror = null; // Prevent infinite loop
+                        e.target.src = `https://img.youtube.com/vi/${data.youtubelinkID}/hqdefault.jpg`;
+                    }}
                 />
                 <div className="card-format-badge">
                     {data.format}
