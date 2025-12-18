@@ -44,7 +44,7 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
         }
     };
 
-    const youtubeData = currentTrack ? getYoutubeLinkData(currentTrack.id) : null;
+    const youtubeData = currentTrack ? (getYoutubeLinkData(currentTrack.id) || (currentTrack.linked_from && getYoutubeLinkData(currentTrack.linked_from.id))) : null;
 
     if (!currentTrack) return null;
 
