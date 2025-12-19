@@ -1,4 +1,4 @@
-export const clientId = '5806d9cdf2f04f71bd7b6c0f95ca97d5';
+export const clientId = import.meta.env.VITE_CLIENT_ID;
 // For GitHub Pages, we redirect to the main app URL (root) to avoid 404s on subpaths.
 const getBaseUrl = () => {
     return window.location.href.split('?')[0].split('#')[0].replace(/\/$/, "");
