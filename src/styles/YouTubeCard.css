@@ -44,6 +44,16 @@
     color: white;
 }
 
+.lyrics-symbol {
+    color: #1DB954;
+    /* Spotify Green */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
 .card-content {
     padding: 16px;
     flex: 1;
