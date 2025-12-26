@@ -7,12 +7,14 @@ import FPQueue from './FullPlayerComponents/FPQueue';
 import FPDevices from './FullPlayerComponents/FPDevices';
 import FPSplitLayout from './FullPlayerComponents/FPSplitLayout';
 import FPStandardLayout from './FullPlayerComponents/FPStandardLayout';
+import FPVibeLayout from './FullPlayerComponents/FPVibeLayout';
 
 import useFPDevices from '../hooks/useFPDevices';
 import useFPQueue from '../hooks/useFPQueue';
 
 const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVolume, handleSeek, formatTime, onClose, savedContext, trackList, deviceId, queueContext }) => {
     const [isClosing, setIsClosing] = useState(false);
+    const [showLyrics, setShowLyrics] = useState(false);
 
     const handleClose = () => {
         setIsClosing(true);
@@ -139,6 +141,9 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
                         onNext={handleNext}
                         onPrev={handlePrev}
                         onTogglePlay={handleTogglePlay}
+                        onToggleLyrics={() => setShowLyrics(prev => !prev)}
+                        showLyrics={showLyrics}
+                        hasLyrics={!!youtubeData?.lyrics}
                     />
                 ) : (
                     <FPStandardLayout
@@ -162,5 +167,6 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
         </div>
     );
 };
+
 
 export default FullPlayer;

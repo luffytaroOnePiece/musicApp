@@ -597,17 +597,19 @@ const Dashboard = () => {
         )}
       </div>
 
-      <PlayerBar
-        currentTrack={currentTrack}
-        paused={paused}
-        player={player}
-        duration={duration}
-        position={position}
-        handleVolume={handleVolume}
-        handleSeek={handleSeek}
-        formatTime={formatTime}
-        onOpenFullPlayer={() => setIsFullPlayerOpen(true)}
-      />
+      {!isFullPlayerOpen && (
+        <PlayerBar
+          currentTrack={currentTrack}
+          paused={paused}
+          player={player}
+          duration={duration}
+          position={position}
+          handleVolume={handleVolume}
+          handleSeek={handleSeek}
+          formatTime={formatTime}
+          onOpenFullPlayer={() => setIsFullPlayerOpen(true)}
+        />
+      )}
 
       {isFullPlayerOpen && (
         <FullPlayer

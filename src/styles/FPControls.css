@@ -1,4 +1,44 @@
 /* Controls Styles */
+.control-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 8px;
+    border-radius: 50%;
+}
+
+.control-btn:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.control-btn.icon-only {
+    width: 40px;
+    height: 40px;
+}
+
+.control-btn.active {
+    color: #1DB954;
+    background: rgba(29, 185, 84, 0.1);
+}
+
+.control-btn.active:hover {
+    background: rgba(29, 185, 84, 0.2);
+    transform: scale(1.1);
+}
+
+.control-btn.vibe-toggle-btn {
+    margin-right: 10px;
+    position: relative;
+    z-index: 200;
+    pointer-events: auto;
+}
+
 .fp-controls {
     display: grid;
     grid-template-columns: 1fr auto 1fr;

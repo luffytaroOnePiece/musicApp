@@ -16,7 +16,9 @@ const FPStandardLayout = ({
     devicesComponent,
     onNext,
     onPrev,
-    onTogglePlay
+    onTogglePlay,
+    onToggleVibe,
+    isVibeMode
 }) => {
     return (
         <>
@@ -48,6 +50,8 @@ const FPStandardLayout = ({
                 onNext={onNext}
                 onPrev={onPrev}
                 onTogglePlay={onTogglePlay}
+                onToggleVibe={onToggleVibe}
+                isVibeMode={isVibeMode}
             />
         </>
     );

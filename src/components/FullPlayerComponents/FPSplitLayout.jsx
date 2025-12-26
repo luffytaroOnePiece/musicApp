@@ -2,6 +2,7 @@ import React from 'react';
 import { openYoutubeLink } from '../../utils/youtubeUtils';
 import FPProgress from './FPProgress';
 import FPControls from './FPControls';
+import FPLyrics from './FPLyrics';
 
 const FPSplitLayout = ({
     currentTrack,
@@ -18,7 +19,10 @@ const FPSplitLayout = ({
     devicesComponent,
     onNext,
     onPrev,
-    onTogglePlay
+    onTogglePlay,
+    onToggleLyrics,
+    showLyrics,
+    hasLyrics
 }) => {
     return (
         <div className="fp-split-container">
@@ -52,31 +56,44 @@ const FPSplitLayout = ({
                     onNext={onNext}
                     onPrev={onPrev}
                     onTogglePlay={onTogglePlay}
+                    onToggleLyrics={onToggleLyrics}
+                    showLyrics={showLyrics}
+                    hasLyrics={hasLyrics}
+                    isLyricsAvailable={!!youtubeData?.lyrics}
                 />
             </div>
 
-            <div className="fp-right-section">
-                <div className="fp-youtube-card">
-                    <img
-                        src={`https://img.youtube.com/vi/${youtubeData.youtubelinkID}/maxresdefault.jpg`}
-                        alt="YouTube Thumbnail"
-                        className="fp-youtube-thumb"
+            <div className={`fp-right-section ${showLyrics ? 'lyrics-mode' : ''}`}>
+                {showLyrics && youtubeData?.lyrics ? (
+                    <FPLyrics
+                        lyricsFileName={youtubeData.lyrics}
+                        position={position}
                     />
-                    <div className="fp-youtube-overlay">
-                        <div className="fp-overlay-buttons">
-                            <button className="fp-watch-btn transparent-play" onClick={() => openYoutubeLink(currentTrack.id)}>
-                                <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M8 5v14l11-7z" />
-                                </svg>
-                            </button>
+                ) : (
+                    <>
+                        <div className="fp-youtube-card">
+                            <img
+                                src={`https://img.youtube.com/vi/${youtubeData.youtubelinkID}/maxresdefault.jpg`}
+                                alt="YouTube Thumbnail"
+                                className="fp-youtube-thumb"
+                            />
+                            <div className="fp-youtube-overlay">
+                                <div className="fp-overlay-buttons">
+                                    <button className="fp-watch-btn transparent-play" onClick={() => openYoutubeLink(currentTrack.id)}>
+                                        <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M8 5v14l11-7z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <div className="fp-youtube-info">
-                    <h3>Available on YouTube</h3>
-                    <p>{youtubeData.name} • {youtubeData.quality || youtubeData.format}</p>
-                </div>
+                        <div className="fp-youtube-info">
+                            <h3>Available on YouTube</h3>
+                            <p>{youtubeData.name} • {youtubeData.quality || youtubeData.format}</p>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

@@ -9,7 +9,7 @@
     background: #000;
     /* Fallback */
     overflow: hidden;
-    z-index: 3000;
+    z-index: 9999;
     /* Above everything */
     display: flex;
     flex-direction: column;
@@ -68,8 +68,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.3);
-    /* Subtle overlay */
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.6) 70%, rgba(0, 0, 0, 0.95) 100%);
+    /* Gradient to ensure bottom is dark for lyrics fade */
     z-index: -1;
 }
 
@@ -189,7 +189,8 @@
     grid-template-columns: 1fr 1fr;
     gap: 60px;
     width: 100%;
-    align-items: center;
+    align-items: stretch;
+    /* Fix height to prevent jumping */
     height: 100%;
 }
 
@@ -199,6 +200,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    /* Center internally */
     width: 100%;
     min-width: 0;
     /* Allow shrinking for text truncation */
@@ -224,6 +226,18 @@
     min-width: 0;
     /* Allow shrinking */
     animation: fadeInRight 0.5s ease-out;
+    position: relative;
+    /* Ensure containment */
+    height: 100%;
+    /* Explicit full height */
+}
+
+.fp-right-section.lyrics-mode {
+    height: 100%;
+    /* Keep full height stability */
+    justify-content: center;
+    /* Center the lyrics box */
+    align-items: stretch;
 }
 
 @keyframes fadeInRight {
@@ -357,4 +371,67 @@
         /* Allow scrolling from top */
         padding-top: 80px;
     }
+}
+
+/* Lyrics Styles */
+.fp-lyrics-container {
+    height: auto;
+    max-height: 70vh;
+    /* Restrict height of lyrics box */
+    width: 100%;
+    overflow-y: auto;
+    padding: 35vh 20px;
+    /* Use VH for reliable centering padding */
+    box-sizing: border-box;
+    margin-right: -10px;
+    /* Offset for scrollbar */
+    padding-right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    /* Increased gap for better readability */
+    scroll-behavior: smooth;
+    mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+}
+
+.fp-lyrics-container::-webkit-scrollbar {
+    display: none;
+}
+
+.fp-lyrics-container {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.fp-lyrics-line {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin: 0;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.fp-lyrics-line:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.fp-lyrics-line.active {
+    color: #fff;
+    transform: scale(1.05);
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.fp-lyrics-loading,
+.fp-lyrics-error,
+.fp-lyrics-empty {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.2rem;
 }

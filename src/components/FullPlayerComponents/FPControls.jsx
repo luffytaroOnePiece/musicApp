@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../styles/FPControls.css';
 
-const FPControls = ({ player, paused, queueComponent, devicesComponent, onNext, onPrev, onTogglePlay }) => {
+const FPControls = ({ player, paused, queueComponent, devicesComponent, onNext, onPrev, onTogglePlay, onToggleLyrics, showLyrics, hasLyrics, isLyricsAvailable }) => {
     return (
         <div className="fp-controls">
             <div className="fp-controls-left">
@@ -27,6 +27,20 @@ const FPControls = ({ player, paused, queueComponent, devicesComponent, onNext, 
             </div>
 
             <div className="fp-controls-extra">
+                {/* Lyrics Toggle */}
+                {/* Only show if lyrics are available for this track */}
+                {isLyricsAvailable && (
+                    <button
+                        className={`control-btn icon-only vibe-toggle-btn ${showLyrics ? 'active' : ''}`}
+                        onClick={onToggleLyrics}
+                        title="Show Lyrics"
+                        style={{ marginRight: '10px' }}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </button>
+                )}
                 {devicesComponent}
             </div>
         </div>
