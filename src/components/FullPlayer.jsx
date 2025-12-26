@@ -9,6 +9,15 @@ import FPControls from './FullPlayerComponents/FPControls';
 import FPProgress from './FullPlayerComponents/FPProgress';
 
 const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVolume, handleSeek, formatTime, onClose, savedContext, trackList, deviceId, queueContext }) => {
+    const [isClosing, setIsClosing] = useState(false);
+
+    const handleClose = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            onClose();
+        }, 400); // Match animation duration
+    };
+
     const [devices, setDevices] = useState([]);
     const [showDevices, setShowDevices] = useState(false);
     const devicesRef = useRef(null);
@@ -202,11 +211,11 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
     );
 
     return (
-        <div className={`full-player-overlay ${youtubeData ? 'fp-split-layout' : ''}`}>
+        <div className={`full-player-overlay ${youtubeData ? 'fp-split-layout' : ''} ${isClosing ? 'closing' : ''}`}>
             <div className="fp-background" style={{ backgroundImage: `url(${albumImage})` }}></div>
             <div className="fp-backdrop"></div>
 
-            <button className="fp-close-btn" onClick={onClose}>
+            <button className="fp-close-btn" onClick={handleClose}>
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
