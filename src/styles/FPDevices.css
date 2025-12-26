@@ -1,0 +1,121 @@
+/* Devices Popup Styles */
+.fp-devices-container {
+    position: relative;
+    display: inline-block;
+}
+
+.fp-device-btn.active {
+    color: var(--primary-color);
+    /* Spotify Green or App Primary */
+    opacity: 1;
+}
+
+.fp-devices-list {
+    position: absolute;
+    bottom: 120%;
+    right: -20px;
+    width: 280px;
+    background: #282828;
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    overflow: hidden;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fp-devices-header {
+    padding: 16px;
+    text-align: center;
+    background: #181818;
+}
+
+.fp-devices-header h3 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.fp-devices-header-img {
+    width: 60px;
+    opacity: 0.8;
+}
+
+.fp-devices-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.fp-device-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fp-device-item:last-child {
+    border-bottom: none;
+}
+
+.fp-device-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.fp-device-item.active-device .fp-device-name {
+    color: #1bd860;
+}
+
+.fp-device-icon {
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.fp-device-item.active-device .fp-device-icon {
+    color: #1bd860;
+}
+
+.fp-device-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.fp-device-name {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fp-device-model {
+    font-size: 11px;
+    color: #b3b3b3;
+}
+
+.fp-no-devices {
+    padding: 20px;
+    text-align: center;
+    color: #b3b3b3;
+    font-size: 14px;
+}

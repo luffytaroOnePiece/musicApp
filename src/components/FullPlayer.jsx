@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/FullPlayer.css';
-import { getAvailableDevices, transferPlayback, getUserQueue } from '../services/spotifyApi';
+import { getAvailableDevices, transferPlayback, getUserQueue, playTrack, setRepeat } from '../services/spotifyApi';
 import { getYoutubeLinkData, openYoutubeLink } from '../utils/youtubeUtils';
 
 import FPQueue from './FullPlayerComponents/FPQueue';
@@ -51,6 +51,25 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
 
     const [queue, setQueue] = useState([]);
     const [showQueue, setShowQueue] = useState(false);
+    const queueRef = useRef(null);
+
+    // Close queue when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            // Check if click is outside BOTH queue popup AND the toggle button (to avoid immediate reopen)
+            if (queueRef.current && !queueRef.current.contains(event.target)) {
+                setShowQueue(false);
+            }
+        };
+
+        if (showQueue) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showQueue]);
 
     const toggleQueue = async () => {
         if (!showQueue) {
@@ -66,6 +85,35 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
         setShowQueue(!showQueue);
     };
 
+    const handleQueueTrackClick = async (trackUri) => {
+        if (!player) return;
+
+        try {
+            const devicesData = await getAvailableDevices();
+            const activeDevice = devicesData.devices.find(d => d.is_active);
+            const targetDeviceId = activeDevice ? activeDevice.id : devicesData.devices[0]?.id;
+
+            if (targetDeviceId) {
+                await playTrack(targetDeviceId, trackUri);
+
+                // Close queue immediately for better UX
+                setShowQueue(false);
+                setQueue([]);
+
+                // Wait 500ms for context to establish before forcing repeat off
+                setTimeout(async () => {
+                    try {
+                        await setRepeat('off', targetDeviceId);
+                    } catch (err) {
+                        console.error("Error setting repeat off:", err);
+                    }
+                }, 500);
+            }
+        } catch (e) {
+            console.error("Error playing queue track:", e);
+        }
+    };
+
     const youtubeData = currentTrack ? (getYoutubeLinkData(currentTrack.id) || (currentTrack.linked_from && getYoutubeLinkData(currentTrack.linked_from.id))) : null;
 
     if (!currentTrack) return null;
@@ -79,6 +127,8 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
             showQueue={showQueue}
             toggleQueue={toggleQueue}
             queue={queue}
+            onTrackClick={handleQueueTrackClick}
+            queueRef={queueRef}
         />
     );
 

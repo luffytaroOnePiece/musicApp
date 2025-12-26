@@ -1,4 +1,5 @@
 import React from 'react';
+import '../../styles/FPDevices.css';
 
 const FPDevices = ({ showDevices, setShowDevices, devices, handleDeviceSelect, devicesRef }) => {
     return (

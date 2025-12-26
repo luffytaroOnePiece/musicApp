@@ -1,4 +1,5 @@
 import React from 'react';
+import '../../styles/FPControls.css';
 
 const FPControls = ({ player, paused, queueComponent, devicesComponent }) => {
     return (

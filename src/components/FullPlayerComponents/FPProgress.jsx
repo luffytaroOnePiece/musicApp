@@ -1,4 +1,5 @@
 import React from 'react';
+import '../../styles/FPProgress.css';
 
 const FPProgress = ({ position, duration, handleSeek, formatTime }) => {
     return (
