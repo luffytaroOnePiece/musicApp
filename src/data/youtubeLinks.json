@@ -257,5 +257,44 @@
     "language": "Telugu",
     "genre": "Romance",
     "name": "Urike Urike"
+  },
+  "0FIDCNYYjNvPVimz5icugS": {
+    "youtubelinkID": "5EpyN_6dqyk",
+    "format": "2160p",
+    "language": "English",
+    "genre": "High",
+    "name": "Timeless",
+    "lyrics": "0FIDCNYYjNvPVimz5icugS.lrc"
+  },
+  "0VjIjW4GlUZAMYd2vXMi3b": {
+    "youtubelinkID": "4NRXx6U8ABQ",
+    "format": "1080p",
+    "language": "English",
+    "genre": "High",
+    "name": "Blinding Lights",
+    "lyrics": "0VjIjW4GlUZAMYd2vXMi3b.lrc"
+  },
+  "7MXVkk9YMctZqd1Srtv4MB": {
+    "youtubelinkID": "34Na4j8AVgA",
+    "format": "1080p",
+    "language": "English",
+    "genre": "High",
+    "name": "Star Boy"
+  },
+  "09mEdoA6zrmBPgTEN5qXmN": {
+    "youtubelinkID": "M4ZoCHID9GI",
+    "format": "1080p",
+    "language": "English",
+    "genre": "High",
+    "name": "Call Out My Name",
+    "lyrics": "09mEdoA6zrmBPgTEN5qXmN.lrc"
+  },
+  "7CyPwkp0oE8Ro9Dd5CUDjW": {
+    "youtubelinkID": "Mx92lTYxrJQ",
+    "format": "1080p",
+    "language": "English",
+    "genre": "High",
+    "name": "One Of The Girls",
+    "lyrics": "7CyPwkp0oE8Ro9Dd5CUDjW.lrc"
   }
 }
