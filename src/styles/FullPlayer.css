@@ -131,6 +131,7 @@
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 3px;
     -webkit-appearance: none;
+    appearance: none;
     cursor: pointer;
     /* Filled Progress Gradient */
     background-image: linear-gradient(to right,
@@ -173,7 +174,21 @@
     grid-column: 3;
     justify-self: end;
     display: flex;
+    justify-self: end;
+    display: flex;
     align-items: center;
+}
+
+.fp-controls-left {
+    grid-column: 1;
+    justify-self: start;
+    display: flex;
+    align-items: center;
+}
+
+.fp-queue-container {
+    position: relative;
+    display: inline-block;
 }
 
 .fp-close-btn {
@@ -523,4 +538,101 @@
         /* Allow scrolling from top */
         padding-top: 80px;
     }
+}
+
+/* Queue List Styles */
+.fp-queue-btn.active {
+    color: var(--accent-color, #1bd860);
+    opacity: 1;
+}
+
+.fp-queue-list {
+    position: absolute;
+    bottom: 120%;
+    /* Position above like devices list */
+    left: 0;
+    /* Adjust as needed */
+    width: 320px;
+    max-height: 400px;
+    background: rgba(30, 30, 30, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.2s ease-out;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fp-queue-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.fp-queue-header h3 {
+    margin: 0;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.fp-queue-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+}
+
+.fp-queue-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s;
+}
+
+.fp-queue-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.fp-queue-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.fp-queue-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.fp-queue-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fp-queue-artist {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fp-no-queue {
+    padding: 30px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
 }

@@ -175,6 +175,8 @@ export const getUserTopItems = (type = 'artists', time_range = 'medium_term', li
 
 export const getAvailableDevices = () => apiCall('/me/player/devices');
 
+export const getUserQueue = () => apiCall('/me/player/queue');
+
 export const transferPlayback = async (deviceId, play = false) => {
     const token = getAccessToken();
     await fetch(`${BASE_URL}/me/player`, {
