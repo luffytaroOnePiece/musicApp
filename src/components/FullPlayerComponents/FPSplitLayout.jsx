@@ -68,6 +68,7 @@ const FPSplitLayout = ({
                     <FPLyrics
                         lyricsFileName={youtubeData.lyrics}
                         position={position}
+                        handleSeek={handleSeek}
                     />
                 ) : (
                     <>

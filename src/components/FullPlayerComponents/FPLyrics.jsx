@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
+import '../../styles/FPLyrics.css';
 
-const FPLyrics = ({ lyricsFileName, position }) => {
+const FPLyrics = ({ lyricsFileName, position, handleSeek }) => {
     const [lyricsLines, setLyricsLines] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -77,6 +78,12 @@ const FPLyrics = ({ lyricsFileName, position }) => {
         }
     }, [activeIndex]);
 
+    const handleLineClick = (time) => {
+        if (handleSeek) {
+            handleSeek({ target: { value: time / 1000 } });
+        }
+    };
+
     if (loading) return <div className="fp-lyrics-loading">Loading lyrics...</div>;
     if (error) return <div className="fp-lyrics-error">{error}</div>;
 
@@ -86,6 +93,7 @@ const FPLyrics = ({ lyricsFileName, position }) => {
                 <p
                     key={index}
                     className={`fp-lyrics-line ${index === activeIndex ? 'active' : ''}`}
+                    onClick={() => handleLineClick(line.time)}
                 >
                     {line.text}
                 </p>
