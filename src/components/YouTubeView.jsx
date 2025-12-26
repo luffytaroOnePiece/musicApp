@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import youtubeLinks from "../data/youtubeLinks.json";
+import { getTracks } from "../services/spotifyApi";
 import YouTubeCard from "./youtube/YouTubeCard";
 import YouTubeFilters from "./youtube/YouTubeFilters";
 import "../styles/YouTubeView.css";
@@ -59,7 +60,7 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
         setSelectedLanguage("All");
     };
 
-    const handleVideoPlay = (trackUri) => {
+    const handleVideoPlay = async (trackUri) => {
         // Find index of the selected track
         const currentIndex = filteredVideos.findIndex(([id]) => `spotify:track:${id}` === trackUri);
 
@@ -84,7 +85,42 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
         const subset = filteredVideos.slice(start, end);
         const subsetUris = subset.map(([id]) => `spotify:track:${id}`);
 
-        handlePlay(trackUri, subsetUris);
+        // Fetch real track metadata from Spotify
+        try {
+            const ids = subset.map(([id]) => id).join(',');
+            const data = await getTracks(ids);
+
+            // Map the API response to ensure we have valid track objects
+            // The API returns { tracks: [...] }
+            const realTracks = (data.tracks || []).filter(Boolean);
+
+            // If we got tracks back, use them. Otherwise fallback (unlikely if IDs are valid)
+            if (realTracks.length > 0) {
+                handlePlay(trackUri, subsetUris, 0, realTracks);
+            } else {
+                throw new Error("No tracks found");
+            }
+        } catch (err) {
+            console.error("Failed to fetch Spotify metadata for YouTube tracks:", err);
+            // Fallback: Construct full track objects manually if API fails
+            const subsetWithMetadata = subset.map(([id, data]) => ({
+                id: id,
+                uri: `spotify:track:${id}`,
+                name: data.name,
+                artists: [{ name: data.genre || "YouTube" }],
+                album: {
+                    images: [
+                        { url: `https://img.youtube.com/vi/${data.youtubelinkID}/maxresdefault.jpg` },
+                        { url: `https://img.youtube.com/vi/${data.youtubelinkID}/mqdefault.jpg` },
+                        { url: `https://img.youtube.com/vi/${data.youtubelinkID}/default.jpg` }
+                    ],
+                    name: "YouTube Video"
+                },
+                duration_ms: 0,
+                is_local: false
+            }));
+            handlePlay(trackUri, subsetUris, 0, subsetWithMetadata);
+        }
     };
 
     return (

@@ -225,15 +225,25 @@ const Dashboard = () => {
     }
   };
 
-  const handlePlay = (trackUri, contextUri = null, offset = 0) => {
+  const handlePlay = (trackUri, contextUri = null, offset = 0, incomingTracks = null) => {
     if (!deviceId) {
       console.warn("Player not ready yet");
       alert("Spotify Player is connecting... Please wait a moment.");
       return;
     }
 
+    // If incoming tracks are provided (e.g. from YouTube view), update the tracks state
+    // so the player knows what the current "queue" is.
+    if (incomingTracks && Array.isArray(incomingTracks)) {
+      setTracks(incomingTracks);
+      setSearchResults(null);
+      setSelectedPlaylist(null); // Clear specific playlist context
+      setSearchTerm("");
+    }
+
     // Determine which list of tracks to use
-    const activeTracks = searchResults || tracks;
+    // If incomingTracks was just set, we use that (via the arg, as state takes a render to update)
+    const activeTracks = incomingTracks || searchResults || tracks;
 
     // If contextUri is provided (playlist/album) and it's a real Spotify context, play that
     // However, for search results, contextUri is usually empty or custom.
