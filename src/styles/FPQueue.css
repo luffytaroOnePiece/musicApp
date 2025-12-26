@@ -89,27 +89,14 @@
     margin: 0;
     overflow-y: auto;
 
-    /* Custom Scrollbar */
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    /* Custom Scrollbar - Hidden but scrollable */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
-/* Scrollbar for Webkit */
+/* Hide scrollbar for Chrome, Safari and Opera */
 .fp-queue-list ul::-webkit-scrollbar {
-    width: 6px;
-}
-
-.fp-queue-list ul::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.fp-queue-list ul::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-}
-
-.fp-queue-list ul::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.4);
+    display: none;
 }
 
 .fp-queue-item {
