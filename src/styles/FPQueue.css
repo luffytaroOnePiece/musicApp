@@ -1,96 +1,171 @@
-/* Queue List Styles */
+/* Queue List Styles - Glossy & Modern */
 .fp-queue-container {
     position: relative;
     display: inline-block;
 }
 
+.fp-queue-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.7;
+}
+
+.fp-queue-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
 .fp-queue-btn.active {
     color: var(--accent-color, #1bd860);
     opacity: 1;
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 8px rgba(27, 216, 96, 0.4));
 }
 
 .fp-queue-list {
     position: absolute;
-    bottom: 120%;
-    /* Position above like devices list */
-    left: 0;
-    /* Adjust as needed */
-    width: 320px;
-    max-height: 400px;
-    background: rgba(30, 30, 30, 0.65);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    bottom: 140%;
+    /* Moved up slightly */
+    left: -20px;
+    /* Slight offset for better alignment */
+    width: 360px;
+    /* Wider for better readability */
+    max-height: 480px;
+
+    /* Modern Glassmorphism */
+    background: rgba(20, 20, 20, 0.75);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+
     z-index: 100;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    animation: fadeIn 0.2s ease-out;
+
+    /* Smooth Entry Animation */
+    transform-origin: bottom left;
+    animation: queuePopIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes queuePopIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 .fp-queue-header {
-    padding: 15px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.03);
+    padding: 18px 24px;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .fp-queue-header h3 {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 700;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 .fp-queue-list ul {
     list-style: none;
-    padding: 0;
+    padding: 8px 0;
     margin: 0;
     overflow-y: auto;
-    /* Hide scrollbar for Chrome, Safari and Opera */
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
+
+    /* Custom Scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
+/* Scrollbar for Webkit */
 .fp-queue-list ul::-webkit-scrollbar {
-    display: none;
+    width: 6px;
+}
+
+.fp-queue-list ul::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.fp-queue-list ul::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+.fp-queue-list ul::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.4);
 }
 
 .fp-queue-item {
     display: flex;
     align-items: center;
-    padding: 10px 15px;
-    gap: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.2s;
+    padding: 12px 20px;
+    gap: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
     cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    position: relative;
 }
 
 .fp-queue-item:last-child {
     border-bottom: none;
 }
 
+/* Hover Effect */
 .fp-queue-item:hover {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: brightness(1.2);
+    background: rgba(255, 255, 255, 0.08);
+    /* Brighter hover */
+    transform: scale(1.02);
+    /* Subtle pop */
+    z-index: 1;
+    /* Bring above boundaries */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Active Playing Track */
+.fp-queue-item.active {
+    background: rgba(27, 216, 96, 0.1);
+    /* Subtle green tint */
+    border-left: 3px solid #1bd860;
+    /* Green accent bar */
+}
+
+.fp-queue-item.active .fp-queue-name {
+    color: #1bd860;
+    font-weight: 700;
 }
 
 .fp-queue-img-container {
     position: relative;
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    /* Slightly larger */
+    height: 48px;
+    flex-shrink: 0;
 }
 
 .fp-queue-img {
     width: 100%;
     height: 100%;
-    border-radius: 6px;
+    border-radius: 8px;
+    /* Softer corners */
     object-fit: cover;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 .fp-queue-play-overlay {
@@ -99,47 +174,64 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
     transition: opacity 0.2s;
-    border-radius: 6px;
+    border-radius: 8px;
     color: white;
+    backdrop-filter: blur(2px);
 }
 
-.fp-queue-item:hover .fp-queue-play-overlay {
+.fp-queue-item:hover .fp-queue-play-overlay,
+.fp-queue-item.active .fp-queue-play-overlay {
     opacity: 1;
+}
+
+/* Show equalizer-like icon for active track if logic allows, 
+   currently it just shows generic play icon from HTML. 
+   We can style that icon specifically if it's active. */
+.fp-queue-item.active .fp-queue-play-overlay svg {
+    color: #1bd860;
+    filter: drop-shadow(0 0 5px rgba(27, 216, 96, 0.6));
 }
 
 .fp-queue-info {
     display: flex;
     flex-direction: column;
+    gap: 4px;
     overflow: hidden;
+    flex: 1;
 }
 
 .fp-queue-name {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: white;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 0.3px;
 }
 
 .fp-queue-artist {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
+.fp-queue-item:hover .fp-queue-artist {
+    color: rgba(255, 255, 255, 0.9);
+}
+
 .fp-no-queue {
-    padding: 30px;
+    padding: 40px;
     text-align: center;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.4);
     font-style: italic;
+    font-size: 0.9rem;
 }
