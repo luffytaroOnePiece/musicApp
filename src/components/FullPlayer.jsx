@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/FullPlayer.css';
-import { getAvailableDevices, transferPlayback, getUserQueue, playTrack, setRepeat } from '../services/spotifyApi';
+import { getAvailableDevices, transferPlayback, playTrack, setRepeat, nextTrack, prevTrack, pauseTrack, resumePlayback } from '../services/spotifyApi';
 import { getYoutubeLinkData, openYoutubeLink } from '../utils/youtubeUtils';
 
 import FPQueue from './FullPlayerComponents/FPQueue';
@@ -8,7 +8,7 @@ import FPDevices from './FullPlayerComponents/FPDevices';
 import FPControls from './FullPlayerComponents/FPControls';
 import FPProgress from './FullPlayerComponents/FPProgress';
 
-const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVolume, handleSeek, formatTime, onClose }) => {
+const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVolume, handleSeek, formatTime, onClose, savedContext, trackList, deviceId, queueContext }) => {
     const [devices, setDevices] = useState([]);
     const [showDevices, setShowDevices] = useState(false);
     const devicesRef = useRef(null);
@@ -49,7 +49,6 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
         }
     };
 
-    const [queue, setQueue] = useState([]);
     const [showQueue, setShowQueue] = useState(false);
     const queueRef = useRef(null);
 
@@ -71,17 +70,7 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
         };
     }, [showQueue]);
 
-    const toggleQueue = async () => {
-        if (!showQueue) {
-            try {
-                const data = await getUserQueue();
-                if (data && data.queue) {
-                    setQueue(data.queue.slice(0, 20)); // Show top 20
-                }
-            } catch (error) {
-                console.error("Failed to fetch queue", error);
-            }
-        }
+    const toggleQueue = () => {
         setShowQueue(!showQueue);
     };
 
@@ -94,24 +83,93 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
             const targetDeviceId = activeDevice ? activeDevice.id : devicesData.devices[0]?.id;
 
             if (targetDeviceId) {
-                await playTrack(targetDeviceId, trackUri);
+                // Priority 1: Use the Passed Queue Context (from Dashboard)
+                // Priority 2: Use the Captured Queue Context (from API - legacy/backup)
+                // Priority 3: Fallback to sticky context
 
-                // Close queue immediately for better UX
+                let contextUriToUse = queueContext;
+
+                if (!contextUriToUse && savedContext) {
+                    contextUriToUse = savedContext;
+                }
+
+                // If context is an array (list of URIs), find the index
+                if (Array.isArray(contextUriToUse)) {
+                    const trackIndex = contextUriToUse.indexOf(trackUri);
+                    if (trackIndex !== -1) {
+                        await playTrack(targetDeviceId, contextUriToUse, trackIndex);
+                    } else {
+                        // Fallback: just play the track if not in list
+                        await playTrack(targetDeviceId, trackUri);
+                    }
+                }
+                // If context is a string (Playlist/Album URI)
+                else if (typeof contextUriToUse === 'string') {
+                    await playTrack(targetDeviceId, contextUriToUse, { uri: trackUri });
+                }
+                // Fallback: No context
+                else {
+                    await playTrack(targetDeviceId, trackUri);
+                }
+
+                // Close queue immediately
                 setShowQueue(false);
-                setQueue([]);
 
-                // Wait 500ms for context to establish before forcing repeat off
+                // AGGRESSIVE FIX: Force Repeat OFF again after delay
                 setTimeout(async () => {
                     try {
                         await setRepeat('off', targetDeviceId);
                     } catch (err) {
-                        console.error("Error setting repeat off:", err);
+                        console.error("Post-play repeat disable failed:", err);
                     }
-                }, 500);
+                }, 1000);
             }
         } catch (e) {
             console.error("Error playing queue track:", e);
         }
+    };
+    const handleNext = async () => {
+        try {
+            if (deviceId) {
+                await nextTrack(deviceId);
+            } else {
+                const devices = await getAvailableDevices();
+                const activeDevice = devices.devices.find(d => d.is_active);
+                if (activeDevice) await nextTrack(activeDevice.id);
+            }
+        } catch (e) { console.error(e); }
+    };
+
+    const handlePrev = async () => {
+        try {
+            if (deviceId) {
+                await prevTrack(deviceId);
+            } else {
+                const devices = await getAvailableDevices();
+                const activeDevice = devices.devices.find(d => d.is_active);
+                if (activeDevice) await prevTrack(activeDevice.id);
+            }
+        } catch (e) { console.error(e); }
+    };
+
+    const handleTogglePlay = async () => {
+        try {
+            let targetDeviceId = deviceId;
+
+            if (!targetDeviceId) {
+                const devices = await getAvailableDevices();
+                const activeDevice = devices.devices.find(d => d.is_active);
+                if (activeDevice) targetDeviceId = activeDevice.id;
+            }
+
+            if (!targetDeviceId) return;
+
+            if (paused) {
+                await resumePlayback(targetDeviceId); // Simple resume
+            } else {
+                await pauseTrack(targetDeviceId);
+            }
+        } catch (e) { console.error(e); }
     };
 
     const youtubeData = currentTrack ? (getYoutubeLinkData(currentTrack.id) || (currentTrack.linked_from && getYoutubeLinkData(currentTrack.linked_from.id))) : null;
@@ -126,9 +184,10 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
         <FPQueue
             showQueue={showQueue}
             toggleQueue={toggleQueue}
-            queue={queue}
+            queue={trackList}
             onTrackClick={handleQueueTrackClick}
             queueRef={queueRef}
+            currentTrackId={currentTrack?.id}
         />
     );
 
@@ -144,7 +203,6 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
 
     return (
         <div className={`full-player-overlay ${youtubeData ? 'fp-split-layout' : ''}`}>
-            {/* ... (keep existing background/backdrop) */}
             <div className="fp-background" style={{ backgroundImage: `url(${albumImage})` }}></div>
             <div className="fp-backdrop"></div>
 
@@ -185,6 +243,9 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
                                 paused={paused}
                                 queueComponent={queueComponent}
                                 devicesComponent={devicesComponent}
+                                onNext={handleNext}
+                                onPrev={handlePrev}
+                                onTogglePlay={handleTogglePlay}
                             />
                         </div>
 
@@ -240,6 +301,9 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
                             paused={paused}
                             queueComponent={queueComponent}
                             devicesComponent={devicesComponent}
+                            onNext={handleNext}
+                            onPrev={handlePrev}
+                            onTogglePlay={handleTogglePlay}
                         />
                     </>
                 )}

@@ -52,13 +52,31 @@ export const playTrack = async (deviceId, contextUri, offset = 0) => {
         body.uris = [contextUri];
     } else {
         body.context_uri = contextUri;
-        if (offset) body.offset = { position: offset };
+        if (offset !== null && offset !== undefined) {
+            if (typeof offset === 'object') {
+                body.offset = offset;
+            } else if (typeof offset === 'number') {
+                body.offset = { position: offset };
+            }
+        }
     }
 
     await fetch(`${BASE_URL}/me/player/play?device_id=${deviceId}`, {
         method: 'PUT',
         headers,
         body: JSON.stringify(body)
+    });
+};
+
+export const resumePlayback = async (deviceId) => {
+    const token = getAccessToken();
+    await fetch(`${BASE_URL}/me/player/play?device_id=${deviceId}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        // No body for resume
     });
 };
 

@@ -8,6 +8,7 @@ const useSpotifyPlayer = () => {
     const [currentTrack, setCurrentTrack] = useState(null);
     const [duration, setDuration] = useState(0);
     const [position, setPosition] = useState(0);
+    const [context, setContext] = useState(null);
 
     useEffect(() => {
         const script = document.createElement("script");
@@ -61,6 +62,7 @@ const useSpotifyPlayer = () => {
                 setCurrentTrack(state.track_window.current_track);
                 setDuration(state.duration);
                 setPosition(state.position);
+                setContext(state.context); // Capture context
 
                 player.getCurrentState().then(state => {
                     setActive(!!state);
@@ -86,7 +88,7 @@ const useSpotifyPlayer = () => {
         return () => clearInterval(interval);
     }, [player, paused]);
 
-    return { player, paused, active, currentTrack, duration, position };
+    return { player, paused, active, currentTrack, duration, position, context };
 }
 
 export default useSpotifyPlayer;

@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../styles/FPQueue.css';
 
-const FPQueue = ({ showQueue, toggleQueue, queue, onTrackClick, queueRef }) => {
+const FPQueue = ({ showQueue, toggleQueue, queue, onTrackClick, queueRef, currentTrackId }) => {
     return (
         <div className="fp-queue-container" ref={queueRef}>
             <button
@@ -22,28 +22,32 @@ const FPQueue = ({ showQueue, toggleQueue, queue, onTrackClick, queueRef }) => {
             {showQueue && (
                 <div className="fp-queue-list">
                     <div className="fp-queue-header">
-                        <h3>Next Up</h3>
+                        <h3>Current Playlist</h3>
                     </div>
-                    {queue.length > 0 ? (
+                    {queue && queue.length > 0 ? (
                         <ul>
-                            {queue.map((track, i) => (
-                                <li
-                                    key={`${track.id}-${i}`}
-                                    className="fp-queue-item"
-                                    onClick={() => onTrackClick && onTrackClick(track.uri)}
-                                >
-                                    <div className="fp-queue-img-container">
-                                        <img src={track.album?.images?.[2]?.url} alt="" className="fp-queue-img" />
-                                        <div className="fp-queue-play-overlay">
-                                            <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+                            {queue.map((track, i) => {
+                                if (!track) return null;
+                                const isActive = currentTrackId && track.id === currentTrackId;
+                                return (
+                                    <li
+                                        key={`${track.id}-${i}`}
+                                        className={`fp-queue-item ${isActive ? 'active' : ''}`}
+                                        onClick={() => onTrackClick && onTrackClick(track.uri)}
+                                    >
+                                        <div className="fp-queue-img-container">
+                                            <img src={track.album?.images?.[2]?.url} alt="" className="fp-queue-img" />
+                                            <div className="fp-queue-play-overlay">
+                                                <svg role="img" height="16" width="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="fp-queue-info">
-                                        <span className="fp-queue-name">{track.name}</span>
-                                        <span className="fp-queue-artist">{track.artists?.[0]?.name}</span>
-                                    </div>
-                                </li>
-                            ))}
+                                        <div className="fp-queue-info">
+                                            <span className="fp-queue-name">{track.name}</span>
+                                            <span className="fp-queue-artist">{track.artists?.[0]?.name}</span>
+                                        </div>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     ) : (
                         <div className="fp-no-queue">Queue is empty</div>

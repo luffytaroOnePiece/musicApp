@@ -30,7 +30,7 @@ import UserProfile from "./UserProfile";
 import "../styles/Dashboard.css";
 
 const Dashboard = () => {
-  const { player, paused, currentTrack, duration, position } =
+  const { player, paused, currentTrack, duration, position, context } =
     useSpotifyPlayer();
 
   // Data State
@@ -50,6 +50,7 @@ const Dashboard = () => {
   const [currentTheme, setCurrentTheme] = useState("cyber-city");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [likedTrackIds, setLikedTrackIds] = useState(new Set()); // Set of strings
+  const [lastActivePlaylistContext, setLastActivePlaylistContext] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isFullPlayerOpen, setIsFullPlayerOpen] = useState(false);
@@ -102,6 +103,15 @@ const Dashboard = () => {
       });
     }
   }, [player]);
+
+  // Track Last Active Playlist Context
+  useEffect(() => {
+    if (context && context.uri && context.uri.includes('spotify:playlist')) {
+      setLastActivePlaylistContext(context.uri);
+    } else if (context && context.uri && context.uri.includes('spotify:album')) {
+      setLastActivePlaylistContext(context.uri);
+    }
+  }, [context]);
 
   // Check Favorites Status
   useEffect(() => {
@@ -441,9 +451,8 @@ const Dashboard = () => {
 
   return (
     <div
-      className={`dashboard-container ${currentTheme} ${
-        !isSidebarOpen ? "sidebar-collapsed" : ""
-      }`}
+      className={`dashboard-container ${currentTheme} ${!isSidebarOpen ? "sidebar-collapsed" : ""
+        }`}
     >
       <Sidebar
         isSidebarOpen={isSidebarOpen}
@@ -522,7 +531,7 @@ const Dashboard = () => {
                 playlists={playlists}
                 likedTrackIds={likedTrackIds}
                 onToggleFavorite={handleToggleFavorite}
-                // No onRemoveTrack passed here
+              // No onRemoveTrack passed here
               />
             </div>
           ) : (
@@ -601,6 +610,10 @@ const Dashboard = () => {
           handleSeek={handleSeek}
           formatTime={formatTime}
           onClose={() => setIsFullPlayerOpen(false)}
+          savedContext={lastActivePlaylistContext}
+          trackList={searchResults || tracks}
+          deviceId={deviceId}
+          queueContext={selectedPlaylist?.uri || (searchResults || tracks).map(t => t.uri)}
         />
       )}
 
