@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import youtubeLinks from "../data/youtubeLinks.json";
+import { getAllYoutubeLinks } from "../utils/youtubeUtils";
 import { getTracks } from "../services/spotifyApi";
 import YouTubeCard from "./youtube/YouTubeCard";
 import YouTubeFilters from "./youtube/YouTubeFilters";
@@ -13,7 +13,7 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
     const [isCinemaMode, setIsCinemaMode] = useState(false);
 
     const videos = useMemo(() => {
-        const allVideos = Object.entries(youtubeLinks);
+        const allVideos = getAllYoutubeLinks();
         // Fisher-Yates Shuffle
         for (let i = allVideos.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));

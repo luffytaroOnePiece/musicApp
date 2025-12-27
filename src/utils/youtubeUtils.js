@@ -1,7 +1,42 @@
 import youtubeLinks from '../data/youtubeLinks.json';
 
+// Normalize the optimized data structure back to the component-friendly format
+// Data format: [youtubeId, format, language, genre, name, lyrics(optional)]
+const normalizeData = (id, data) => {
+    if (!data) return null;
+
+    // Check if data is array (new format) or object (fallback/legacy just in case)
+    if (Array.isArray(data)) {
+        return {
+            youtubelinkID: data[0],
+            format: data[1],
+            language: data[2],
+            genre: data[3],
+            name: data[4],
+            likes: null, // Not in array
+            // Reconstruct lyrics: if matches 1, use id.lrc, else use value
+            lyrics: data[5] ? (data[5] === 1 ? `${id}.lrc` : data[5]) : undefined
+        };
+    }
+
+    // Fallback if somehow still object (shouldn't happen with full migration)
+    return {
+        youtubelinkID: data.id || data.youtubelinkID,
+        format: data.f || data.format,
+        language: data.l || data.language,
+        genre: data.g || data.genre,
+        name: data.n || data.name,
+        lyrics: data.ly ? (data.ly === 1 ? `${id}.lrc` : data.ly) : data.lyrics
+    };
+};
+
 export const getYoutubeLinkData = (trackId) => {
-    return youtubeLinks[trackId] || null;
+    const data = youtubeLinks[trackId];
+    return normalizeData(trackId, data);
+};
+
+export const getAllYoutubeLinks = () => {
+    return Object.entries(youtubeLinks).map(([id, data]) => [id, normalizeData(id, data)]);
 };
 
 export const openYoutubeLink = (trackId) => {
