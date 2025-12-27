@@ -44,118 +44,126 @@ const StatsView = ({ handlePlay, formatTime }) => {
     }, [timeRange]);
 
     const ranges = [
-        { id: 'short_term', label: 'Last 4 Weeks' },
+        { id: 'short_term', label: 'Last Month' },
         { id: 'medium_term', label: 'Last 6 Months' },
         { id: 'long_term', label: 'All Time' }
     ];
 
-    if (loading) return <div className="stats-loading">Loading insights...</div>;
+    if (loading) return <div className="stats-loading">
+        <div className="spinner"></div>
+        <span>Calculating your Replay...</span>
+    </div>;
 
     if (topArtists.length === 0 && topTracks.length === 0) {
         return (
-            <div className="stats-view" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                <h2>No Data Found</h2>
-                <p style={{ color: '#b3b3b3', marginBottom: '20px', textAlign: 'center' }}>
-                    We couldn't fetch your stats. This usually happens if you haven't granted the "Top Items" permission or if you're new to Spotify.
-                </p>
-                <button
-                    onClick={() => {
-                        window.location.href = '/'; // Simple redirect to force re-auth flow eventually or user has to manually logout
-                        localStorage.clear(); // Clear tokens to force re-login
-                    }}
-                    style={{
-                        padding: '12px 24px',
-                        borderRadius: '30px',
-                        border: 'none',
-                        background: '#1DB954',
-                        color: 'white',
-                        fontWeight: 'bold',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Re-Login to Grant Permissions
-                </button>
+            <div className="stats-view empty-state">
+                <div className="empty-content">
+                    <h2>No Replay Data Available</h2>
+                    <p>Start listening to some music to see your insights appear here.</p>
+                </div>
             </div>
         );
     }
 
+    const topArtist = topArtists[0];
+    const topTrack = topTracks[0];
+
     return (
         <div className="stats-view">
-            <div className="stats-header">
-                <h1>Your Insights</h1>
-                <div className="range-selector">
+            <header className="stats-header-apple">
+                <div className="header-title">
+                    <h1>Replay '25</h1> {/* Dynamic year would be cool, hardcoded for style now */}
+                    <p>Your year in review, updated weekly.</p>
+                </div>
+
+                <div className="apple-segment-control">
                     {ranges.map(range => (
                         <button
                             key={range.id}
-                            className={timeRange === range.id ? 'active' : ''}
+                            className={`segment-btn ${timeRange === range.id ? 'active' : ''}`}
                             onClick={() => setTimeRange(range.id)}
                         >
                             {range.label}
                         </button>
                     ))}
                 </div>
-            </div>
+            </header>
 
-            <div className="stats-grid">
-                {/* Top Genres */}
-                <div className="stats-card genres-card">
+            <div className="bento-grid">
+                {/* 1. Main Highlight: Top Artist */}
+                {topArtist && (
+                    <div className="bento-card highlight-artist-card">
+                        <div className="card-bg" style={{ backgroundImage: `url(${topArtist.images[0]?.url})` }}></div>
+                        <div className="card-content">
+                            <span className="card-label">Top Artist</span>
+                            <h2>{topArtist.name}</h2>
+                            <div className="artist-badge">#1</div>
+                        </div>
+                    </div>
+                )}
+
+                {/* 2. Top Genres (Pie Chart Style List) */}
+                <div className="bento-card genres-card">
                     <h3>Top Genres</h3>
-                    <div className="genres-list">
+                    <div className="genres-list-apple">
                         {topGenres.map((genre, idx) => (
-                            <div key={idx} className="genre-item">
+                            <div key={idx} className="genre-row">
+                                <span className="genre-rank">{idx + 1}</span>
                                 <span className="genre-name">{genre.name}</span>
-                                <div className="genre-bar-container">
-                                    <div className="genre-bar" style={{ width: `${genre.percentage * 5}%`, minWidth: '5px' }}></div>
-                                </div>
-                                <span className="genre-percentage">{genre.percentage}%</span>
+                                <span className="genre-percent">{genre.percentage}%</span>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Metrics */}
-                <div className="stats-card metrics-card">
-                    <h3>Listening Profile</h3>
-                    <div className="metrics-content">
-                        <div className="metric">
-                            <span className="metric-val">{topArtists.length}</span>
-                            <span className="metric-label">Artists</span>
-                        </div>
-                        <div className="metric">
-                            <span className="metric-val">{topTracks.length}</span>
-                            <span className="metric-label">Tracks</span>
-                        </div>
+                {/* 3. Top Tracks List */}
+                <div className="bento-card tracks-card">
+                    <h3>Top Songs</h3>
+                    <div className="tracks-list-apple">
+                        {topTracks.slice(0, 5).map((track, index) => (
+                            <div key={track.id} className="track-row" onClick={() => handlePlay(track.uri)}>
+                                <div className="track-img-container">
+                                    <img src={track.album.images[2]?.url} alt={track.name} />
+                                    <div className="play-overlay">▶</div>
+                                </div>
+                                <div className="track-info-apple">
+                                    <span className="track-name">{track.name}</span>
+                                    <span className="track-artist">{track.artists[0].name}</span>
+                                </div>
+                                <span className="track-duration">{formatTime(track.duration_ms)}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
-            </div>
 
-            <div className="stats-section">
-                <h3>Top Artists</h3>
-                <div className="artists-grid">
-                    {topArtists.map((artist, index) => (
-                        <div key={artist.id} className="artist-item">
-                            <div className="artist-rank">{index + 1}</div>
-                            <img src={artist.images[0]?.url} alt={artist.name} />
-                            <span className="artist-name">{artist.name}</span>
-                        </div>
-                    ))}
+                {/* 4. Stats Summary */}
+                <div className="bento-card summary-card start-card">
+                    <div className="summary-stat">
+                        <span className="stat-value">{topArtists.length}</span>
+                        <span className="stat-label">Artists</span>
+                    </div>
                 </div>
-            </div>
 
-            <div className="stats-section">
-                <h3>Top Tracks</h3>
-                <div className="tracks-list">
-                    {topTracks.map((track, index) => (
-                        <div key={track.id} className="track-item" onClick={() => handlePlay(track.uri)}>
-                            <div className="track-rank">{index + 1}</div>
-                            <img src={track.album.images[2]?.url} alt={track.name} />
-                            <div className="track-info">
-                                <span className="track-name">{track.name}</span>
-                                <span className="track-artist">{track.artists.map(a => a.name).join(', ')}</span>
+                <div className="bento-card summary-card end-card">
+                    <div className="summary-stat">
+                        <span className="stat-value">{topTracks.length}</span>
+                        <span className="stat-label">Songs</span>
+                    </div>
+                </div>
+
+                {/* 5. Rest of Artists Grid */}
+                <div className="bento-card artists-grid-card">
+                    <h3>More Favorite Artists</h3>
+                    <div className="mini-artists-grid">
+                        {topArtists.slice(1, 9).map((artist) => (
+                            <div key={artist.id} className="mini-artist-container" title={artist.name}>
+                                <div className="mini-artist-img">
+                                    <img src={artist.images[2]?.url || artist.images[0]?.url} alt={artist.name} />
+                                </div>
+                                <span className="mini-artist-name">{artist.name}</span>
                             </div>
-                            <span className="track-time">{formatTime(track.duration_ms)}</span>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
