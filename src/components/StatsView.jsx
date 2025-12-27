@@ -2,20 +2,59 @@ import React, { useState, useEffect } from 'react';
 import { getUserTopItems } from '../services/spotifyApi';
 import '../styles/StatsView.css';
 
+const StatsModal = ({ title, items, type, onClose, handlePlay, formatTime }) => {
+    if (!items) return null;
+
+    return (
+        <div className="stats-modal-overlay" onClick={onClose}>
+            <div className="stats-modal-content" onClick={e => e.stopPropagation()}>
+                <div className="stats-modal-header">
+                    <h2>{title}</h2>
+                    <button className="close-btn" onClick={onClose}>&times;</button>
+                </div>
+                <div className="stats-modal-list">
+                    {items.map((item, index) => (
+                        <div key={item.id} className="modal-item-row" onClick={() => type === 'tracks' ? handlePlay(item.uri) : null}>
+                            <span className="modal-item-rank">{index + 1}</span>
+                            <div className="modal-item-img">
+                                {type === 'artists' ? (
+                                    <img src={item.images[2]?.url || item.images[0]?.url} alt={item.name} className="artist-img" />
+                                ) : (
+                                    <img src={item.album.images[2]?.url || item.album.images[0]?.url} alt={item.name} className="track-img" />
+                                )}
+                            </div>
+                            <div className="modal-item-info">
+                                <span className="modal-item-name">{item.name}</span>
+                                {type === 'tracks' && (
+                                    <span className="modal-item-sub">{item.artists[0].name}</span>
+                                )}
+                            </div>
+                            {type === 'tracks' && (
+                                <span className="modal-item-duration">{formatTime(item.duration_ms)}</span>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const StatsView = ({ handlePlay, formatTime }) => {
     const [timeRange, setTimeRange] = useState('medium_term'); // short_term, medium_term, long_term
     const [topArtists, setTopArtists] = useState([]);
     const [topTracks, setTopTracks] = useState([]);
     const [topGenres, setTopGenres] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [activeModal, setActiveModal] = useState(null); // 'artists' | 'tracks' | null
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
                 const [artistsData, tracksData] = await Promise.all([
-                    getUserTopItems('artists', timeRange, 20),
-                    getUserTopItems('tracks', timeRange, 20)
+                    getUserTopItems('artists', timeRange, 50),
+                    getUserTopItems('tracks', timeRange, 50)
                 ]);
 
                 setTopArtists(artistsData.items || []);
@@ -137,18 +176,20 @@ const StatsView = ({ handlePlay, formatTime }) => {
                 </div>
 
                 {/* 4. Stats Summary */}
-                <div className="bento-card summary-card start-card">
+                <div className="bento-card summary-card start-card clickable" onClick={() => setActiveModal('artists')}>
                     <div className="summary-stat">
                         <span className="stat-value">{topArtists.length}</span>
                         <span className="stat-label">Artists</span>
                     </div>
+                    <div className="card-hover-hint">View All</div>
                 </div>
 
-                <div className="bento-card summary-card end-card">
+                <div className="bento-card summary-card end-card clickable" onClick={() => setActiveModal('tracks')}>
                     <div className="summary-stat">
                         <span className="stat-value">{topTracks.length}</span>
                         <span className="stat-label">Songs</span>
                     </div>
+                    <div className="card-hover-hint">View All</div>
                 </div>
 
                 {/* 5. Rest of Artists Grid */}
@@ -166,6 +207,26 @@ const StatsView = ({ handlePlay, formatTime }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Modals */}
+            {activeModal === 'artists' && (
+                <StatsModal
+                    title="Top Artists"
+                    items={topArtists}
+                    type="artists"
+                    onClose={() => setActiveModal(null)}
+                />
+            )}
+            {activeModal === 'tracks' && (
+                <StatsModal
+                    title="Top Songs"
+                    items={topTracks}
+                    type="tracks"
+                    onClose={() => setActiveModal(null)}
+                    handlePlay={handlePlay}
+                    formatTime={formatTime}
+                />
+            )}
         </div>
     );
 };
