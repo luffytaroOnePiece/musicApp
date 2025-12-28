@@ -140,3 +140,66 @@
 .yt-arrow-icon.open {
     transform: rotate(180deg);
 }
+
+/* Genre Grid Specifics */
+.yt-genre-grid-menu {
+    min-width: 400px;
+    /* Wider for grid */
+    max-width: 600px;
+    padding: 12px;
+}
+
+.yt-genre-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 4px;
+    /* Space for scrollbar */
+}
+
+/* Custom Scrollbar for Grid */
+/* Custom Scrollbar for Grid - Hidden */
+.yt-genre-grid::-webkit-scrollbar {
+    display: none;
+}
+
+.yt-genre-grid {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.yt-grid-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.yt-grid-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.yt-grid-item.active {
+    background: rgba(100, 189, 172, 0.2);
+    border-color: rgba(100, 189, 172, 0.5);
+    color: #64bdac;
+    font-weight: 700;
+    box-shadow: 0 0 10px rgba(100, 189, 172, 0.2);
+}

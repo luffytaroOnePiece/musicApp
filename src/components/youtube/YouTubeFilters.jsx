@@ -14,11 +14,14 @@ const YouTubeFilters = ({
     onReset,
     genreLabel = "Genre"
 }) => {
-    const isFiltered = selectedGenre !== "All" || selectedFormat !== "All" || selectedLanguage !== "All";
+    // Check if filtered: genres array > 1 or not generic "All", others not "All"
+    // Since we init with ["All"], check if it includes "All" only or has others
+    const isGenreFiltered = !selectedGenre.includes("All") || selectedGenre.length > 1;
+    const isFiltered = isGenreFiltered || selectedFormat !== "All" || selectedLanguage !== "All";
 
     return (
         <div className="filters-container">
-            <Dropdown
+            <GenreGridDropdown
                 label={genreLabel}
                 selected={selectedGenre}
                 onSelect={setSelectedGenre}
@@ -57,6 +60,101 @@ const YouTubeFilters = ({
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
+        </div>
+    );
+};
+
+const GenreGridDropdown = ({ label, selected, onSelect, options }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    // Close on click outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    const handleSelect = (option) => {
+        if (option === "All") {
+            onSelect(["All"]);
+            return;
+        }
+
+        let newSelected;
+        if (selected.includes("All")) {
+            // switching from All to specific
+            newSelected = [option];
+        } else {
+            if (selected.includes(option)) {
+                newSelected = selected.filter(item => item !== option);
+            } else {
+                newSelected = [...selected, option];
+            }
+        }
+
+        // If nothing selected, revert to All
+        if (newSelected.length === 0) {
+            newSelected = ["All"];
+        }
+
+        onSelect(newSelected);
+    };
+
+    // Label logic
+    const displayLabel = selected.includes("All")
+        ? "All"
+        : selected.length === 1
+            ? selected[0]
+            : `${selected.length} Selected`;
+
+    return (
+        <div className="yt-filter-dropdown" ref={dropdownRef}>
+            <button
+                className="yt-filter-btn"
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <span className="yt-dropdown-label">{label}:</span>
+                {displayLabel}
+                <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={`yt-arrow-icon ${isOpen ? 'open' : ''}`}
+                >
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+
+            {isOpen && (
+                <div className="yt-dropdown-menu yt-genre-grid-menu">
+                    <div className="yt-genre-grid">
+                        {options.map((option) => {
+                            const isActive = selected.includes(option);
+                            return (
+                                <div
+                                    key={option}
+                                    className={`yt-grid-item ${isActive ? "active" : ""}`}
+                                    onClick={() => handleSelect(option)}
+                                >
+                                    {option}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

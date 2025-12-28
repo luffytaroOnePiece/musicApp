@@ -7,7 +7,7 @@ import genreData from "../data/genres.json";
 import "../styles/YouTubeView.css";
 
 const YouTubeView = ({ handlePlay, searchTerm }) => {
-    const [selectedGenre, setSelectedGenre] = useState("All");
+    const [selectedGenre, setSelectedGenre] = useState(["All"]);
     const [selectedFormat, setSelectedFormat] = useState("All");
     const [selectedLanguage, setSelectedLanguage] = useState("All");
     const [gridColumns, setGridColumns] = useState(3);
@@ -65,7 +65,8 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
             videoGenres.some(gName => gName.toLowerCase().includes(query));
 
         // Genre Filter
-        const matchesGenre = selectedGenre === "All" || videoGenres.includes(selectedGenre);
+        const matchesGenre = selectedGenre.includes("All") ||
+            (selectedGenre.some(sGenre => videoGenres.includes(sGenre)));
 
         // Format Filter
         const matchesFormat = selectedFormat === "All" || data.format === selectedFormat;
@@ -77,7 +78,7 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
     });
 
     const handleReset = () => {
-        setSelectedGenre("All");
+        setSelectedGenre(["All"]);
         setSelectedFormat("All");
         setSelectedLanguage("All");
     };
