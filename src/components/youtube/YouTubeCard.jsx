@@ -1,5 +1,6 @@
 import React from 'react';
 import '../../styles/YouTubeCard.css';
+import genreData from '../../data/genres.json';
 
 const YouTubeCard = ({ data, trackId, handlePlay }) => {
     const handleVideoClick = (e) => {
@@ -20,6 +21,10 @@ const YouTubeCard = ({ data, trackId, handlePlay }) => {
         window.open(`https://www.youtube.com/watch?v=${data.youtubelinkID}${qualityParam}`, '_blank');
     };
 
+    const genreDisplay = Array.isArray(data.genre)
+        ? data.genre.map(id => genreData[id] || id).join(", ")
+        : (genreData[data.genre] || data.genre);
+
     return (
         <div className="youtube-card" onClick={handleVideoClick}>
             <div className="card-thumbnail-container">
@@ -39,7 +44,7 @@ const YouTubeCard = ({ data, trackId, handlePlay }) => {
 
             <div className="card-content">
                 <div className="card-meta">
-                    <span>{data.genre}</span>
+                    <span title={genreDisplay}>{genreDisplay}</span>
                     <span>{data.language}</span>
                 </div>
                 <div className="card-footer">
