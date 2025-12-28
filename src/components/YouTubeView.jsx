@@ -3,6 +3,7 @@ import { getAllYoutubeLinks } from "../utils/youtubeUtils";
 import { getTracks } from "../services/spotifyApi";
 import YouTubeCard from "./youtube/YouTubeCard";
 import YouTubeFilters from "./youtube/YouTubeFilters";
+import genreData from "../data/genres.json";
 import "../styles/YouTubeView.css";
 
 const YouTubeView = ({ handlePlay, searchTerm }) => {
@@ -23,7 +24,20 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
     }, []);
 
     // Extract unique genres, formats, and languages
-    const genres = useMemo(() => ["All", ...new Set(videos.map(([, data]) => data.genre).filter(Boolean))].sort(), [videos]);
+    const genres = useMemo(() => {
+        const allGenres = new Set();
+        videos.forEach(([, data]) => {
+            if (Array.isArray(data.genre)) {
+                data.genre.forEach(id => {
+                    const name = genreData[id];
+                    if (name) allGenres.add(name);
+                });
+            } else if (data.genre) {
+                allGenres.add(data.genre);
+            }
+        });
+        return ["All", ...Array.from(allGenres).sort()];
+    }, [videos]);
     const formats = useMemo(() => {
         const uniqueFormats = [...new Set(videos.map(([, data]) => data.format).filter(Boolean))];
         // Sort formats descending (e.g. 4320p -> 2160p -> 1080p)
@@ -37,13 +51,21 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
     const filteredVideos = videos.filter(([id, data]) => {
         const query = (searchTerm || "").toLowerCase();
 
+        // Resolve genre names
+        let videoGenres = [];
+        if (Array.isArray(data.genre)) {
+            videoGenres = data.genre.map(gId => genreData[gId]).filter(Boolean);
+        } else if (data.genre) {
+            videoGenres = [data.genre];
+        }
+
         // Search Filter (Name or Genre)
         const matchesSearch =
             (data.name || "").toLowerCase().includes(query) ||
-            (data.genre || "").toLowerCase().includes(query);
+            videoGenres.some(gName => gName.toLowerCase().includes(query));
 
         // Genre Filter
-        const matchesGenre = selectedGenre === "All" || data.genre === selectedGenre;
+        const matchesGenre = selectedGenre === "All" || videoGenres.includes(selectedGenre);
 
         // Format Filter
         const matchesFormat = selectedFormat === "All" || data.format === selectedFormat;
@@ -103,22 +125,31 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
         } catch (err) {
             console.error("Failed to fetch Spotify metadata for YouTube tracks:", err);
             // Fallback: Construct full track objects manually if API fails
-            const subsetWithMetadata = subset.map(([id, data]) => ({
-                id: id,
-                uri: `spotify:track:${id}`,
-                name: data.name,
-                artists: [{ name: data.genre || "YouTube" }],
-                album: {
-                    images: [
-                        { url: `https://img.youtube.com/vi/${data.youtubelinkID}/maxresdefault.jpg` },
-                        { url: `https://img.youtube.com/vi/${data.youtubelinkID}/mqdefault.jpg` },
-                        { url: `https://img.youtube.com/vi/${data.youtubelinkID}/default.jpg` }
-                    ],
-                    name: "YouTube Video"
-                },
-                duration_ms: 0,
-                is_local: false
-            }));
+            const subsetWithMetadata = subset.map(([id, data]) => {
+                let genreString = "YouTube";
+                if (Array.isArray(data.genre)) {
+                    genreString = data.genre.map(gId => genreData[gId]).filter(Boolean).join(", ");
+                } else if (data.genre) {
+                    genreString = data.genre;
+                }
+
+                return {
+                    id: id,
+                    uri: `spotify:track:${id}`,
+                    name: data.name,
+                    artists: [{ name: genreString }],
+                    album: {
+                        images: [
+                            { url: `https://img.youtube.com/vi/${data.youtubelinkID}/maxresdefault.jpg` },
+                            { url: `https://img.youtube.com/vi/${data.youtubelinkID}/mqdefault.jpg` },
+                            { url: `https://img.youtube.com/vi/${data.youtubelinkID}/default.jpg` }
+                        ],
+                        name: "YouTube Video"
+                    },
+                    duration_ms: 0,
+                    is_local: false
+                };
+            });
             handlePlay(trackUri, subsetUris, 0, subsetWithMetadata);
         }
     };
