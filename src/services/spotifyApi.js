@@ -70,7 +70,11 @@ export const playTrack = async (deviceId, contextUri, offset = 0) => {
 
 export const resumePlayback = async (deviceId) => {
     const token = getAccessToken();
-    await fetch(`${BASE_URL}/me/player/play?device_id=${deviceId}`, {
+    const url = deviceId
+        ? `${BASE_URL}/me/player/play?device_id=${deviceId}`
+        : `${BASE_URL}/me/player/play`;
+
+    await fetch(url, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -82,7 +86,11 @@ export const resumePlayback = async (deviceId) => {
 
 export const pauseTrack = async (deviceId) => {
     const token = getAccessToken();
-    await fetch(`${BASE_URL}/me/player/pause?device_id=${deviceId}`, {
+    const url = deviceId
+        ? `${BASE_URL}/me/player/pause?device_id=${deviceId}`
+        : `${BASE_URL}/me/player/pause`;
+
+    await fetch(url, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -90,7 +98,11 @@ export const pauseTrack = async (deviceId) => {
 
 export const nextTrack = async (deviceId) => {
     const token = getAccessToken();
-    await fetch(`${BASE_URL}/me/player/next?device_id=${deviceId}`, {
+    const url = deviceId
+        ? `${BASE_URL}/me/player/next?device_id=${deviceId}`
+        : `${BASE_URL}/me/player/next`;
+
+    await fetch(url, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -98,7 +110,11 @@ export const nextTrack = async (deviceId) => {
 
 export const prevTrack = async (deviceId) => {
     const token = getAccessToken();
-    await fetch(`${BASE_URL}/me/player/previous?device_id=${deviceId}`, {
+    const url = deviceId
+        ? `${BASE_URL}/me/player/previous?device_id=${deviceId}`
+        : `${BASE_URL}/me/player/previous`;
+
+    await fetch(url, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -115,6 +131,18 @@ export const setShuffle = async (state, deviceId) => {
 export const setRepeat = async (state, deviceId) => {
     const token = getAccessToken();
     await fetch(`${BASE_URL}/me/player/repeat?state=${state}&device_id=${deviceId}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+}
+
+export const seekTrack = async (positionMs, deviceId) => {
+    const token = getAccessToken();
+    const url = deviceId
+        ? `${BASE_URL}/me/player/seek?position_ms=${positionMs}&device_id=${deviceId}`
+        : `${BASE_URL}/me/player/seek?position_ms=${positionMs}`;
+
+    await fetch(url, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
     });

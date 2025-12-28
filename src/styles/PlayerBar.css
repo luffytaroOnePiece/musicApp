@@ -88,6 +88,7 @@
 
 .volume-slider {
     -webkit-appearance: none;
+    appearance: none;
     width: 60px;
     height: 3px;
     background: rgba(255, 255, 255, 0.2);
@@ -113,6 +114,7 @@
 
 .progress-slider {
     -webkit-appearance: none;
+    appearance: none;
     flex-grow: 1;
     height: 4px;
     /* Track Background (Unfilled Fade) */
@@ -165,22 +167,28 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
-    /* Very subtle circle */
+    background: transparent;
     border: none;
-    color: white;
+    color: rgba(255, 255, 255, 0.9);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
     position: relative;
     z-index: 10;
 }
 
+.control-btn.secondary svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
 .control-btn.secondary:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: scale(1.1);
 }
 
 .control-btn.primary-play {
@@ -194,14 +202,32 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    /* Glowing Effect */
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* Deep Shadow from FullPlayer */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.control-btn.primary-play svg {
+    width: 28px;
+    height: 28px;
+    fill: currentColor;
+}
+
+/* Fix alignment for pause icon if needed */
+.control-btn.primary-play svg[viewBox*="M6 19"] {
+    margin-left: 0;
+}
+
+.control-btn.primary-play svg[viewBox*="M8 5"] {
+    margin-left: 4px;
+    /* Optical alignment for play triangle */
 }
 
 .control-btn.primary-play:hover {
     transform: scale(1.1);
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    background: white !important;
+    color: black !important;
 }
 
 .pb-context {

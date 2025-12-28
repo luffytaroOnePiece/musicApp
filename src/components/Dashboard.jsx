@@ -11,6 +11,11 @@ import {
   getUserSavedTracks,
   getArtistTopTracks,
   getAlbum,
+  nextTrack,
+  prevTrack,
+  pauseTrack,
+  resumePlayback,
+  seekTrack,
 } from "../services/spotifyApi";
 import useSpotifyPlayer from "../hooks/useSpotifyPlayer";
 import Sidebar from "./Sidebar";
@@ -280,11 +285,44 @@ const Dashboard = () => {
   };
 
   const handleSeek = (e) => {
-    if (player) player.seek(e.target.value * 1000);
+    // Optimistic local update (optional, but good for UX)
+    // if (player) player.seek(e.target.value * 1000); 
+
+    // Remote seek
+    seekTrack(Math.round(e.target.value * 1000)).catch(err => console.error("Seek failed", err));
   };
 
   const handleVolume = (e) => {
     if (player) player.setVolume(e.target.value / 100);
+  };
+
+  // Remote Control Handlers
+  const handleTogglePlay = async () => {
+    try {
+      if (paused) {
+        await resumePlayback();
+      } else {
+        await pauseTrack();
+      }
+    } catch (err) {
+      console.error("Failed to toggle play", err);
+    }
+  };
+
+  const handleNext = async () => {
+    try {
+      await nextTrack();
+    } catch (err) {
+      console.error("Failed to skip next", err);
+    }
+  };
+
+  const handlePrev = async () => {
+    try {
+      await prevTrack();
+    } catch (err) {
+      console.error("Failed to skip previous", err);
+    }
   };
 
   const handleRemoveTrack = async (trackUri) => {
@@ -597,7 +635,7 @@ const Dashboard = () => {
         )}
       </div>
 
-      {!isFullPlayerOpen && (
+      {!isFullPlayerOpen && currentTrack && (
         <PlayerBar
           currentTrack={currentTrack}
           paused={paused}
@@ -608,6 +646,9 @@ const Dashboard = () => {
           handleSeek={handleSeek}
           formatTime={formatTime}
           onOpenFullPlayer={() => setIsFullPlayerOpen(true)}
+          handleNext={handleNext}
+          handlePrev={handlePrev}
+          handleTogglePlay={handleTogglePlay}
         />
       )}
 
