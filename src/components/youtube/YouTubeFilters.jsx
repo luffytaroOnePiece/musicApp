@@ -12,33 +12,63 @@ const YouTubeFilters = ({
     formats,
     languages,
     onReset,
-    genreLabel = "Genre"
+    genreLabel = "Genre",
+    useListForGenres = false,
+    sortOrder,
+    onSortChange
 }) => {
     // Check if filtered: genres array > 1 or not generic "All", others not "All"
     // Since we init with ["All"], check if it includes "All" only or has others
-    const isGenreFiltered = !selectedGenre.includes("All") || selectedGenre.length > 1;
-    const isFiltered = isGenreFiltered || selectedFormat !== "All" || selectedLanguage !== "All";
+    const isGenreFiltered = selectedGenre && (!selectedGenre.includes("All") || selectedGenre.length > 1);
+    const isFormatFiltered = selectedFormat && selectedFormat !== "All";
+    const isLanguageFiltered = selectedLanguage && selectedLanguage !== "All";
+
+    const isFiltered = isGenreFiltered || isFormatFiltered || isLanguageFiltered;
 
     return (
         <div className="filters-container">
-            <GenreGridDropdown
-                label={genreLabel}
-                selected={selectedGenre}
-                onSelect={setSelectedGenre}
-                options={genres}
-            />
-            <Dropdown
-                label="Language"
-                selected={selectedLanguage}
-                onSelect={setSelectedLanguage}
-                options={languages}
-            />
-            <Dropdown
-                label="Format"
-                selected={selectedFormat}
-                onSelect={setSelectedFormat}
-                options={formats}
-            />
+            {genres && (
+                useListForGenres ? (
+                    <Dropdown
+                        label={genreLabel}
+                        selected={selectedGenre}
+                        onSelect={setSelectedGenre}
+                        options={genres}
+                    />
+                ) : (
+                    <GenreGridDropdown
+                        label={genreLabel}
+                        selected={selectedGenre}
+                        onSelect={setSelectedGenre}
+                        options={genres}
+                    />
+                )
+            )}
+            {languages && languages.length > 0 && (
+                <Dropdown
+                    label="Language"
+                    selected={selectedLanguage}
+                    onSelect={setSelectedLanguage}
+                    options={languages}
+                />
+            )}
+            {formats && formats.length > 0 && (
+                <Dropdown
+                    label="Format"
+                    selected={selectedFormat}
+                    onSelect={setSelectedFormat}
+                    options={formats}
+                />
+            )}
+
+            {sortOrder && onSortChange && (
+                <Dropdown
+                    label="Sort By"
+                    selected={sortOrder}
+                    onSelect={onSortChange}
+                    options={["Newest", "Oldest"]}
+                />
+            )}
 
             <button
                 className={`yt-filter-btn yt-reset-btn ${isFiltered ? 'active' : 'disabled'}`}

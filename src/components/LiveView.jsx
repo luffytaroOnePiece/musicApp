@@ -1,62 +1,54 @@
 import React, { useState, useMemo } from "react";
 import liveData from "../data/live.json";
-import YouTubeCard from "./youtube/YouTubeCard";
-import YouTubeFilters from "./youtube/YouTubeFilters";
+import LiveCard from "./live/LiveCard";
+import LiveFilters from "./live/LiveFilters";
 import "../styles/LiveView.css";
 
 const LiveView = () => {
     const [selectedType, setSelectedType] = useState(["All"]);
-    const [selectedFormat, setSelectedFormat] = useState("All");
-    const [selectedLanguage, setSelectedLanguage] = useState("All");
+    const [sortOrder, setSortOrder] = useState("Newest");
     const gridColumns = 3;
 
     const videos = useMemo(() => {
         return liveData.live || [];
     }, []);
 
-    // Extract unique types (mapped to genre for filter compatibility), formats, and languages
+    // Extract unique types
     const types = useMemo(() => ["All", ...new Set(videos.map((data) => data.type).filter(Boolean))].sort(), [videos]);
-    const formats = useMemo(() => {
-        const uniqueFormats = [...new Set(videos.map((data) => data.format).filter(Boolean))];
-        uniqueFormats.sort((a, b) => parseInt(b) - parseInt(a));
-        return ["All", ...uniqueFormats];
-    }, [videos]);
-    const languages = useMemo(() => ["All", ...new Set(videos.map((data) => data.language).filter(Boolean))].sort(), [videos]);
 
     // Filter videos
-    const filteredVideos = videos.filter((data) => {
-        // Type Filter (Multi-select)
-        const matchesType = selectedType.includes("All") || selectedType.includes(data.type);
-        // Format Filter
-        const matchesFormat = selectedFormat === "All" || data.format === selectedFormat;
-        // Language Filter
-        const matchesLanguage = selectedLanguage === "All" || data.language === selectedLanguage;
+    const filteredVideos = useMemo(() => {
+        let result = videos.filter((data) => {
+            const matchesType = selectedType.includes("All") || selectedType.includes(data.type);
+            return matchesType;
+        });
 
-        return matchesType && matchesFormat && matchesLanguage;
-    });
+        // Sort videos
+        if (sortOrder === "Newest") {
+            result.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+        } else if (sortOrder === "Oldest") {
+            result.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+        }
+
+        return result;
+    }, [videos, selectedType, sortOrder]);
 
     const handleReset = () => {
         setSelectedType(["All"]);
-        setSelectedFormat("All");
-        setSelectedLanguage("All");
+        setSortOrder("Newest");
     };
 
     return (
         <div className="youtube-view-container">
             <div className="youtube-header">
                 <div className="header-controls">
-                    <YouTubeFilters
-                        selectedGenre={selectedType}
-                        setSelectedGenre={setSelectedType}
-                        selectedFormat={selectedFormat}
-                        setSelectedFormat={setSelectedFormat}
-                        selectedLanguage={selectedLanguage}
-                        setSelectedLanguage={setSelectedLanguage}
-                        genres={types}
-                        formats={formats}
-                        languages={languages}
+                    <LiveFilters
+                        selectedType={selectedType}
+                        onSelectType={setSelectedType}
+                        types={types}
+                        sortOrder={sortOrder}
+                        onSortChange={setSortOrder}
                         onReset={handleReset}
-                        genreLabel="Type"
                     />
                 </div>
             </div>
@@ -73,17 +65,9 @@ const LiveView = () => {
                     }}
                 >
                     {filteredVideos.map((item, index) => (
-                        <YouTubeCard
+                        <LiveCard
                             key={index}
-                            // Mapping data to match YouTubeCard expectation
-                            data={{
-                                youtubelinkID: item.youtubeLinkID,
-                                name: item.title,
-                                genre: item.type,
-                                language: item.language,
-                                format: item.format
-                            }}
-                        // No trackId passed, so play button in card should handle it gracefully or be hidden
+                            data={item}
                         />
                     ))}
                 </div>

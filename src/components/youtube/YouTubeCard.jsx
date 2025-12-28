@@ -6,17 +6,19 @@ const YouTubeCard = ({ data, trackId, handlePlay }) => {
     const handleVideoClick = (e) => {
         // Did not prevent default here because we want the whole card to be clickable
         let qualityParam = "";
-        switch (data.format) {
-            case "4320p": qualityParam = "&vq=hd4320"; break;
-            case "2160p": qualityParam = "&vq=hd2160"; break;
-            case "1440p": qualityParam = "&vq=hd1440"; break;
-            case "1080p": qualityParam = "&vq=hd1080"; break;
-            case "720p": qualityParam = "&vq=hd720"; break;
-            case "480p": qualityParam = "&vq=large"; break;
-            case "360p": qualityParam = "&vq=medium"; break;
-            case "240p": qualityParam = "&vq=small"; break;
-            case "144p": qualityParam = "&vq=tiny"; break;
-            default: qualityParam = "";
+        if (data.format) {
+            switch (data.format) {
+                case "4320p": qualityParam = "&vq=hd4320"; break;
+                case "2160p": qualityParam = "&vq=hd2160"; break;
+                case "1440p": qualityParam = "&vq=hd1440"; break;
+                case "1080p": qualityParam = "&vq=hd1080"; break;
+                case "720p": qualityParam = "&vq=hd720"; break;
+                case "480p": qualityParam = "&vq=large"; break;
+                case "360p": qualityParam = "&vq=medium"; break;
+                case "240p": qualityParam = "&vq=small"; break;
+                case "144p": qualityParam = "&vq=tiny"; break;
+                default: qualityParam = "";
+            }
         }
         window.open(`https://www.youtube.com/watch?v=${data.youtubelinkID}${qualityParam}`, '_blank');
     };
@@ -37,15 +39,17 @@ const YouTubeCard = ({ data, trackId, handlePlay }) => {
                         e.target.src = `https://img.youtube.com/vi/${data.youtubelinkID}/hqdefault.jpg`;
                     }}
                 />
-                <div className="card-format-badge">
-                    {data.format}
-                </div>
+                {data.format && (
+                    <div className="card-format-badge">
+                        {data.format}
+                    </div>
+                )}
             </div>
 
             <div className="card-content">
                 <div className="card-meta">
                     <span title={genreDisplay}>{genreDisplay}</span>
-                    <span>{data.language}</span>
+                    {data.language && <span>{data.language}</span>}
                 </div>
                 <div className="card-footer">
                     <div className="card-title">
