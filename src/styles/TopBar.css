@@ -22,27 +22,26 @@
 }
 
 /* Modern Glass Buttons (Theme & Logout) */
+/* Modern Glass Buttons (Theme & Logout) */
 .theme-selector,
 .logout-btn-top {
     appearance: none;
     -webkit-appearance: none;
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.8);
-    padding: 10px 18px;
-    border-radius: 8px;
-    /* Slightly less rounded for embedded feel */
+    color: rgba(255, 255, 255, 0.7);
+    padding: 10px;
+    border-radius: 50%;
+    /* Circle for icon-only */
     font-size: 0.9rem;
-    /* Slightly larger text for clarity */
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     outline: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
 }
 
 /* Modern Custom Dropdown */
@@ -56,40 +55,46 @@
     appearance: none;
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.8);
-    padding: 10px 12px;
-    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 8px 12px;
+    border-radius: 20px;
+    /* Pill shape */
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     gap: 8px;
     white-space: nowrap;
-    /* Prevent text wrap */
 }
 
 .theme-btn-trigger:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     color: white;
+    transform: scale(1.05);
 }
 
 .theme-dropdown-menu {
     position: absolute;
     top: 120%;
     right: 0;
-    width: 180px;
-    background: rgba(30, 30, 30, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
+    width: 200px;
     padding: 8px;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-    animation: fadeInDrop 0.2s ease-out;
+    border-radius: 16px;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    animation: fadeInDrop 0.2s ease-out;
+
+    /* Glassmorphism */
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
 }
 
 @keyframes fadeInDrop {
@@ -140,8 +145,9 @@
 
 .theme-selector:hover,
 .logout-btn-top:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.08);
     color: white;
+    transform: scale(1.1);
 }
 
 .theme-selector option {
@@ -201,24 +207,27 @@
 }
 
 /* Shared Button Style */
+/* Shared Button Style */
 .topbar-nav-btn {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.75);
-    padding: 8px 12px;
-    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 8px 16px;
+    border-radius: 20px;
+    /* Pill shape */
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-weight: 500;
+    font-weight: 600;
     font-size: 0.9rem;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .topbar-nav-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     color: white;
+    transform: scale(1.05);
 }
 
 .accent-green {
