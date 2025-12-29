@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import YouTube from 'react-youtube';
 import { openYoutubeLink } from '../../utils/youtubeUtils';
 import FPProgress from './FPProgress';
 import FPControls from './FPControls';
@@ -24,6 +25,13 @@ const FPSplitLayout = ({
     showLyrics,
     hasLyrics
 }) => {
+    const [embedError, setEmbedError] = useState(false);
+
+    // Reset error when track changes
+    useEffect(() => {
+        setEmbedError(false);
+    }, [youtubeData?.youtubelinkID]);
+
     return (
         <div className="fp-split-container">
             {/* Left Side: Player Controls */}
@@ -73,20 +81,79 @@ const FPSplitLayout = ({
                 ) : (
                     <>
                         <div className="fp-youtube-card">
-                            <img
-                                src={`https://img.youtube.com/vi/${youtubeData.youtubelinkID}/maxresdefault.jpg`}
-                                alt="YouTube Thumbnail"
-                                className="fp-youtube-thumb"
-                            />
-                            <div className="fp-youtube-overlay">
-                                <div className="fp-overlay-buttons">
-                                    <button className="fp-watch-btn transparent-play" onClick={() => openYoutubeLink(currentTrack.id)}>
-                                        <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M8 5v14l11-7z" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
+                            {/* Embed Mode with Fallback */}
+                            {youtubeData?.useEmbed && !embedError ? (
+                                <YouTube
+                                    videoId={youtubeData.youtubelinkID}
+                                    className="fp-youtube-player-wrapper"
+                                    iframeClassName="fp-youtube-embed"
+                                    opts={{
+                                        width: '100%',
+                                        height: '100%',
+                                        playerVars: {
+                                            autoplay: 0,
+                                            rel: 0,
+                                            modestbranding: 1
+                                        },
+                                    }}
+                                    onError={() => setEmbedError(true)}
+                                    style={{ width: '100%', height: '100%', borderRadius: '12px', overflow: 'hidden' }}
+                                />
+                            ) : (
+                                <>
+                                    <img
+                                        src={`https://img.youtube.com/vi/${youtubeData.youtubelinkID}/maxresdefault.jpg`}
+                                        alt="YouTube Thumbnail"
+                                        className="fp-youtube-thumb"
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = `https://img.youtube.com/vi/${youtubeData.youtubelinkID}/hqdefault.jpg`;
+                                        }}
+                                    />
+                                    <div className="fp-youtube-overlay">
+                                        <div className="fp-overlay-buttons">
+                                            <button className="fp-watch-btn transparent-play" onClick={() => {
+                                                let qualityParam = "";
+                                                if (youtubeData.format) {
+                                                    switch (youtubeData.format) {
+                                                        case "4320p": qualityParam = "&vq=hd4320"; break;
+                                                        case "2160p": qualityParam = "&vq=hd2160"; break;
+                                                        case "1440p": qualityParam = "&vq=hd1440"; break;
+                                                        case "1080p": qualityParam = "&vq=hd1080"; break;
+                                                        case "720p": qualityParam = "&vq=hd720"; break;
+                                                        case "480p": qualityParam = "&vq=large"; break;
+                                                        case "360p": qualityParam = "&vq=medium"; break;
+                                                        case "240p": qualityParam = "&vq=small"; break;
+                                                        case "144p": qualityParam = "&vq=tiny"; break;
+                                                        default: qualityParam = "";
+                                                    }
+                                                }
+                                                window.open(`https://www.youtube.com/watch?v=${youtubeData.youtubelinkID}${qualityParam}`, '_blank');
+                                            }}>
+                                                <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M8 5v14l11-7z" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {embedError && (
+                                        <div style={{
+                                            position: 'absolute',
+                                            bottom: '10px',
+                                            left: '50%',
+                                            transform: 'translateX(-50%)',
+                                            background: 'rgba(0,0,0,0.7)',
+                                            color: 'white',
+                                            padding: '4px 8px',
+                                            borderRadius: '4px',
+                                            fontSize: '12px',
+                                            pointerEvents: 'none'
+                                        }}>
+                                            Create Unavailable - Watch in App
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
 
                         <div className="fp-youtube-info">

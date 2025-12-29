@@ -23,6 +23,7 @@ import TopBar from "./TopBar";
 import HomeView from "./HomeView";
 import PlaylistView from "./PlaylistView";
 import YouTubeView from "./YouTubeView";
+import AlbumsView from "./AlbumsView";
 import PlayerBar from "./PlayerBar";
 import StatsView from "./StatsView";
 import ExploreView from "./ExploreView";
@@ -60,6 +61,7 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isFullPlayerOpen, setIsFullPlayerOpen] = useState(false);
   const [showYoutube, setShowYoutube] = useState(false);
+  const [showAlbums, setShowAlbums] = useState(false);
   const [showLive, setShowLive] = useState(false);
   const [isZenModeOpen, setIsZenModeOpen] = useState(false);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
@@ -385,6 +387,7 @@ const Dashboard = () => {
     setSearchResults(null);
     setIsSearching(false);
     setShowYoutube(false);
+    setShowAlbums(false);
     setShowLive(false);
     setIsStatsOpen(false);
     setIsProfileOpen(false);
@@ -396,6 +399,19 @@ const Dashboard = () => {
     setSearchResults(null);
     setIsSearching(false);
     setShowYoutube(true);
+    setShowAlbums(false);
+    setShowLive(false);
+    setIsStatsOpen(false);
+    setIsProfileOpen(false);
+    setIsExploreOpen(false);
+  };
+
+  const handleShowAlbums = () => {
+    setSelectedPlaylist(null);
+    setSearchResults(null);
+    setIsSearching(false);
+    setShowYoutube(false);
+    setShowAlbums(true);
     setShowLive(false);
     setIsStatsOpen(false);
     setIsProfileOpen(false);
@@ -407,6 +423,7 @@ const Dashboard = () => {
     setSearchResults(null);
     setIsSearching(false);
     setShowYoutube(false);
+    setShowAlbums(false);
     setShowLive(true);
     setIsStatsOpen(false);
     setIsProfileOpen(false);
@@ -422,6 +439,7 @@ const Dashboard = () => {
     setSearchResults(null);
     setIsSearching(false);
     setShowYoutube(false);
+    setShowAlbums(false);
     setShowLive(false);
     setIsStatsOpen(true);
     setIsProfileOpen(false);
@@ -433,6 +451,7 @@ const Dashboard = () => {
     setSearchResults(null);
     setIsSearching(false);
     setShowYoutube(false);
+    setShowAlbums(false);
     setShowLive(false);
     setIsStatsOpen(false);
     setIsProfileOpen(true);
@@ -444,6 +463,7 @@ const Dashboard = () => {
     setSearchResults(null);
     setIsSearching(false);
     setShowYoutube(false);
+    setShowAlbums(false);
     setShowLive(false);
     setIsStatsOpen(false);
     setIsProfileOpen(false);
@@ -453,6 +473,7 @@ const Dashboard = () => {
   const getActiveModule = () => {
     if (isZenModeOpen) return "zen";
     if (showYoutube) return "youtube";
+    if (showAlbums) return "albums";
     if (showLive) return "live";
     if (isStatsOpen) return "stats";
     if (isProfileOpen) return "profile";
@@ -466,6 +487,9 @@ const Dashboard = () => {
       setIsZenModeOpen(false);
     } else if (moduleId === "youtube") {
       handleShowYoutube();
+      setIsZenModeOpen(false);
+    } else if (moduleId === "albums") {
+      handleShowAlbums();
       setIsZenModeOpen(false);
     } else if (moduleId === "live") {
       handleShowLive();
@@ -550,6 +574,8 @@ const Dashboard = () => {
           <div className="dashboard-searching">Searching...</div>
         ) : showYoutube ? (
           <YouTubeView handlePlay={handlePlay} searchTerm={searchTerm} />
+        ) : showAlbums ? (
+          <AlbumsView handlePlay={handlePlay} searchTerm={searchTerm} />
         ) : showLive ? (
           <LiveView />
         ) : isStatsOpen ? (

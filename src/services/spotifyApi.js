@@ -242,4 +242,5 @@ export const searchAlbums = (query) => apiCall(`/search?q=${encodeURIComponent(q
 export const searchArtists = (query) => apiCall(`/search?q=${encodeURIComponent(query)}&type=artist&limit=20`);
 export const getArtistTopTracks = (artistId) => apiCall(`/artists/${artistId}/top-tracks?market=US`);
 export const getAlbum = (albumId) => apiCall(`/albums/${albumId}`);
+export const getPlaylist = (playlistId) => apiCall(`/playlists/${playlistId}`);
 export const getTracks = (ids) => apiCall(`/tracks?ids=${ids}`);

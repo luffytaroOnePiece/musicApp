@@ -83,11 +83,29 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
         } catch (e) { console.error(e); }
     };
 
-    const youtubeData = currentTrack ? (getYoutubeLinkData(currentTrack.id) || (currentTrack.linked_from && getYoutubeLinkData(currentTrack.linked_from.id))) : null;
+    // Resolve the track from the local queue/trackList if possible to get custom properties like linked_youtube_id
+    const localTrack = trackList && currentTrack ? trackList.find(t => t.id === currentTrack.id) : null;
+    const targetTrack = localTrack || currentTrack;
+
+    const youtubeData = targetTrack ? (
+        targetTrack.linked_youtube_id ? {
+            youtubelinkID: targetTrack.linked_youtube_id,
+            name: targetTrack.name,
+            format: targetTrack.linked_format || "HD",
+            useEmbed: true
+        } :
+            (getYoutubeLinkData(targetTrack.id) || (targetTrack.linked_from && getYoutubeLinkData(targetTrack.linked_from.id)))
+    ) : null;
 
     if (!currentTrack) return null;
 
-    const albumImage = currentTrack.album?.images?.[0]?.url || 'https://via.placeholder.com/300';
+    let albumImage = currentTrack.album?.images?.[0]?.url || 'https://via.placeholder.com/300';
+
+    // USER REQUEST: In full view mode background should be based on youtube video thumbnail theme only in collections page
+    if (targetTrack?.linked_youtube_id) {
+        albumImage = `https://img.youtube.com/vi/${targetTrack.linked_youtube_id}/maxresdefault.jpg`;
+    }
+
     const artistNames = currentTrack.artists?.map(a => a.name).join(', ') || 'Unknown Artist';
 
     // Prepare sub-components
