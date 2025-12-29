@@ -9,17 +9,19 @@
       "4mhybK3juS8",
       "HFpAtkXoXd0"
     ],
-    "year": 2013,
-    "musicDirector": "Thaman S",
     "type": "Movie",
     "language": "Telugu"
   },
   "6bSUr0oBhPaIQBIrk4sbmg": {
     "name": "Parama Sundari",
     "youtubeIDs": ["N4wK3NtVRT0", "Aa2ZpTBmzlw"],
-    "year": 2025,
-    "musicDirector": "Sachin-Jigar",
     "type": "Movie",
     "language": "Hindi"
+  },
+  "4oY76bDskuYQjuYjztCWFC": {
+    "name": "Ellie Goulding",
+    "youtubeIDs": ["AJtDXIazrMo", "UZwi9SHgzGY", "CGyEd0aKWZE"],
+    "type": "Private",
+    "language": "English"
   }
 }

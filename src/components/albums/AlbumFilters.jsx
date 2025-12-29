@@ -4,17 +4,13 @@ import '../../styles/YouTubeFilters.css';
 const AlbumFilters = ({
     selectedType,
     setSelectedType,
-    selectedYear,
-    setSelectedYear,
     selectedLanguage,
     setSelectedLanguage,
     types,
-    years,
     languages,
     onReset
 }) => {
     const isFiltered = (selectedType && selectedType !== "All") ||
-        (selectedYear && selectedYear !== "All") ||
         (selectedLanguage && selectedLanguage !== "All");
 
     return (
@@ -25,15 +21,6 @@ const AlbumFilters = ({
                     selected={selectedType}
                     onSelect={setSelectedType}
                     options={types}
-                />
-            )}
-
-            {years && years.length > 0 && (
-                <Dropdown
-                    label="Year"
-                    selected={selectedYear}
-                    onSelect={setSelectedYear}
-                    options={years}
                 />
             )}
 
