@@ -136,22 +136,6 @@ const FPSplitLayout = ({
                                             </button>
                                         </div>
                                     </div>
-                                    {embedError && (
-                                        <div style={{
-                                            position: 'absolute',
-                                            bottom: '10px',
-                                            left: '50%',
-                                            transform: 'translateX(-50%)',
-                                            background: 'rgba(0,0,0,0.7)',
-                                            color: 'white',
-                                            padding: '4px 8px',
-                                            borderRadius: '4px',
-                                            fontSize: '12px',
-                                            pointerEvents: 'none'
-                                        }}>
-                                            Create Unavailable - Watch in App
-                                        </div>
-                                    )}
                                 </>
                             )}
                         </div>

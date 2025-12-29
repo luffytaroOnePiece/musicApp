@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { getPlaylist } from '../services/spotifyApi';
 import albumsData from '../data/albums.json';
 import YouTubeCard from './youtube/YouTubeCard';
+import AlbumFilters from './albums/AlbumFilters';
 import '../styles/AlbumsView.css';
 
 const AlbumsView = ({ handlePlay, searchTerm }) => {
@@ -9,6 +10,30 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
     const [itemsMetadata, setItemsMetadata] = useState({});
     const [fullItemData, setFullItemData] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    // Filter States
+    const [selectedType, setSelectedType] = useState("All");
+    const [selectedYear, setSelectedYear] = useState("All");
+    const [selectedLanguage, setSelectedLanguage] = useState("All");
+
+    // Extract Filter Options
+    const { types, years, languages } = useMemo(() => {
+        const t = new Set(["All"]);
+        const y = new Set(["All"]);
+        const l = new Set(["All"]);
+
+        Object.values(albumsData).forEach(album => {
+            if (album.type) t.add(album.type);
+            if (album.year) y.add(album.year);
+            if (album.language) l.add(album.language);
+        });
+
+        return {
+            types: Array.from(t).sort(),
+            years: Array.from(y).sort((a, b) => b - a), // Descending
+            languages: Array.from(l).sort()
+        };
+    }, []);
 
     // Initial Load - Metadata for list (Treating them as Playlists now)
     useEffect(() => {
@@ -67,6 +92,12 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         setFullItemData(null);
     };
 
+    const handleResetFilters = () => {
+        setSelectedType("All");
+        setSelectedYear("All");
+        setSelectedLanguage("All");
+    };
+
     const onPlayWrapper = async (trackUri) => {
         if (!fullItemData) return;
         // Playlist tracks are wrapped in an object: { track: {...} }
@@ -90,6 +121,25 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         handlePlay(trackUri, queue.map(t => t.uri), 0, queue);
     };
 
+    // Filter Logic
+    const filteredItems = useMemo(() => {
+        return Object.entries(itemsMetadata).filter(([id, meta]) => {
+            const matchesType = selectedType === "All" || meta.type === selectedType;
+            // Year in json is number, in state might be "All" string or number. strict check might fail if types differ.
+            // Dropdowns usually pass values as they are in options array. My options are numbers (except "All").
+            // But Dropdown rendering might convert to string? No, it just renders {option}.
+            // Safe comparison:
+            const matchesYear = selectedYear === "All" || meta.year == selectedYear;
+            const matchesLanguage = selectedLanguage === "All" || meta.language === selectedLanguage;
+
+            // Also Filter by Search Term from top bar if present
+            const matchesSearch = !searchTerm || (meta.name || "").toLowerCase().includes(searchTerm.toLowerCase());
+
+            return matchesType && matchesYear && matchesLanguage && matchesSearch;
+        });
+    }, [itemsMetadata, selectedType, selectedYear, selectedLanguage, searchTerm]);
+
+
     if (loading) return <div className="albums-loading">Loading...</div>;
 
     if (selectedId && fullItemData) {
@@ -103,6 +153,7 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
                     <button className="back-btn" onClick={handleBack}>
                         ← Back to Collections
                     </button>
+                    {/* Could disable search or filters here, or let them persist but hide them UI wise */}
                 </div>
 
                 <div className="album-details-header">
@@ -155,9 +206,23 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         <div className="albums-view-container">
             <div className="albums-header">
                 <h2>Collections</h2>
+                <div className="album-filters-wrapper">
+                    <AlbumFilters
+                        selectedType={selectedType}
+                        setSelectedType={setSelectedType}
+                        selectedYear={selectedYear}
+                        setSelectedYear={setSelectedYear}
+                        selectedLanguage={selectedLanguage}
+                        setSelectedLanguage={setSelectedLanguage}
+                        types={types}
+                        years={years}
+                        languages={languages}
+                        onReset={handleResetFilters}
+                    />
+                </div>
             </div>
             <div className="albums-grid">
-                {Object.entries(itemsMetadata).map(([id, meta]) => (
+                {filteredItems.map(([id, meta]) => (
                     <div key={id} className="album-card" onClick={() => handleItemClick(id)}>
                         <img
                             src={meta.images?.[0]?.url || 'https://via.placeholder.com/300'}
@@ -170,6 +235,11 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
                         </div>
                     </div>
                 ))}
+                {filteredItems.length === 0 && (
+                    <div className="no-albums-msg">
+                        No collections found matching your filters.
+                    </div>
+                )}
             </div>
         </div>
     );

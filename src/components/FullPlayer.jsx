@@ -99,11 +99,12 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
 
     if (!currentTrack) return null;
 
-    let albumImage = currentTrack.album?.images?.[0]?.url || 'https://via.placeholder.com/300';
+    let originalAlbumImage = currentTrack.album?.images?.[0]?.url || 'https://via.placeholder.com/300';
+    let bgImage = originalAlbumImage;
 
     // USER REQUEST: In full view mode background should be based on youtube video thumbnail theme only in collections page
     if (targetTrack?.linked_youtube_id) {
-        albumImage = `https://img.youtube.com/vi/${targetTrack.linked_youtube_id}/maxresdefault.jpg`;
+        bgImage = `https://img.youtube.com/vi/${targetTrack.linked_youtube_id}/maxresdefault.jpg`;
     }
 
     const artistNames = currentTrack.artists?.map(a => a.name).join(', ') || 'Unknown Artist';
@@ -132,7 +133,7 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
 
     return (
         <div className={`full-player-overlay ${youtubeData ? 'fp-split-layout' : ''} ${isClosing ? 'closing' : ''}`}>
-            <div className="fp-background" style={{ backgroundImage: `url(${albumImage})` }}></div>
+            <div className="fp-background" style={{ backgroundImage: `url(${bgImage})` }}></div>
             <div className="fp-backdrop"></div>
 
             <button className="fp-close-btn" onClick={handleClose}>
@@ -146,7 +147,7 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
                     <FPSplitLayout
                         currentTrack={currentTrack}
                         artistNames={artistNames}
-                        albumImage={albumImage}
+                        albumImage={originalAlbumImage}
                         youtubeData={youtubeData}
                         position={position}
                         duration={duration}
@@ -167,7 +168,7 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
                     <FPStandardLayout
                         currentTrack={currentTrack}
                         artistNames={artistNames}
-                        albumImage={albumImage}
+                        albumImage={originalAlbumImage}
                         position={position}
                         duration={duration}
                         handleSeek={handleSeek}
