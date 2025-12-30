@@ -20,10 +20,12 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         const t = new Set(["All"]);
         const l = new Set(["All"]);
 
-        Object.values(albumsData).forEach(album => {
-            if (album.type) t.add(album.type);
-            if (album.language) l.add(album.language);
-        });
+        if (albumsData) {
+            Object.values(albumsData).forEach(album => {
+                if (album.type) t.add(album.type);
+                if (album.language) l.add(album.language);
+            });
+        }
 
         return {
             types: Array.from(t).sort(),
@@ -31,38 +33,62 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         };
     }, []);
 
+    // All Songs State
+    const [viewMode, setViewMode] = useState('albums'); // 'albums' | 'all-songs'
+    const [allSongs, setAllSongs] = useState([]);
+    const [loadingSongs, setLoadingSongs] = useState(false);
+
     // Initial Load - Metadata for list (Treating them as Playlists now)
     useEffect(() => {
         const fetchMetadata = async () => {
-            // Cache check: if we already have data, don't re-fetch
-            if (Object.keys(itemsMetadata).length > 0) return;
+            try {
+                // Cache check: if we already have data, don't re-fetch
+                if (Object.keys(itemsMetadata).length > 0) {
+                    setLoading(false);
+                    return;
+                }
 
-            setLoading(true);
+                setLoading(true);
 
-            const entries = Object.entries(albumsData);
+                if (!albumsData) throw new Error("Albums data is missing");
 
-            // Parallel Fetching
-            const results = await Promise.all(
-                entries.map(async ([spotifyId, localData]) => {
-                    try {
-                        const playlist = await getPlaylist(spotifyId);
-                        return [spotifyId, {
-                            ...localData,
-                            spotifyName: playlist.name,
-                            images: playlist.images,
-                            owner: playlist.owner?.display_name,
-                            description: playlist.description
-                        }];
-                    } catch (err) {
-                        console.error(`Failed to fetch playlist ${spotifyId}`, err);
-                        return [spotifyId, { ...localData, error: true }];
-                    }
-                })
-            );
+                const entries = Object.entries(albumsData);
 
-            const metadata = Object.fromEntries(results);
-            setItemsMetadata(metadata);
-            setLoading(false);
+                if (entries.length === 0) {
+                    setLoading(false);
+                    return;
+                }
+
+                // Parallel Fetching
+                const results = await Promise.all(
+                    entries.map(async ([spotifyId, localData]) => {
+                        try {
+                            const playlist = await getPlaylist(spotifyId);
+                            // If playlist is null from API?
+                            if (!playlist) throw new Error("Playlist not found");
+
+                            return [spotifyId, {
+                                ...localData,
+                                spotifyName: playlist.name,
+                                images: playlist.images,
+                                owner: playlist.owner?.display_name,
+                                description: playlist.description
+                            }];
+                        } catch (err) {
+                            console.error(`Failed to fetch playlist ${spotifyId}`, err);
+                            return [spotifyId, { ...localData, error: true }];
+                        }
+                    })
+                );
+
+                const metadata = Object.fromEntries(results);
+                setItemsMetadata(metadata);
+            } catch (err) {
+                console.error("Critical error in AlbumsView", err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
         };
 
         if (!selectedId) {
@@ -87,6 +113,66 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
 
         fetchFullData();
     }, [selectedId]);
+
+    // Filter Logic
+    const filteredItems = useMemo(() => {
+        return Object.entries(itemsMetadata).filter(([id, meta]) => {
+            const matchesType = selectedType === "All" || meta.type === selectedType;
+            const matchesLanguage = selectedLanguage === "All" || meta.language === selectedLanguage;
+
+            // Also Filter by Search Term from top bar if present
+            const matchesSearch = !searchTerm || (meta.name || "").toLowerCase().includes(searchTerm.toLowerCase());
+
+            return matchesType && matchesLanguage && matchesSearch;
+        });
+    }, [itemsMetadata, selectedType, selectedLanguage, searchTerm]);
+
+    // Fetch All Songs for current filter
+    useEffect(() => {
+        const fetchAllSongs = async () => {
+            if (viewMode !== 'all-songs') return;
+
+            setLoadingSongs(true);
+            const songs = [];
+
+            // Limit concurrent requests to avoid rate limits? 
+            // For now, simple Promise.all on filtered items
+            const promises = filteredItems.map(async ([id, meta]) => {
+                try {
+                    // Optimisation: If we have full data cached somewhere use it, else fetch
+                    // Note: We don't cache full playlist bodies in itemsMetadata to save memory, 
+                    // so we likely need to fetch or implement a bigger cache if this is slow.
+                    const playlist = await getPlaylist(id);
+                    const rawTracks = playlist.tracks.items;
+                    const youtubeIDs = albumsData[id].youtubeIDs;
+
+                    return rawTracks.map((item, i) => {
+                        if (!item.track || !youtubeIDs[i]) return null;
+                        return {
+                            ...item.track,
+                            linked_youtube_id: youtubeIDs[i],
+                            linked_format: albumsData[id].format,
+                            related_album_type: meta.type
+                        };
+                    }).filter(Boolean);
+                } catch (e) {
+                    console.error("Failed to fetch tracks for All Songs", id, e);
+                    return [];
+                }
+            });
+
+            const results = await Promise.all(promises);
+            results.forEach(tracks => songs.push(...tracks));
+
+            // Shuffle or Sort? Request implies just list. Let's shuffle for variety or just list.
+            setAllSongs(songs);
+            setLoadingSongs(false);
+        };
+
+        if (viewMode === 'all-songs') {
+            fetchAllSongs();
+        }
+    }, [viewMode, filteredItems]); // Re-fetch if filters change
 
     const handleItemClick = (id) => {
         setSelectedId(id);
@@ -125,21 +211,34 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         handlePlay(trackUri, queue.map(t => t.uri), 0, queue);
     };
 
-    // Filter Logic
-    const filteredItems = useMemo(() => {
-        return Object.entries(itemsMetadata).filter(([id, meta]) => {
-            const matchesType = selectedType === "All" || meta.type === selectedType;
-            const matchesLanguage = selectedLanguage === "All" || meta.language === selectedLanguage;
+    const onPlayAllSongs = (trackUri) => {
+        // Find index
+        const index = allSongs.findIndex(t => t.uri === trackUri);
+        if (index === -1) return;
 
-            // Also Filter by Search Term from top bar if present
-            const matchesSearch = !searchTerm || (meta.name || "").toLowerCase().includes(searchTerm.toLowerCase());
-
-            return matchesType && matchesLanguage && matchesSearch;
-        });
-    }, [itemsMetadata, selectedType, selectedLanguage, searchTerm]);
+        // Windowed queue for performance if list is huge?
+        // For now, pass all. 
+        handlePlay(trackUri, allSongs.map(t => t.uri), 0, allSongs);
+    };
 
 
-    if (loading) return <div className="albums-loading">Loading...</div>;
+
+
+    const [error, setError] = useState(null);
+
+    if (error) {
+        return (
+            <div className="albums-error" style={{ padding: '80px', color: 'white', textAlign: 'center' }}>
+                <h2>Something went wrong</h2>
+                <p>{error}</p>
+                <button onClick={() => window.location.reload()} style={{ padding: '8px 16px', marginTop: '16px' }}>
+                    Reload Page
+                </button>
+            </div>
+        );
+    }
+
+    if (loading) return <div className="albums-loading">Loading Collections...</div>;
 
     if (selectedId && fullItemData) {
         // Detail View
@@ -200,11 +299,28 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         );
     }
 
-    // List View
+    // List View (Albums OR All Songs)
     return (
         <div className="albums-view-container">
             <div className="albums-header">
-                <h2>Collections</h2>
+                <div className="header-top-row">
+                    <h2>Collections</h2>
+                    <div className="view-mode-toggle">
+                        <button
+                            className={`toggle-btn ${viewMode === 'albums' ? 'active' : ''}`}
+                            onClick={() => setViewMode('albums')}
+                        >
+                            Albums
+                        </button>
+                        <button
+                            className={`toggle-btn ${viewMode === 'all-songs' ? 'active' : ''}`}
+                            onClick={() => setViewMode('all-songs')}
+                        >
+                            All Songs
+                        </button>
+                    </div>
+                </div>
+
                 <div className="album-filters-wrapper">
                     <AlbumFilters
                         selectedType={selectedType}
@@ -217,26 +333,60 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
                     />
                 </div>
             </div>
-            <div className="albums-grid">
-                {filteredItems.map(([id, meta]) => (
-                    <div key={id} className="album-card" onClick={() => handleItemClick(id)}>
-                        <img
-                            src={meta.images?.[0]?.url || 'https://via.placeholder.com/300'}
-                            alt={meta.name}
-                            className="album-cover"
-                        />
-                        <div className="album-info">
-                            <h3>{meta.spotifyName || meta.name}</h3>
 
+            {viewMode === 'albums' ? (
+                <div className="albums-grid">
+                    {filteredItems.map(([id, meta]) => (
+                        <div key={id} className="album-card" onClick={() => handleItemClick(id)}>
+                            <img
+                                src={meta.images?.[0]?.url || 'https://via.placeholder.com/300'}
+                                alt={meta.name}
+                                className="album-cover"
+                            />
+                            <div className="album-info">
+                                <h3>{meta.spotifyName || meta.name}</h3>
+
+                            </div>
                         </div>
-                    </div>
-                ))}
-                {filteredItems.length === 0 && (
-                    <div className="no-albums-msg">
-                        No collections found matching your filters.
-                    </div>
-                )}
-            </div>
+                    ))}
+                    {filteredItems.length === 0 && (
+                        <div className="no-albums-msg">
+                            No collections found matching your filters.
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <div className="all-songs-grid">
+                    {loadingSongs ? (
+                        <div className="albums-loading">Loading Songs...</div>
+                    ) : (
+                        <div className="album-tracks-grid">
+                            {allSongs.map((track) => {
+                                const cardData = {
+                                    name: track.name,
+                                    youtubelinkID: track.linked_youtube_id,
+                                    genre: track.related_album_type || "Playlist",
+                                    format: track.linked_format || "HD"
+                                };
+
+                                return (
+                                    <YouTubeCard
+                                        key={track.id}
+                                        trackId={track.id}
+                                        data={cardData}
+                                        handlePlay={() => onPlayAllSongs(track.uri)}
+                                    />
+                                );
+                            })}
+                            {allSongs.length === 0 && (
+                                <div className="no-albums-msg">
+                                    No songs found.
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 };
