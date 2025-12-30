@@ -27,5 +27,7 @@ export const scopes = [
     'playlist-read-collaborative',
     'playlist-modify-public',
     'playlist-modify-private',
-    'user-top-read'
+    'user-top-read',
+    'user-follow-read',
+    'user-follow-modify'
 ];

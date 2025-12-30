@@ -248,3 +248,51 @@ export const getNewReleases = (limit = 10) => apiCall(`/browse/new-releases?limi
 export const getFeaturedPlaylists = (limit = 10) => apiCall(`/browse/featured-playlists?limit=${limit}`);
 export const getArtistAlbums = (artistId, limit = 5) => apiCall(`/artists/${artistId}/albums?limit=${limit}&include_groups=album,single`);
 
+// Artists
+export const followArtists = async (artistIds) => {
+    const token = getAccessToken();
+    const response = await fetch(`${BASE_URL}/me/following?type=artist&ids=${artistIds.join(',')}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ids: artistIds })
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to follow artists: ${response.statusText}`);
+    }
+};
+
+export const unfollowArtists = async (artistIds) => {
+    const token = getAccessToken();
+    const response = await fetch(`${BASE_URL}/me/following?type=artist&ids=${artistIds.join(',')}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ids: artistIds })
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to unfollow artists: ${response.statusText}`);
+    }
+};
+
+export const getFollowedArtists = (limit = 20, after = null) => {
+    let url = `/me/following?type=artist&limit=${limit}`;
+    if (after) {
+        url += `&after=${after}`;
+    }
+    return apiCall(url);
+};
+
+export const checkIfUserFollowsArtists = async (artistIds) => {
+    const token = getAccessToken();
+    // chunking might be needed if many IDs, but simple use case usually checks one or few
+    const response = await fetch(`${BASE_URL}/me/following/contains?type=artist&ids=${artistIds.join(',')}`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return response.json();
+};
