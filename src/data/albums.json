@@ -14,13 +14,20 @@
   },
   "6bSUr0oBhPaIQBIrk4sbmg": {
     "name": "Parama Sundari",
-    "youtubeIDs": ["N4wK3NtVRT0", "Aa2ZpTBmzlw"],
+    "youtubeIDs": [
+      "N4wK3NtVRT0",
+      "Aa2ZpTBmzlw"
+    ],
     "type": "Movie",
     "language": "Hindi"
   },
   "4oY76bDskuYQjuYjztCWFC": {
     "name": "Ellie Goulding",
-    "youtubeIDs": ["AJtDXIazrMo", "UZwi9SHgzGY", "CGyEd0aKWZE"],
+    "youtubeIDs": [
+      "AJtDXIazrMo",
+      "UZwi9SHgzGY",
+      "CGyEd0aKWZE"
+    ],
     "type": "Private",
     "language": "English"
   },
@@ -39,8 +46,23 @@
   },
   "6qBALhcJBJHt09di1FnzFq": {
     "name": "Dua Lipa",
-    "youtubeIDs": ["TUVcZfQe-Kw", "DkeiKbqa02g", "k2qgadSvNyU"],
+    "youtubeIDs": [
+      "TUVcZfQe-Kw",
+      "DkeiKbqa02g",
+      "k2qgadSvNyU"
+    ],
     "type": "Private",
     "language": "English"
+  },
+  "4e7bvx7vkXbP94e0s0nc0M": {
+    "name": "Devara Part 1",
+    "youtubeIDs": [
+      "_0ak7rWPlmU",
+      "-FMIo-OYo68",
+      "CKpbdCciELk",
+      "2So45J1dAu4"
+    ],
+    "type": "Movie",
+    "language": "Telugu"
   }
 }
