@@ -566,6 +566,7 @@ const Dashboard = () => {
           setSearchTerm={setSearchTerm}
           performSearch={performSearch}
           onShowYoutube={handleShowYoutube}
+          onShowAlbums={handleShowAlbums}
           onShowZenMode={handleShowZenMode}
         />
 
