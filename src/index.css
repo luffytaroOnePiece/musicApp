@@ -55,20 +55,13 @@ button {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* Custom Scrollbar for sleek look */
+/* Custom Scrollbar - Hidden but functional */
 ::-webkit-scrollbar {
-  width: 6px;
+  display: none;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.4);
+/* For Firefox */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
