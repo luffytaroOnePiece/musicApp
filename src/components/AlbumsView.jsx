@@ -290,8 +290,7 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
                             name: track.name,
                             youtubelinkID: ytId,
                             genre: localData.type || "Playlist",
-                            format: localData.format || "HD",
-                            lyrics: `${track.id}.lrc`
+                            format: localData.format || "HD"
                         };
 
                         return (
@@ -375,8 +374,7 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
                                     name: track.name,
                                     youtubelinkID: track.linked_youtube_id,
                                     genre: track.related_album_type || "Playlist",
-                                    format: track.linked_format || "HD",
-                                    lyrics: track.lyrics
+                                    format: track.linked_format || "HD"
                                 };
 
                                 return (

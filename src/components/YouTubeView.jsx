@@ -191,7 +191,7 @@ const YouTubeView = ({ handlePlay, searchTerm }) => {
                         <YouTubeCard
                             key={trackId}
                             trackId={trackId}
-                            data={data}
+                            data={{ ...data, lyrics: undefined }}
                             handlePlay={handleVideoPlay}
                         />
                     ))}
