@@ -64,5 +64,13 @@
     ],
     "type": "Movie",
     "language": "Telugu"
+  },
+  "https://open.spotify.com/playlist/5qHF6hU01khKwEraTf7pcS?si=QhMvwfrBRluU76X-kTUv0Q": {
+    "name": "The Raja Saab",
+    "youtubeIDs": [
+      "Gp0QGBbo0CQ"
+    ],
+    "type": "Movie",
+    "language": "Telugu"
   }
 }
