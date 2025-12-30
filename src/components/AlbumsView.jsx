@@ -164,7 +164,12 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
             const results = await Promise.all(promises);
             results.forEach(tracks => songs.push(...tracks));
 
-            // Shuffle or Sort? Request implies just list. Let's shuffle for variety or just list.
+            // Fisher-Yates Shuffle
+            for (let i = songs.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [songs[i], songs[j]] = [songs[j], songs[i]];
+            }
+
             setAllSongs(songs);
             setLoadingSongs(false);
         };
