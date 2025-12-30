@@ -149,19 +149,31 @@ const Dashboard = () => {
     setSearchTerm(""); // Clear search term when selecting playlist
 
     try {
-      let data;
-      if (playlist.id === "liked-songs") {
-        data = await getUserSavedTracks();
+      if (playlist.type === 'album') {
+        const data = await getAlbum(playlist.id);
+        const albumTracks = data.tracks.items.map((t) => ({
+          ...t,
+          album: data, // Attach full album data for cover art
+          added_at: data.release_date,
+        }));
+        setTracks(albumTracks);
+      } else if (playlist.id === "liked-songs") {
+        const data = await getUserSavedTracks();
+        setTracks(
+          data.items.map((item) => ({
+            ...item.track,
+            added_at: item.added_at,
+          }))
+        );
       } else {
-        data = await getPlaylistTracks(playlist.id);
+        const data = await getPlaylistTracks(playlist.id);
+        setTracks(
+          data.items.map((item) => ({
+            ...item.track,
+            added_at: item.added_at,
+          }))
+        );
       }
-
-      setTracks(
-        data.items.map((item) => ({
-          ...item.track,
-          added_at: item.added_at,
-        }))
-      );
     } catch (err) {
       console.error("Failed to load tracks", err);
     }

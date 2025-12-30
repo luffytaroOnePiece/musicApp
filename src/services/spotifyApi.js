@@ -244,3 +244,7 @@ export const getArtistTopTracks = (artistId) => apiCall(`/artists/${artistId}/to
 export const getAlbum = (albumId) => apiCall(`/albums/${albumId}`);
 export const getPlaylist = (playlistId) => apiCall(`/playlists/${playlistId}`);
 export const getTracks = (ids) => apiCall(`/tracks?ids=${ids}`);
+export const getNewReleases = (limit = 10) => apiCall(`/browse/new-releases?limit=${limit}`);
+export const getFeaturedPlaylists = (limit = 10) => apiCall(`/browse/featured-playlists?limit=${limit}`);
+export const getArtistAlbums = (artistId, limit = 5) => apiCall(`/artists/${artistId}/albums?limit=${limit}&include_groups=album,single`);
+
