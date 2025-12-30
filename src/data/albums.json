@@ -51,8 +51,20 @@
   },
   "5qHF6hU01khKwEraTf7pcS?si": {
     "name": "The Raja Saab",
-    "youtubeIDs": ["Gp0QGBbo0CQ"],
+    "youtubeIDs": ["2cF8x6Mhgj4"],
     "type": "Movie",
     "language": "Telugu"
+  },
+  "2eMW0dUvSnhsybbxlgFT5u": {
+    "name": "The Weekend",
+    "youtubeIDs": [
+      "Mx92lTYxrJQ",
+      "5EpyN_6dqyk",
+      "34Na4j8AVgA",
+      "4NRXx6U8ABQ",
+      "M4ZoCHID9GI"
+    ],
+    "type": "Private",
+    "language": "English"
   }
 }
