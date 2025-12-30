@@ -92,7 +92,8 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
             youtubelinkID: targetTrack.linked_youtube_id,
             name: targetTrack.name,
             format: targetTrack.linked_format || "HD",
-            useEmbed: true
+            useEmbed: true,
+            lyrics: targetTrack.lyrics
         } :
             (getYoutubeLinkData(targetTrack.id) || (targetTrack.linked_from && getYoutubeLinkData(targetTrack.linked_from.id)))
     ) : null;

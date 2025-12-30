@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { getPlaylist } from '../services/spotifyApi';
 import albumsData from '../data/albums.json';
+import youtubeLinks from '../data/youtubeLinks.json';
 import YouTubeCard from './youtube/YouTubeCard';
 import AlbumFilters from './albums/AlbumFilters';
 import '../styles/AlbumsView.css';
@@ -135,12 +136,12 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
             setLoadingSongs(true);
             const songs = [];
 
-            // Limit concurrent requests to avoid rate limits? 
+            // Limit concurrent requests to avoid rate limits?
             // For now, simple Promise.all on filtered items
             const promises = filteredItems.map(async ([id, meta]) => {
                 try {
                     // Optimisation: If we have full data cached somewhere use it, else fetch
-                    // Note: We don't cache full playlist bodies in itemsMetadata to save memory, 
+                    // Note: We don't cache full playlist bodies in itemsMetadata to save memory,
                     // so we likely need to fetch or implement a bigger cache if this is slow.
                     const playlist = await getPlaylist(id);
                     const rawTracks = playlist.tracks.items;
@@ -148,11 +149,18 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
 
                     return rawTracks.map((item, i) => {
                         if (!item.track || !youtubeIDs[i]) return null;
+
+                        // Check for lyrics in youtubeLinks.json
+                        const yLinkData = youtubeLinks[item.track.id];
+                        const hasLyrics = yLinkData && (yLinkData[5] === 1 || yLinkData[5] === true);
+                        const lyricsFilename = hasLyrics ? `${item.track.id}.lrc` : undefined;
+
                         return {
                             ...item.track,
                             linked_youtube_id: youtubeIDs[i],
                             linked_format: albumsData[id].format,
-                            related_album_type: meta.type
+                            related_album_type: meta.type,
+                            lyrics: lyricsFilename
                         };
                     }).filter(Boolean);
                 } catch (e) {
@@ -205,11 +213,17 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         // Construct queue
         const queue = rawTracks.map((item, i) => {
             if (!item.track) return null;
+
+            const yLinkData = youtubeLinks[item.track.id];
+            const hasLyrics = yLinkData && (yLinkData[5] === 1 || yLinkData[5] === true);
+            const lyricsFilename = hasLyrics ? `${item.track.id}.lrc` : undefined;
+
             return {
                 ...item.track,
                 // Inject the YouTube ID and Format
                 linked_youtube_id: youtubeIDs[i],
-                linked_format: albumsData[selectedId].format
+                linked_format: albumsData[selectedId].format,
+                lyrics: lyricsFilename
             };
         }).filter(Boolean);
 
@@ -225,8 +239,6 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         // For now, pass all. 
         handlePlay(trackUri, allSongs.map(t => t.uri), 0, allSongs);
     };
-
-
 
 
     const [error, setError] = useState(null);
@@ -283,11 +295,17 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
                         // Requirement says "same order as songs". 
                         if (!ytId) return null;
 
+                        // Check for lyrics
+                        const yLinkData = youtubeLinks[track.id];
+                        const hasLyrics = yLinkData && (yLinkData[5] === 1 || yLinkData[5] === true);
+                        const lyricsFilename = hasLyrics ? `${track.id}.lrc` : undefined;
+
                         const cardData = {
                             name: track.name,
                             youtubelinkID: ytId,
                             genre: localData.type || "Playlist",
-                            format: localData.format || "HD"
+                            format: localData.format || "HD",
+                            lyrics: lyricsFilename
                         };
 
                         return (
@@ -307,7 +325,7 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
     // List View (Albums OR All Songs)
     return (
         <div className="albums-view-container">
-            <div className="albums-header">
+            <div className="albums-list-header">
                 <div className="header-top-row">
                     <h2>Collections</h2>
                     <div className="view-mode-toggle">
@@ -371,7 +389,8 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
                                     name: track.name,
                                     youtubelinkID: track.linked_youtube_id,
                                     genre: track.related_album_type || "Playlist",
-                                    format: track.linked_format || "HD"
+                                    format: track.linked_format || "HD",
+                                    lyrics: track.lyrics
                                 };
 
                                 return (

@@ -38,9 +38,15 @@ const FPLyrics = ({ lyricsFileName, position, handleSeek }) => {
         setLoading(true);
         setError(null);
 
-        fetch(`https://raw.githubusercontent.com/luffytaroOnePiece/lyrics/main/${lyricsFileName}`)
+        const url = `https://raw.githubusercontent.com/luffytaroOnePiece/lyrics/main/${lyricsFileName}`;
+        console.log("Fetching lyrics from:", url);
+
+        fetch(url)
             .then(res => {
-                if (!res.ok) throw new Error("Lyrics not found");
+                if (!res.ok) {
+                    console.error("Lyrics fetch failed:", res.status, res.statusText);
+                    throw new Error("Lyrics not found");
+                }
                 return res.text();
             })
             .then(data => {
@@ -50,7 +56,7 @@ const FPLyrics = ({ lyricsFileName, position, handleSeek }) => {
             })
             .catch(err => {
                 console.error("Failed to load lyrics:", err);
-                setError("Lyrics not available");
+                setError(`Lyrics error: ${err.message}`);
                 setLoading(false);
             });
     }, [lyricsFileName]);

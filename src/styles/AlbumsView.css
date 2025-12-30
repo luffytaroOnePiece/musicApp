@@ -10,6 +10,13 @@
 .albums-header {
     margin-bottom: 24px;
     display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.albums-list-header {
+    margin-bottom: 24px;
+    display: flex;
     flex-direction: column;
     gap: 16px;
 }
