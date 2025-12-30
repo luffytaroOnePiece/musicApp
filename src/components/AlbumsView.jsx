@@ -150,17 +150,12 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
                     return rawTracks.map((item, i) => {
                         if (!item.track || !youtubeIDs[i]) return null;
 
-                        // Check for lyrics in youtubeLinks.json
-                        const yLinkData = youtubeLinks[item.track.id];
-                        const hasLyrics = yLinkData && (yLinkData[5] === 1 || yLinkData[5] === true);
-                        const lyricsFilename = hasLyrics ? `${item.track.id}.lrc` : undefined;
-
                         return {
                             ...item.track,
                             linked_youtube_id: youtubeIDs[i],
                             linked_format: albumsData[id].format,
                             related_album_type: meta.type,
-                            lyrics: lyricsFilename
+                            lyrics: `${item.track.id}.lrc`
                         };
                     }).filter(Boolean);
                 } catch (e) {
@@ -214,16 +209,12 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         const queue = rawTracks.map((item, i) => {
             if (!item.track) return null;
 
-            const yLinkData = youtubeLinks[item.track.id];
-            const hasLyrics = yLinkData && (yLinkData[5] === 1 || yLinkData[5] === true);
-            const lyricsFilename = hasLyrics ? `${item.track.id}.lrc` : undefined;
-
             return {
                 ...item.track,
                 // Inject the YouTube ID and Format
                 linked_youtube_id: youtubeIDs[i],
                 linked_format: albumsData[selectedId].format,
-                lyrics: lyricsFilename
+                lyrics: `${item.track.id}.lrc`
             };
         }).filter(Boolean);
 
@@ -295,17 +286,12 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
                         // Requirement says "same order as songs". 
                         if (!ytId) return null;
 
-                        // Check for lyrics
-                        const yLinkData = youtubeLinks[track.id];
-                        const hasLyrics = yLinkData && (yLinkData[5] === 1 || yLinkData[5] === true);
-                        const lyricsFilename = hasLyrics ? `${track.id}.lrc` : undefined;
-
                         const cardData = {
                             name: track.name,
                             youtubelinkID: ytId,
                             genre: localData.type || "Playlist",
                             format: localData.format || "HD",
-                            lyrics: lyricsFilename
+                            lyrics: `${track.id}.lrc`
                         };
 
                         return (

@@ -14,8 +14,8 @@ const normalizeData = (id, data) => {
             genre: data[3],
             name: data[4],
             likes: null, // Not in array
-            // Reconstruct lyrics: if matches 1, use id.lrc, else use value
-            lyrics: data[5] ? (data[5] === 1 ? `${id}.lrc` : data[5]) : undefined
+            // Optimistic lyrics: default to id.lrc
+            lyrics: (data[5] && typeof data[5] === 'string') ? data[5] : `${id}.lrc`
         };
     }
 
@@ -26,7 +26,7 @@ const normalizeData = (id, data) => {
         language: data.l || data.language,
         genre: data.g || data.genre,
         name: data.n || data.name,
-        lyrics: data.ly ? (data.ly === 1 ? `${id}.lrc` : data.ly) : data.lyrics
+        lyrics: (data.ly && typeof data.ly === 'string') ? data.ly : `${id}.lrc`
     };
 };
 

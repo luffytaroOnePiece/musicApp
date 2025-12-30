@@ -44,8 +44,11 @@ const FPLyrics = ({ lyricsFileName, position, handleSeek }) => {
         fetch(url)
             .then(res => {
                 if (!res.ok) {
+                    if (res.status === 404) {
+                        throw new Error("Lyrics not found");
+                    }
                     console.error("Lyrics fetch failed:", res.status, res.statusText);
-                    throw new Error("Lyrics not found");
+                    throw new Error("Lyrics unavailable");
                 }
                 return res.text();
             })
@@ -55,8 +58,12 @@ const FPLyrics = ({ lyricsFileName, position, handleSeek }) => {
                 setLoading(false);
             })
             .catch(err => {
-                console.error("Failed to load lyrics:", err);
-                setError(`Lyrics error: ${err.message}`);
+                if (err.message !== "Lyrics not found") {
+                    console.error("Failed to load lyrics:", err);
+                }
+                // Determine user-facing message
+                const msg = err.message === "Lyrics not found" ? "No lyrics available for this track" : `Lyrics error: ${err.message}`;
+                setError(msg);
                 setLoading(false);
             });
     }, [lyricsFileName]);
