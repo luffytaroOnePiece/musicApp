@@ -34,24 +34,33 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
     // Initial Load - Metadata for list (Treating them as Playlists now)
     useEffect(() => {
         const fetchMetadata = async () => {
+            // Cache check: if we already have data, don't re-fetch
+            if (Object.keys(itemsMetadata).length > 0) return;
+
             setLoading(true);
-            const metadata = {};
-            for (const [spotifyId, localData] of Object.entries(albumsData)) {
-                try {
-                    // USER CLARIFIED: These are Playlist IDs
-                    const playlist = await getPlaylist(spotifyId);
-                    metadata[spotifyId] = {
-                        ...localData,
-                        spotifyName: playlist.name,
-                        images: playlist.images,
-                        owner: playlist.owner?.display_name,
-                        description: playlist.description
-                    };
-                } catch (err) {
-                    console.error(`Failed to fetch playlist ${spotifyId}`, err);
-                    metadata[spotifyId] = { ...localData, error: true };
-                }
-            }
+
+            const entries = Object.entries(albumsData);
+
+            // Parallel Fetching
+            const results = await Promise.all(
+                entries.map(async ([spotifyId, localData]) => {
+                    try {
+                        const playlist = await getPlaylist(spotifyId);
+                        return [spotifyId, {
+                            ...localData,
+                            spotifyName: playlist.name,
+                            images: playlist.images,
+                            owner: playlist.owner?.display_name,
+                            description: playlist.description
+                        }];
+                    } catch (err) {
+                        console.error(`Failed to fetch playlist ${spotifyId}`, err);
+                        return [spotifyId, { ...localData, error: true }];
+                    }
+                })
+            );
+
+            const metadata = Object.fromEntries(results);
             setItemsMetadata(metadata);
             setLoading(false);
         };
@@ -59,7 +68,7 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         if (!selectedId) {
             fetchMetadata();
         }
-    }, [selectedId]);
+    }, [selectedId, itemsMetadata]);
 
     // Detail Load
     useEffect(() => {

@@ -23,5 +23,18 @@
     "youtubeIDs": ["AJtDXIazrMo", "UZwi9SHgzGY", "CGyEd0aKWZE"],
     "type": "Private",
     "language": "English"
+  },
+  "1sfiWVYIocCq8Y4WaTd2Zu?si": {
+    "name": "Bebe Rexha",
+    "youtubeIDs": [
+      "RnBT9uUYb1w",
+      "LdH7aFjDzjI",
+      "ft4jcPSLJfY",
+      "uO59tfQ2TbA",
+      "3XCVM3G3pns",
+      "BinSLOxvZx0"
+    ],
+    "type": "Playlist",
+    "language": "English"
   }
 }
