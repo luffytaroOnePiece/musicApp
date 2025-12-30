@@ -24,6 +24,11 @@ const LiveCard = ({ data }) => {
                         e.target.onerror = null;
                         e.target.src = `https://img.youtube.com/vi/${data.youtubeLinkID}/hqdefault.jpg`;
                     }}
+                    onLoad={(e) => {
+                        if (e.target.src.includes('maxresdefault.jpg') && e.target.naturalWidth === 120) {
+                            e.target.src = `https://img.youtube.com/vi/${data.youtubeLinkID}/hqdefault.jpg`;
+                        }
+                    }}
                 />
             </div>
 

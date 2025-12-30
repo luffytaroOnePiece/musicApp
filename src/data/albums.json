@@ -34,7 +34,13 @@
       "3XCVM3G3pns",
       "BinSLOxvZx0"
     ],
-    "type": "Playlist",
+    "type": "Private",
+    "language": "English"
+  },
+  "6qBALhcJBJHt09di1FnzFq": {
+    "name": "Dua Lipa",
+    "youtubeIDs": ["TUVcZfQe-Kw", "DkeiKbqa02g", "k2qgadSvNyU"],
+    "type": "Private",
     "language": "English"
   }
 }

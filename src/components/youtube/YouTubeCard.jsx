@@ -38,6 +38,13 @@ const YouTubeCard = ({ data, trackId, handlePlay }) => {
                         e.target.onerror = null; // Prevent infinite loop
                         e.target.src = `https://img.youtube.com/vi/${data.youtubelinkID}/hqdefault.jpg`;
                     }}
+                    onLoad={(e) => {
+                        // YouTube's "missing" maxres image is often 120px wide (placeholder)
+                        // Only replace if we are currently looking at maxresdefault to avoid loops
+                        if (e.target.src.includes('maxresdefault.jpg') && e.target.naturalWidth === 120) {
+                            e.target.src = `https://img.youtube.com/vi/${data.youtubelinkID}/hqdefault.jpg`;
+                        }
+                    }}
                 />
                 {data.format && (
                     <div className="card-format-badge">

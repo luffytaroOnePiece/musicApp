@@ -109,6 +109,11 @@ const FPSplitLayout = ({
                                             e.target.onerror = null;
                                             e.target.src = `https://img.youtube.com/vi/${youtubeData.youtubelinkID}/hqdefault.jpg`;
                                         }}
+                                        onLoad={(e) => {
+                                            if (e.target.src.includes('maxresdefault.jpg') && e.target.naturalWidth === 120) {
+                                                e.target.src = `https://img.youtube.com/vi/${youtubeData.youtubelinkID}/hqdefault.jpg`;
+                                            }
+                                        }}
                                     />
                                     <div className="fp-youtube-overlay">
                                         <div className="fp-overlay-buttons">
