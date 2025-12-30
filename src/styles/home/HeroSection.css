@@ -1,0 +1,151 @@
+/* Hero Grid Layout */
+.hero-wrapper {
+    margin-bottom: 40px;
+}
+
+.hero-section-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 200px 200px;
+    gap: 20px;
+    margin: 0 auto 50px auto;
+    max-width: 1200px;
+    padding: 0 10px;
+}
+
+.hero-card {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #111;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.hero-main {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    /* Main takes full height */
+    padding: 40px;
+}
+
+.hero-secondary {
+    grid-column: 2;
+    padding: 20px;
+}
+
+/* Background Overlay */
+.hero-bg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: var(--hero-bg);
+    background-size: cover;
+    background-position: center;
+    filter: blur(50px) brightness(0.35);
+    transform: scale(1.2);
+    z-index: 0;
+    transition: transform 0.5s ease;
+}
+
+.hero-card:hover {
+    transform: scale(1.01);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    z-index: 5;
+}
+
+.hero-card:hover .hero-bg-overlay {
+    transform: scale(1.25);
+    filter: blur(40px) brightness(0.45);
+}
+
+/* Hero Content Styles */
+.hero-content {
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-right: 15px;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+.hero-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    display: block;
+    text-transform: uppercase;
+}
+
+.hero-content h2 {
+    font-weight: 900;
+    color: #fff;
+    margin: 0 0 10px 0;
+    line-height: 1.1;
+}
+
+/* Main Hero Specifics */
+.hero-main h2 {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+.hero-main p {
+    font-size: 1.4rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    font-weight: 600;
+}
+
+.hero-main .hero-image {
+    width: 280px;
+    height: 280px;
+}
+
+/* Secondary Hero Specifics */
+.hero-secondary h2 {
+    font-size: 1.4rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.hero-secondary p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    font-weight: 500;
+}
+
+.hero-secondary .hero-image {
+    width: 100px;
+    height: 100px;
+}
+
+.hero-image {
+    z-index: 2;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

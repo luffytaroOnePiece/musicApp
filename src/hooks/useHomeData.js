@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   getNewReleases,
   getFeaturedPlaylists,
-  getUserTopItems,
+  getFollowedArtists,
   getUserPlaylists,
 } from "../services/spotifyApi";
 
@@ -11,11 +11,7 @@ const useHomeData = () => {
   const [featuredPlaylists, setFeaturedPlaylists] = useState([]);
   const [topArtists, setTopArtists] = useState([]);
   const [userPlaylists, setUserPlaylists] = useState([]);
-  const [languageReleases, setLanguageReleases] = useState({
-    telugu: [],
-    hindi: [],
-    english: [],
-  });
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -24,11 +20,11 @@ const useHomeData = () => {
       setLoading(true);
       try {
         // 1. Fetch User Data & Featured
-        const [topArtistsData, featuredData, playlistsData] = await Promise.all(
+        const [followedArtistsData, featuredData, playlistsData] = await Promise.all(
           [
-            getUserTopItems("artists", "medium_term", 10).catch((err) => {
-              console.error("Top Artists fetch failed", err);
-              return { items: [] };
+            getFollowedArtists(50).catch((err) => {
+              console.error("Followed Artists fetch failed", err);
+              return { artists: { items: [] } };
             }),
             getFeaturedPlaylists(10).catch((err) => {
               console.error("Featured Playlists fetch failed", err);
@@ -41,16 +37,18 @@ const useHomeData = () => {
           ]
         );
 
-        setTopArtists(topArtistsData.items || []);
+        // setTopArtists(followedArtistsData.artists?.items || []); // We removed the UI for this, but could keep state if needed.
         setFeaturedPlaylists(featuredData.playlists?.items || []);
         setUserPlaylists(playlistsData.items || []);
 
-        // 2. Fetch New Releases based on Top Artists
-        // If we have top artists, fetch their albums. Otherwise fallback to generic new releases
+        // 2. Fetch New Releases based on Followed Artists
         let releases = [];
-        if (topArtistsData.items && topArtistsData.items.length > 0) {
-          const top5Artists = topArtistsData.items.slice(0, 5);
-          const albumsPromises = top5Artists.map((artist) =>
+        const artistsList = followedArtistsData.artists?.items || [];
+
+        if (artistsList.length > 0) {
+          // Check more artists (up to 20) to find releases
+          const artistsToCheck = artistsList.slice(0, 20);
+          const albumsPromises = artistsToCheck.map((artist) =>
             import("../services/spotifyApi").then((api) =>
               api.getArtistAlbums(artist.id, 2)
             )
@@ -67,38 +65,14 @@ const useHomeData = () => {
           const uniqueAlbums = Array.from(
             new Map(allAlbums.map((item) => [item.id, item])).values()
           );
+
+          // Filter out really old stuff if needed, but for now just sort
           releases = uniqueAlbums.sort(
             (a, b) => new Date(b.release_date) - new Date(a.release_date)
           );
         }
-
-        // Fallback if no personalized releases found
-        if (releases.length === 0) {
-          const genericReleases = await import("../services/spotifyApi").then(
-            (api) => api.getNewReleases(10)
-          );
-          releases = genericReleases.albums?.items || [];
-        }
-
-        // 3. Fetch Language Specific New Releases
-        const [teluguData, hindiData, englishData] = await Promise.all([
-          import("../services/spotifyApi").then((api) =>
-            api.searchAlbums("telugu year:2025")
-          ),
-          import("../services/spotifyApi").then((api) =>
-            api.searchAlbums("hindi year:2025")
-          ),
-          import("../services/spotifyApi").then((api) =>
-            api.searchAlbums("english year:2025")
-          ),
-        ]);
-
         setNewReleases(releases);
-        setLanguageReleases({
-          telugu: teluguData.albums?.items || [],
-          hindi: hindiData.albums?.items || [],
-          english: englishData.albums?.items || [],
-        });
+        // setLanguageReleases removed
         setError(null);
       } catch (err) {
         console.error("Home data fetch failed", err);
@@ -116,7 +90,7 @@ const useHomeData = () => {
     featuredPlaylists,
     topArtists,
     userPlaylists,
-    languageReleases,
+
     loading,
     error,
   };
