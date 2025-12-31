@@ -155,5 +155,17 @@
     ],
     "type": "Movie",
     "language": "Telugu"
+  },
+  "0kLXBxf2B5tJKczXTEhVjq": {
+    "name": "Mr. Majnu",
+    "youtubeIDs": ["tTpQbfHj4j4", "IW9i3bJ8bkU"],
+    "type": "Movie",
+    "language": "Telugu"
+  },
+  "0TA3AeKhPeJQA8qIuPVoN0": {
+    "name": "Aditya Rikhari",
+    "youtubeIDs": ["n2dVFdqMYGA"],
+    "type": "Private",
+    "language": "Hindi"
   }
 }
