@@ -619,7 +619,14 @@ const Dashboard = () => {
         ) : showLive ? (
           <LiveView />
         ) : showArtists ? (
-          <ArtistsView />
+          <ArtistsView
+            handlePlay={handlePlay}
+            formatTime={formatTime}
+            likedTrackIds={likedTrackIds}
+            onToggleFavorite={handleToggleFavorite}
+            onAddTrack={handleAddTrackToPlaylist}
+            deviceId={deviceId}
+          />
         ) : isStatsOpen ? (
           <StatsView handlePlay={handlePlay} formatTime={formatTime} />
         ) : isExploreOpen ? (

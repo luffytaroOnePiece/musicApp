@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { getFollowedArtists, searchArtists, followArtists, unfollowArtists, checkIfUserFollowsArtists } from '../services/spotifyApi';
+import { getFollowedArtists, searchArtists, followArtists, unfollowArtists, checkIfUserFollowsArtists, getArtistTopTracks } from '../services/spotifyApi';
+import TrackItem from './TrackItem';
 import '../styles/ArtistsView.css';
 
-const ArtistsView = () => {
+const ArtistsView = ({ handlePlay, formatTime, likedTrackIds, onToggleFavorite, onAddTrack, deviceId }) => {
     const [followedArtists, setFollowedArtists] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
     const [viewMode, setViewMode] = useState('followed'); // 'followed' or 'search'
     const [followingState, setFollowingState] = useState({}); // Map of artistId -> isFollowing
+    const [selectedArtist, setSelectedArtist] = useState(null);
+    const [topTracks, setTopTracks] = useState([]);
+    const [loadingTracks, setLoadingTracks] = useState(false);
 
     useEffect(() => {
         fetchFollowedArtists();
@@ -97,7 +101,81 @@ const ArtistsView = () => {
         }
     };
 
+    const handleArtistClick = async (artist) => {
+        setSelectedArtist(artist);
+        setLoadingTracks(true);
+        try {
+            const data = await getArtistTopTracks(artist.id);
+            setTopTracks(data.tracks);
+        } catch (error) {
+            console.error("Failed to fetch artist top tracks", error);
+        } finally {
+            setLoadingTracks(false);
+        }
+    };
+
+    const handleBackToGrid = () => {
+        setSelectedArtist(null);
+        setTopTracks([]);
+    };
+
     const displayedArtists = viewMode === 'search' ? searchResults : followedArtists;
+
+    if (selectedArtist) {
+        return (
+            <div className="artists-view">
+                <div className="artist-details-header">
+                    <button className="back-btn" onClick={handleBackToGrid}>← Back</button>
+                    <div className="artist-details-info">
+                        <img
+                            src={selectedArtist.images[0]?.url || 'https://via.placeholder.com/150'}
+                            alt={selectedArtist.name}
+                            className="artist-details-image"
+                        />
+                        <div>
+                            <h1>{selectedArtist.name}</h1>
+                            <p>{selectedArtist.followers.total.toLocaleString()} followers</p>
+                            <button
+                                className={`follow-btn ${followingState[selectedArtist.id] ? 'following' : ''}`}
+                                onClick={() => toggleFollow(selectedArtist)}
+                            >
+                                {followingState[selectedArtist.id] ? 'Following' : 'Follow'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="artist-top-tracks">
+                    <h2>Popular Tracks</h2>
+                    {loadingTracks ? (
+                        <div className="loading-spinner">Loading Tracks...</div>
+                    ) : topTracks.length > 0 ? (
+                        <div className="tracks-list">
+                            {topTracks.map((track, index) => (
+                                <TrackItem
+                                    key={track.id}
+                                    track={track}
+                                    index={index}
+                                    viewMode="list"
+                                    handlePlay={handlePlay}
+                                    selectedPlaylistUri={`spotify:artist:${selectedArtist.id}`}
+                                    trackIndex={index}
+                                    formatTime={formatTime}
+                                    likedTrackIds={likedTrackIds}
+                                    onToggleFavorite={onToggleFavorite}
+                                    onAddTrack={null}
+                                    onAddToPlaylistClick={null}
+                                    onRemoveTrack={null}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="no-results">No popular tracks found.</div>
+                    )}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="artists-view">
@@ -117,7 +195,7 @@ const ArtistsView = () => {
             ) : (
                 <div className="artists-grid">
                     {displayedArtists.map(artist => (
-                        <div key={artist.id} className="artist-card">
+                        <div key={artist.id} className="artist-card" onClick={() => handleArtistClick(artist)}>
                             <div className="artist-image-wrapper">
                                 <img
                                     src={artist.images[0]?.url || 'https://via.placeholder.com/150'}
@@ -131,7 +209,10 @@ const ArtistsView = () => {
                             </div>
                             <button
                                 className={`follow-btn ${followingState[artist.id] ? 'following' : ''}`}
-                                onClick={() => toggleFollow(artist)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleFollow(artist);
+                                }}
                             >
                                 {followingState[artist.id] ? 'Following' : 'Follow'}
                             </button>
