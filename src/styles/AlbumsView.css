@@ -1,9 +1,7 @@
 .albums-view-container {
-    padding: 80px 32px 32px 32px;
-    /* Enhanced top padding for header */
-    height: 100%;
-    overflow-y: auto;
+    padding: 80px 40px 120px 40px;
     background: var(--background-default);
+    box-sizing: border-box;
 }
 
 .albums-loading {
