@@ -1,0 +1,255 @@
+import React, { useState, useRef, useEffect } from 'react';
+import YouTubeCard from '../youtube/YouTubeCard';
+import AlbumCard from './AlbumCard';
+import '../../styles/albums/AlbumDetail.css';
+import '../../styles/YouTubeFilters.css'; // Reuse dropdown styles
+
+const AlbumDetail = ({
+    fullItemData,
+    localData,
+    itemsMetadata,
+    onBack,
+    onPlay,
+    onPlayContext,
+    onShuffleContext,
+    onAlbumClick,
+    formatTime
+}) => {
+    const [localSearchTerm, setLocalSearchTerm] = useState("");
+    const [sortOrder, setSortOrder] = useState("Original"); // 'Original' | 'Title' | 'Duration' | 'Date Added' | 'Date Published'
+
+    // Basic Metadata
+    const tracks = fullItemData.tracks.items;
+
+    // Calculate Total Duration
+    const totalDurationMs = tracks.reduce((acc, item) => acc + (item.track?.duration_ms || 0), 0);
+    const formattedTotalDuration = formatTime ? formatTime(totalDurationMs) :
+        `${Math.floor(totalDurationMs / 60000)} min`;
+
+    // Get Year
+    let releaseYear = "";
+    if (tracks.length > 0 && tracks[0].track?.album?.release_date) {
+        releaseYear = tracks[0].track.album.release_date.split('-')[0];
+    } else if (fullItemData.release_date) {
+        releaseYear = fullItemData.release_date.split('-')[0];
+    }
+
+    // --- Filter & Sort Logic ---
+    let visibleTracks = [...tracks];
+
+    // 1. Filter by Local Search
+    if (localSearchTerm) {
+        visibleTracks = visibleTracks.filter(item =>
+            item.track && item.track.name.toLowerCase().includes(localSearchTerm.toLowerCase())
+        );
+    }
+
+    // 2. Sort
+    if (sortOrder === 'Title') {
+        visibleTracks.sort((a, b) => a.track.name.localeCompare(b.track.name));
+    } else if (sortOrder === 'Duration') {
+        visibleTracks.sort((a, b) => (a.track.duration_ms || 0) - (b.track.duration_ms || 0));
+    } else if (sortOrder === 'Date Added') {
+        visibleTracks.sort((a, b) => {
+            const dateA = new Date(a.added_at || 0); // specific for playlist tracks
+            const dateB = new Date(b.added_at || 0);
+            return dateB - dateA; // Newest first
+        });
+    } else if (sortOrder === 'Date Published') {
+        visibleTracks.sort((a, b) => {
+            // Check specific track album release date, fallback to 0
+            const dateA = new Date(a.track?.album?.release_date || 0);
+            const dateB = new Date(b.track?.album?.release_date || 0);
+            return dateB - dateA; // Newest first
+        });
+    }
+
+    // --- More By Artist Logic ---
+    const currentArtistName = fullItemData.owner?.display_name || (tracks[0]?.track?.artists?.[0]?.name);
+
+    const moreByArtist = Object.entries(itemsMetadata).filter(([id, meta]) => {
+        if (id === fullItemData.id) return false;
+
+        const targetName = currentArtistName?.toLowerCase();
+        if (!targetName) return false;
+
+        return (meta.name && meta.name.toLowerCase().includes(targetName)) ||
+            (meta.owner && meta.owner.toLowerCase().includes(targetName)) ||
+            (meta.spotifyName && meta.spotifyName.toLowerCase().includes(targetName));
+    });
+
+    return (
+        <div className="albums-view-container detail-mode">
+            <div className="albums-header">
+                <button className="back-btn" onClick={onBack}>
+                    ← Back to Collections
+                </button>
+            </div>
+
+            <div className="album-details-header">
+                <img
+                    src={fullItemData.images?.[0]?.url}
+                    alt={fullItemData.name}
+                    className="album-details-cover"
+                />
+                <div className="album-details-info">
+                    <p>{localData.type || "Playlist"}</p>
+                    <h1>{fullItemData.name}</h1>
+                    <p>{fullItemData.owner?.display_name} • {releaseYear ? `${releaseYear} • ` : ""}{tracks.length} songs, {formattedTotalDuration}</p>
+                    <p className="description">{fullItemData.description}</p>
+
+                    <div className="album-actions">
+                        <button className="play-btn-primary" onClick={onPlayContext}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                            Play
+                        </button>
+                        <button className="shuffle-btn-secondary" onClick={onShuffleContext}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
+                            </svg>
+                            Shuffle
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div className="album-controls-bar">
+                <div className="search-wrapper">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input
+                        type="text"
+                        placeholder="Find in this album..."
+                        value={localSearchTerm}
+                        onChange={(e) => setLocalSearchTerm(e.target.value)}
+                    />
+                </div>
+
+                <div className="sort-dropdown">
+                    <DetailDropdown
+                        label="Sort by"
+                        selected={sortOrder}
+                        onSelect={setSortOrder}
+                        options={['Original', 'Title', 'Duration', 'Date Added', 'Date Published']}
+                    />
+                </div>
+            </div>
+
+            <div className="album-tracks-grid">
+                {visibleTracks.map((item) => {
+                    const track = item.track;
+                    if (!track) return null;
+
+                    // Locate original index for Youtube Mapping
+                    const originalIndex = tracks.findIndex(raw => raw.track && raw.track.id === track.id);
+                    if (originalIndex === -1) return null;
+
+                    const ytId = localData.youtubeIDs[originalIndex];
+                    if (!ytId) return null;
+
+
+
+                    const cardData = {
+                        name: track.name,
+                        youtubelinkID: ytId,
+                        genre: track.album && track.album.release_date ? new Date(track.album.release_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : (localData.type || "Playlist"),
+                        format: localData.format || "HD"
+                    };
+
+                    return (
+                        <YouTubeCard
+                            key={track.id}
+                            trackId={track.id}
+                            data={cardData}
+                            handlePlay={() => onPlay(track.uri)}
+                        />
+                    );
+                })}
+            </div>
+
+            {moreByArtist.length > 0 && (
+                <div className="more-by-artist-section">
+                    <h2>More by {currentArtistName}</h2>
+                    <div className="albums-grid">
+                        {moreByArtist.map(([id, meta]) => (
+                            <AlbumCard
+                                key={id}
+                                meta={meta}
+                                onClick={() => onAlbumClick(id)}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// Reused Dropdown logic from AlbumFilters/YouTubeFilters styling
+const DetailDropdown = ({ label, selected, onSelect, options }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    return (
+        <div className="yt-filter-dropdown" ref={dropdownRef}>
+            <button
+                className="yt-filter-btn"
+                onClick={() => setIsOpen(!isOpen)}
+                style={{ color: 'var(--text-secondary)', fontWeight: 500 }}
+            >
+                <span className="yt-dropdown-label" style={{ marginRight: 6 }}>{label}:</span>
+                <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{selected}</span>
+                <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={`yt-arrow-icon ${isOpen ? 'open' : ''}`}
+                    style={{ marginLeft: 6 }}
+                >
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+
+            {isOpen && (
+                <div className="yt-dropdown-menu" style={{ minWidth: 160, right: 0, left: 'auto' }}>
+                    {options.map((option) => (
+                        <div
+                            key={option}
+                            className={`yt-dropdown-item ${selected === option ? "active" : ""}`}
+                            onClick={() => {
+                                onSelect(option);
+                                setIsOpen(false);
+                            }}
+                        >
+                            {option}
+                            {selected === option && <span>✓</span>}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default AlbumDetail;

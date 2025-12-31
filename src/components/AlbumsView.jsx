@@ -4,17 +4,25 @@ import albumsData from '../data/albums.json';
 import youtubeLinks from '../data/youtubeLinks.json';
 import YouTubeCard from './youtube/YouTubeCard';
 import AlbumFilters from './albums/AlbumFilters';
+import AlbumsList from './albums/AlbumsList';
+import AlbumDetail from './albums/AlbumDetail';
 import '../styles/AlbumsView.css';
 
-const AlbumsView = ({ handlePlay, searchTerm }) => {
+const AlbumsView = ({ handlePlay, searchTerm, formatTime }) => {
     const [selectedId, setSelectedId] = useState(null);
     const [itemsMetadata, setItemsMetadata] = useState({});
     const [fullItemData, setFullItemData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     // Filter States
     const [selectedType, setSelectedType] = useState("All");
     const [selectedLanguage, setSelectedLanguage] = useState("All");
+
+    // All Songs State
+    const [viewMode, setViewMode] = useState('albums'); // 'albums' | 'all-songs'
+    const [allSongs, setAllSongs] = useState([]);
+    const [loadingSongs, setLoadingSongs] = useState(false);
 
     // Extract Filter Options
     const { types, languages } = useMemo(() => {
@@ -34,38 +42,28 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         };
     }, []);
 
-    // All Songs State
-    const [viewMode, setViewMode] = useState('albums'); // 'albums' | 'all-songs'
-    const [allSongs, setAllSongs] = useState([]);
-    const [loadingSongs, setLoadingSongs] = useState(false);
-
-    // Initial Load - Metadata for list (Treating them as Playlists now)
+    // Initial Load - Metadata
     useEffect(() => {
         const fetchMetadata = async () => {
             try {
-                // Cache check: if we already have data, don't re-fetch
                 if (Object.keys(itemsMetadata).length > 0) {
                     setLoading(false);
                     return;
                 }
 
                 setLoading(true);
-
                 if (!albumsData) throw new Error("Albums data is missing");
 
                 const entries = Object.entries(albumsData);
-
                 if (entries.length === 0) {
                     setLoading(false);
                     return;
                 }
 
-                // Parallel Fetching
                 const results = await Promise.all(
                     entries.map(async ([spotifyId, localData]) => {
                         try {
                             const playlist = await getPlaylist(spotifyId);
-                            // If playlist is null from API?
                             if (!playlist) throw new Error("Playlist not found");
 
                             return [spotifyId, {
@@ -73,6 +71,7 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
                                 spotifyName: playlist.name,
                                 images: playlist.images,
                                 owner: playlist.owner?.display_name,
+                                release_date: playlist.release_date || (playlist.tracks?.items?.[0]?.track?.album?.release_date),
                                 description: playlist.description
                             }];
                         } catch (err) {
@@ -115,20 +114,7 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         fetchFullData();
     }, [selectedId]);
 
-    // Filter Logic
-    const filteredItems = useMemo(() => {
-        return Object.entries(itemsMetadata).filter(([id, meta]) => {
-            const matchesType = selectedType === "All" || meta.type === selectedType;
-            const matchesLanguage = selectedLanguage === "All" || meta.language === selectedLanguage;
-
-            // Also Filter by Search Term from top bar if present
-            const matchesSearch = !searchTerm || (meta.name || "").toLowerCase().includes(searchTerm.toLowerCase());
-
-            return matchesType && matchesLanguage && matchesSearch;
-        });
-    }, [itemsMetadata, selectedType, selectedLanguage, searchTerm]);
-
-    // Fetch All Songs for current filter
+    // Fetch All Songs
     useEffect(() => {
         const fetchAllSongs = async () => {
             if (viewMode !== 'all-songs') return;
@@ -136,20 +122,24 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
             setLoadingSongs(true);
             const songs = [];
 
-            // Limit concurrent requests to avoid rate limits?
-            // For now, simple Promise.all on filtered items
-            const promises = filteredItems.map(async ([id, meta]) => {
+            // Filter items first
+            const currentFilteredItems = Object.entries(itemsMetadata).filter(([id, meta]) => {
+                const matchesType = selectedType === "All" || meta.type === selectedType;
+                const matchesLanguage = selectedLanguage === "All" || meta.language === selectedLanguage;
+                // Note: We don't filter all-songs by SEARCH term here to keep "All Songs" truly all, 
+                // but we could apply it if desired. Existing logic did apply it.
+                // Let's stick to filtering by Type/Language for the "pool" of songs.
+                return matchesType && matchesLanguage;
+            });
+
+            const promises = currentFilteredItems.map(async ([id, meta]) => {
                 try {
-                    // Optimisation: If we have full data cached somewhere use it, else fetch
-                    // Note: We don't cache full playlist bodies in itemsMetadata to save memory,
-                    // so we likely need to fetch or implement a bigger cache if this is slow.
                     const playlist = await getPlaylist(id);
                     const rawTracks = playlist.tracks.items;
                     const youtubeIDs = albumsData[id].youtubeIDs;
 
                     return rawTracks.map((item, i) => {
                         if (!item.track || !youtubeIDs[i]) return null;
-
                         return {
                             ...item.track,
                             linked_youtube_id: youtubeIDs[i],
@@ -159,7 +149,6 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
                         };
                     }).filter(Boolean);
                 } catch (e) {
-                    console.error("Failed to fetch tracks for All Songs", id, e);
                     return [];
                 }
             });
@@ -167,7 +156,7 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
             const results = await Promise.all(promises);
             results.forEach(tracks => songs.push(...tracks));
 
-            // Fisher-Yates Shuffle
+            // Shuffle
             for (let i = songs.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [songs[i], songs[j]] = [songs[j], songs[i]];
@@ -180,38 +169,46 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         if (viewMode === 'all-songs') {
             fetchAllSongs();
         }
-    }, [viewMode, filteredItems]); // Re-fetch if filters change
+    }, [viewMode, itemsMetadata, selectedType, selectedLanguage]);
 
-    const handleItemClick = (id) => {
-        setSelectedId(id);
-    };
 
+    // Filter Logic for Album List
+    const filteredItems = useMemo(() => {
+        return Object.entries(itemsMetadata).filter(([id, meta]) => {
+            const matchesType = selectedType === "All" || meta.type === selectedType;
+            const matchesLanguage = selectedLanguage === "All" || meta.language === selectedLanguage;
+            const matchesSearch = !searchTerm || (meta.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (meta.spotifyName || "").toLowerCase().includes(searchTerm.toLowerCase());
+
+            return matchesType && matchesLanguage && matchesSearch;
+        });
+    }, [itemsMetadata, selectedType, selectedLanguage, searchTerm]);
+
+
+    // Handlers
+    const handleItemClick = (id) => setSelectedId(id);
     const handleBack = () => {
         setSelectedId(null);
         setFullItemData(null);
     };
-
     const handleResetFilters = () => {
         setSelectedType("All");
         setSelectedLanguage("All");
     };
 
-    const onPlayWrapper = async (trackUri) => {
+    const handlePlayTrack = (trackUri) => {
+        // Logic to play a specific track from detail view
         if (!fullItemData) return;
-        // Playlist tracks are wrapped in an object: { track: {...} }
         const rawTracks = fullItemData.tracks.items;
         const youtubeIDs = albumsData[selectedId].youtubeIDs;
 
         const clickedIndex = rawTracks.findIndex(item => item.track.uri === trackUri);
         if (clickedIndex === -1) return;
 
-        // Construct queue
         const queue = rawTracks.map((item, i) => {
-            if (!item.track) return null;
-
+            if (!item.track || !youtubeIDs[i]) return null;
             return {
                 ...item.track,
-                // Inject the YouTube ID and Format
                 linked_youtube_id: youtubeIDs[i],
                 linked_format: albumsData[selectedId].format,
                 lyrics: `${item.track.id}.lrc`
@@ -221,12 +218,12 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         handlePlay(trackUri, queue.map(t => t.uri), 0, queue);
     };
 
-    const handleAlbumPlay = () => {
+    const handlePlayContext = () => {
+        // Play Album Button
         if (!fullItemData || !albumsData[selectedId]) return;
         const rawTracks = fullItemData.tracks.items;
         const youtubeIDs = albumsData[selectedId].youtubeIDs;
 
-        // Filter valid tracks
         const queue = rawTracks.map((item, i) => {
             if (!item.track || !youtubeIDs[i]) return null;
             return {
@@ -242,12 +239,12 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         }
     };
 
-    const handleAlbumShuffle = () => {
+    const handleShuffleContext = () => {
+        // Shuffle Album Button
         if (!fullItemData || !albumsData[selectedId]) return;
         const rawTracks = fullItemData.tracks.items;
         const youtubeIDs = albumsData[selectedId].youtubeIDs;
 
-        // Filter valid tracks
         const queue = rawTracks.map((item, i) => {
             if (!item.track || !youtubeIDs[i]) return null;
             return {
@@ -258,7 +255,6 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
             };
         }).filter(Boolean);
 
-        // Shuffle logic
         const shuffledQueue = [...queue];
         for (let i = shuffledQueue.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -270,38 +266,18 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         }
     };
 
-    const onPlayAllSongs = (trackUri) => {
-        // Find index
+    const handlePlayAllSongsItem = (trackUri) => {
         const index = allSongs.findIndex(t => t.uri === trackUri);
         if (index === -1) return;
-
-        // Windowed queue for performance if list is huge?
-        // For now, pass all. 
         handlePlay(trackUri, allSongs.map(t => t.uri), 0, allSongs);
     };
 
-    const formatDuration = (ms) => {
-        const totalMinutes = Math.floor(ms / 60000);
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = totalMinutes % 60;
-
-        if (hours > 0) {
-            return `${hours} hr ${minutes} min`;
-        }
-        return `${minutes} min`;
-    };
-
-
-    const [error, setError] = useState(null);
-
     if (error) {
         return (
-            <div className="albums-error" style={{ padding: '80px', color: 'white', textAlign: 'center' }}>
+            <div className="albums-error">
                 <h2>Something went wrong</h2>
                 <p>{error}</p>
-                <button onClick={() => window.location.reload()} style={{ padding: '8px 16px', marginTop: '16px' }}>
-                    Reload Page
-                </button>
+                <button onClick={() => window.location.reload()} >Reload Page</button>
             </div>
         );
     }
@@ -309,95 +285,21 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
     if (loading) return <div className="albums-loading">Loading Collections...</div>;
 
     if (selectedId && fullItemData) {
-        // Detail View
-        const localData = albumsData[selectedId];
-        const tracks = fullItemData.tracks.items;
-
-        // Calculate Duration
-        const totalDurationMs = tracks.reduce((acc, item) => acc + (item.track?.duration_ms || 0), 0);
-        const formattedTotalDuration = formatDuration(totalDurationMs);
-
-        // Get Year
-        // Try getting it from the first track's album info if not directly on playlist object (playlists don't usually have release dates)
-        // But for "Albums" treated as playlists, we might rely on description or just omit if unknown.
-        // If it's a real Spotify Album, `fullItemData.release_date` works.
-        // `getPlaylist` returns a Playlist object which doesn't have release_date.
-        // We'll check the first track's album.
-        let releaseYear = "";
-        if (tracks.length > 0 && tracks[0].track?.album?.release_date) {
-            releaseYear = tracks[0].track.album.release_date.split('-')[0];
-        }
-
         return (
-            <div className="albums-view-container detail-mode">
-                <div className="albums-header">
-                    <button className="back-btn" onClick={handleBack}>
-                        ← Back to Collections
-                    </button>
-                    {/* Could disable search or filters here, or let them persist but hide them UI wise */}
-                </div>
-
-                <div className="album-details-header">
-                    <img
-                        src={fullItemData.images?.[0]?.url}
-                        alt={fullItemData.name}
-                        className="album-details-cover"
-                    />
-                    <div className="album-details-info">
-                        <p>{localData.type || "Playlist"}</p>
-                        <h1>{fullItemData.name}</h1>
-                        <p>{fullItemData.owner?.display_name} • {releaseYear ? `${releaseYear} • ` : ""}{tracks.length} songs, {formattedTotalDuration}</p>
-                        <p className="description">{fullItemData.description}</p>
-
-                        <div className="album-actions">
-                            <button className="play-btn-primary" onClick={handleAlbumPlay}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M8 5v14l11-7z" />
-                                </svg>
-                                Play
-                            </button>
-                            <button className="shuffle-btn-secondary" onClick={handleAlbumShuffle}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
-                                </svg>
-                                Shuffle
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="album-tracks-grid">
-                    {tracks.map((item, i) => {
-                        const track = item.track;
-                        if (!track) return null;
-
-                        const ytId = localData.youtubeIDs[i];
-                        // If no user-mapping, we skip/don't show? Or show normal card?
-                        // Requirement says "same order as songs". 
-                        if (!ytId) return null;
-
-                        const cardData = {
-                            name: track.name,
-                            youtubelinkID: ytId,
-                            genre: localData.type || "Playlist",
-                            format: localData.format || "HD"
-                        };
-
-                        return (
-                            <YouTubeCard
-                                key={track.id}
-                                trackId={track.id}
-                                data={cardData}
-                                handlePlay={() => onPlayWrapper(track.uri)}
-                            />
-                        );
-                    })}
-                </div>
-            </div>
+            <AlbumDetail
+                fullItemData={fullItemData}
+                localData={albumsData[selectedId]}
+                itemsMetadata={itemsMetadata}
+                onBack={handleBack}
+                onPlay={handlePlayTrack}
+                onPlayContext={handlePlayContext}
+                onShuffleContext={handleShuffleContext}
+                onAlbumClick={handleItemClick} // For "More by Artist"
+                formatTime={formatTime}
+            />
         );
     }
 
-    // List View (Albums OR All Songs)
     return (
         <div className="albums-view-container">
             <div className="albums-list-header">
@@ -433,53 +335,44 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
             </div>
 
             {viewMode === 'albums' ? (
-                <div className="albums-grid">
-                    {filteredItems.map(([id, meta]) => (
-                        <div key={id} className="album-card" onClick={() => handleItemClick(id)}>
-                            <img
-                                src={meta.images?.[0]?.url || 'https://via.placeholder.com/300'}
-                                alt={meta.name}
-                                className="album-cover"
-                            />
-                            <div className="album-info">
-                                <h3>{meta.spotifyName || meta.name}</h3>
-
-                            </div>
-                        </div>
-                    ))}
-                    {filteredItems.length === 0 && (
-                        <div className="no-albums-msg">
-                            No collections found matching your filters.
-                        </div>
-                    )}
-                </div>
+                <AlbumsList
+                    items={filteredItems}
+                    onItemClick={handleItemClick}
+                />
             ) : (
                 <div className="all-songs-grid">
                     {loadingSongs ? (
                         <div className="albums-loading">Loading Songs...</div>
                     ) : (
                         <div className="album-tracks-grid">
-                            {allSongs.map((track) => {
-                                const cardData = {
-                                    name: track.name,
-                                    youtubelinkID: track.linked_youtube_id,
-                                    genre: track.related_album_type || "Playlist",
-                                    format: track.linked_format || "HD"
-                                };
+                            {allSongs.length > 0 ? (
+                                allSongs.map((track) => {
+                                    // Re-apply search filter here if needed, currently filtering on Album list metadata not individual songs for perf?
+                                    // Logic check: The user requirement was "Search within Album" (Detail view).
+                                    // "Search" prop passed to AlbumsView is typically Global Search.
+                                    // If Global Search is active, we should filter these songs.
+                                    if (searchTerm && !track.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+                                        return null;
+                                    }
 
-                                return (
-                                    <YouTubeCard
-                                        key={track.id}
-                                        trackId={track.id}
-                                        data={cardData}
-                                        handlePlay={() => onPlayAllSongs(track.uri)}
-                                    />
-                                );
-                            })}
-                            {allSongs.length === 0 && (
-                                <div className="no-albums-msg">
-                                    No songs found.
-                                </div>
+                                    const cardData = {
+                                        name: track.name,
+                                        youtubelinkID: track.linked_youtube_id,
+                                        genre: track.related_album_type || "Playlist",
+                                        format: track.linked_format || "HD"
+                                    };
+
+                                    return (
+                                        <YouTubeCard
+                                            key={track.id}
+                                            trackId={track.id}
+                                            data={cardData}
+                                            handlePlay={() => handlePlayAllSongsItem(track.uri)}
+                                        />
+                                    );
+                                })
+                            ) : (
+                                <div className="no-albums-msg">No songs found.</div>
                             )}
                         </div>
                     )}

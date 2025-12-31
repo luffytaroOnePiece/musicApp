@@ -1,31 +1,56 @@
 .albums-view-container {
-    padding: 80px 40px 120px 40px;
-    box-sizing: border-box;
+    padding: 80px 32px 32px 32px;
+    /* Enhanced top padding for header */
+    height: 100%;
+    overflow-y: auto;
+    background: var(--background-default);
 }
 
-.albums-view-container::-webkit-scrollbar {
-    display: none;
-}
-
-.albums-header {
-    margin-bottom: 24px;
+.albums-loading {
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
+    height: 50vh;
+    font-size: 18px;
+    color: var(--text-secondary);
+    width: 100%;
 }
 
+.albums-error {
+    padding: 80px;
+    color: white;
+    text-align: center;
+}
+
+.albums-error button {
+    padding: 8px 16px;
+    margin-top: 16px;
+    background: var(--primary-color);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+}
+
+/* Header & Toggles */
 .albums-list-header {
-    margin-bottom: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    margin-bottom: 32px;
 }
 
 .header-top-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.header-top-row h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary);
 }
 
 .view-mode-toggle {
@@ -34,23 +59,18 @@
     padding: 4px;
     border-radius: 8px;
     border: 1px solid var(--border-color);
-    gap: 4px;
 }
 
 .toggle-btn {
-    background: transparent;
+    padding: 8px 16px;
     border: none;
+    background: transparent;
     color: var(--text-secondary);
-    padding: 6px 16px;
-    border-radius: 6px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
+    border-radius: 6px;
     transition: all 0.2s;
-}
-
-.toggle-btn:hover {
-    color: var(--text-primary);
 }
 
 .toggle-btn.active {
@@ -58,145 +78,23 @@
     color: white;
 }
 
-.albums-header h2 {
-    font-size: 24px;
-    font-weight: 700;
-    margin: 0;
-    color: var(--text-primary);
+.album-filters-wrapper {
+    margin-bottom: 24px;
 }
 
-.back-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 0;
-    transition: color 0.2s;
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.back-btn:hover {
-    color: var(--primary-color);
-}
-
-.albums-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 24px;
-}
-
-.album-card {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 16px;
-    cursor: pointer;
-    transition: transform 0.2s, background 0.2s;
-    border: 1px solid var(--border-color);
-}
-
-.album-card:hover {
-    transform: translateY(-4px);
-    background: var(--card-bg-hover);
-    border-color: var(--primary-color);
-}
-
-.album-cover {
-    width: 100%;
-    aspect-ratio: 1/1;
-    border-radius: 8px;
-    object-fit: cover;
-    margin-bottom: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.album-info h3 {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0 0 4px 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--text-primary);
-}
-
-.album-info p {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin: 0;
-}
-
-.album-details-header {
-    display: flex;
-    gap: 24px;
-    margin-bottom: 32px;
-    align-items: flex-end;
-}
-
-.album-details-cover {
-    width: 200px;
-    height: 200px;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-}
-
-.album-details-info h1 {
-    font-size: 32px;
-    font-weight: 800;
-    margin: 0 0 8px 0;
-}
-
-.album-details-info p {
-    font-size: 16px;
-    color: var(--text-secondary);
-    margin: 0;
-}
-
-.album-actions {
-    display: flex;
-    gap: 16px;
-    margin-top: 24px;
-}
-
-.play-btn-primary,
-.shuffle-btn-secondary {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    border-radius: 24px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.2s, filter 0.2s;
-    border: none;
-}
-
-.play-btn-primary {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.shuffle-btn-secondary {
-    background-color: transparent;
-    border: 1px solid var(--text-secondary);
-    color: var(--text-primary);
-}
-
-.play-btn-primary:hover,
-.shuffle-btn-secondary:hover {
-    transform: scale(1.05);
-    filter: brightness(1.1);
-}
-
-.shuffle-btn-secondary:hover {
-    border-color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.1);
-}
-
-/* Reusing YouTube Grid for tracks with 3 columns enforcement */
 .album-tracks-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -210,17 +108,25 @@
 }
 
 @media (max-width: 768px) {
+    .albums-view-container {
+        padding: 16px;
+    }
+
+    .header-top-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .view-mode-toggle {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .toggle-btn {
+        flex: 1;
+    }
+
     .album-tracks-grid {
         grid-template-columns: 1fr;
     }
-}
-
-.albums-loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 50vh;
-    font-size: 18px;
-    color: var(--text-secondary);
-    width: 100%;
 }

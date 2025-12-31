@@ -1,0 +1,213 @@
+.albums-view-container.detail-mode {
+    animation: fadeIn 0.3s ease-out;
+    padding-top: 80px;
+    /* Enhanced top padding */
+}
+
+.albums-header {
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.back-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    transition: color 0.2s;
+}
+
+.back-btn:hover {
+    color: var(--primary-color);
+}
+
+.album-details-header {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.album-details-cover {
+    width: 200px;
+    height: 200px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.album-details-info {
+    flex: 1;
+    min-width: 300px;
+}
+
+.album-details-info h1 {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+    color: var(--text-primary);
+}
+
+.album-details-info p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.description {
+    margin-top: 8px !important;
+    font-size: 14px !important;
+    opacity: 0.8;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.album-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.play-btn-primary,
+.shuffle-btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, filter 0.2s;
+    border: none;
+}
+
+.play-btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.shuffle-btn-secondary {
+    background-color: transparent;
+    border: 1px solid var(--text-secondary);
+    color: var(--text-primary);
+}
+
+.play-btn-primary:hover,
+.shuffle-btn-secondary:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.shuffle-btn-secondary:hover {
+    border-color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Album Controls Bar (Search & Sort) */
+.album-controls-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    /* Slightly lighter than card-bg */
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    flex: 1;
+    max-width: 300px;
+    transition: border-color 0.2s;
+}
+
+.search-wrapper:focus-within {
+    border-color: var(--primary-color);
+}
+
+.search-wrapper svg {
+    color: var(--text-secondary);
+    margin-right: 8px;
+}
+
+.search-wrapper input {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 14px;
+    width: 100%;
+    outline: none;
+}
+
+.search-wrapper input::placeholder {
+    color: var(--text-secondary);
+}
+
+.sort-dropdown {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Track Grid */
+.album-tracks-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 1200px) {
+    .album-tracks-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .album-tracks-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .album-details-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .album-details-cover {
+        width: 160px;
+        height: 160px;
+    }
+
+    .album-actions {
+        justify-content: center;
+    }
+}
+
+/* More By Artist Section */
+.more-by-artist-section {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+.more-by-artist-section h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: var(--text-primary);
+}
