@@ -67,16 +67,21 @@ const FPSplitLayout = ({
                     onToggleLyrics={onToggleLyrics}
                     showLyrics={showLyrics}
                     hasLyrics={hasLyrics}
-                    isLyricsAvailable={!!youtubeData?.lyrics}
+                    isLyricsAvailable={true} // Always allow attempting fetch via LRCLIB
                 />
             </div>
 
             <div className={`fp-right-section ${showLyrics ? 'lyrics-mode' : ''}`}>
-                {showLyrics && youtubeData?.lyrics ? (
+                {showLyrics ? (
                     <FPLyrics
                         lyricsFileName={youtubeData.lyrics}
                         position={position}
                         handleSeek={handleSeek}
+                        trackName={currentTrack.name}
+                        artistNames={artistNames} // Passing joined names or raw? FPLyrics expects 'artistName'
+                        artistName={currentTrack.artists?.[0]?.name || artistNames} // Best effort single artist for API
+                        albumName={currentTrack.album?.name}
+                        duration={currentTrack.duration_ms ? currentTrack.duration_ms / 1000 : duration}
                     />
                 ) : (
                     <>

@@ -156,8 +156,7 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
                             ...item.track,
                             linked_youtube_id: youtubeIDs[i],
                             linked_format: albumsData[id].format,
-                            related_album_type: meta.type,
-                            lyrics: `${item.track.id}.lrc`
+                            related_album_type: meta.type
                         };
                     }).filter(Boolean);
                 } catch (e) {
@@ -223,7 +222,6 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
                 ...item.track,
                 linked_youtube_id: youtubeIDs[i],
                 linked_format: albumsData[selectedId].format,
-                lyrics: `${item.track.id}.lrc`
             };
         }).filter(Boolean);
 
@@ -242,7 +240,6 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
                 ...item.track,
                 linked_youtube_id: youtubeIDs[i],
                 linked_format: albumsData[selectedId].format,
-                lyrics: `${item.track.id}.lrc`
             };
         }).filter(Boolean);
 
@@ -263,7 +260,6 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
                 ...item.track,
                 linked_youtube_id: youtubeIDs[i],
                 linked_format: albumsData[selectedId].format,
-                lyrics: `${item.track.id}.lrc`
             };
         }).filter(Boolean);
 

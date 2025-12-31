@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { getLyrics } from '../../services/lrcLibApi';
 import '../../styles/FPLyrics.css';
 
-const FPLyrics = ({ lyricsFileName, position, handleSeek }) => {
+const FPLyrics = ({ lyricsFileName, position, handleSeek, trackName, artistName, albumName, duration }) => {
     const [lyricsLines, setLyricsLines] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -33,40 +34,66 @@ const FPLyrics = ({ lyricsFileName, position, handleSeek }) => {
     };
 
     useEffect(() => {
-        if (!lyricsFileName) return;
+        console.log("FPLyrics - Props:", { lyricsFileName, trackName, artistName, albumName, duration });
 
-        setLoading(true);
-        setError(null);
+        const fetchLyrics = async () => {
+            setLoading(true);
+            setError(null);
+            setLyricsLines([]);
+            console.log("FPLyrics - Fetching lyrics...");
 
-        const url = `https://raw.githubusercontent.com/luffytaroOnePiece/lyrics/main/${lyricsFileName}`;
-        console.log("Fetching lyrics from:", url);
+            try {
+                let data = null;
 
-        fetch(url)
-            .then(res => {
-                if (!res.ok) {
-                    if (res.status === 404) {
+                // Priority 1: Manual override via filename (from youtubeLinks.json)
+                // If it ends with .lrc, we assume it's a file in the repo (backward compatibility or manual override)
+                if (lyricsFileName && lyricsFileName.endsWith('.lrc')) {
+                    const url = `https://raw.githubusercontent.com/luffytaroOnePiece/lyrics/main/${lyricsFileName}`;
+                    console.log("Fetching manual lyrics from:", url);
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error("Lyrics unavailable");
+                    data = await res.text();
+                } else {
+                    // Priority 2: Fetch from LRCLIB using metadata
+                    // The props passed should be: trackName, artistName, albumName, duration
+                    if (!trackName || !artistName) {
+                        console.error("FPLyrics - Missing metadata:", { trackName, artistName });
+                        // If we don't have metadata, we can't fetch.
+                        throw new Error("Missing track metadata");
+                    }
+
+                    console.log(`Fetching from LRCLIB for: ${trackName} by ${artistName}`);
+                    const lrcData = await getLyrics(trackName, artistName, albumName, duration);
+
+                    if (lrcData && lrcData.syncedLyrics) {
+                        data = lrcData.syncedLyrics;
+                    } else if (lrcData && lrcData.plainLyrics) {
+                        // Fallback to plain lyrics if synced not available? 
+                        // Our parser expects [time] text. Plain lyrics won't parse well with current logic.
+                        // Ideally we want synced.
+                        throw new Error("No synced lyrics found");
+                    } else {
                         throw new Error("Lyrics not found");
                     }
-                    console.error("Lyrics fetch failed:", res.status, res.statusText);
-                    throw new Error("Lyrics unavailable");
                 }
-                return res.text();
-            })
-            .then(data => {
+
                 const parsed = parseLRC(data);
                 setLyricsLines(parsed);
                 setLoading(false);
-            })
-            .catch(err => {
-                if (err.message !== "Lyrics not found") {
-                    console.error("Failed to load lyrics:", err);
-                }
-                // Determine user-facing message
-                const msg = err.message === "Lyrics not found" ? "No lyrics available for this track" : `Lyrics error: ${err.message}`;
+
+            } catch (err) {
+                console.error("Lyrics fetch failed:", err);
+                // Silent fail or show specific error
+                const msg = err.message === "Lyrics not found" || err.message === "Lyrics unavailable"
+                    ? "No lyrics available for this track"
+                    : "Lyrics unavailable";
                 setError(msg);
                 setLoading(false);
-            });
-    }, [lyricsFileName]);
+            }
+        };
+
+        fetchLyrics();
+    }, [lyricsFileName, trackName, artistName, albumName, duration]);
 
     // Determine active line (safe for older browsers)
     let activeIndex = -1;
