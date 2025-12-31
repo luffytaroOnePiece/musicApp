@@ -137,5 +137,28 @@
     ],
     "type": "Private",
     "language": "English"
+  },
+  "3zGoY7GamIWxGH1Dpae7Gj": {
+    "name": "Taylor Swift",
+    "youtubeIDs": [
+      "e-ORhEE9VVg",
+      "tCXGJQYZ9JA",
+      "8xg3vE8Ie_E",
+      "nn_0zPAfyo8"
+    ],
+    "type": "Private",
+    "language": "English"
+  },
+  "0EjLZKF4DwOE64QxEGO80W": {
+    "name": "Lana Del Rey",
+    "youtubeIDs": [
+      "o_1aF54DO60",
+      "TdrL3QxjyVw",
+      "sEetXo3R-aM",
+      "MiAoetOXKcY",
+      "vBHild0PiTE"
+    ],
+    "type": "Private",
+    "language": "English"
   }
 }
