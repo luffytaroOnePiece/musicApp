@@ -221,6 +221,55 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         handlePlay(trackUri, queue.map(t => t.uri), 0, queue);
     };
 
+    const handleAlbumPlay = () => {
+        if (!fullItemData || !albumsData[selectedId]) return;
+        const rawTracks = fullItemData.tracks.items;
+        const youtubeIDs = albumsData[selectedId].youtubeIDs;
+
+        // Filter valid tracks
+        const queue = rawTracks.map((item, i) => {
+            if (!item.track || !youtubeIDs[i]) return null;
+            return {
+                ...item.track,
+                linked_youtube_id: youtubeIDs[i],
+                linked_format: albumsData[selectedId].format,
+                lyrics: `${item.track.id}.lrc`
+            };
+        }).filter(Boolean);
+
+        if (queue.length > 0) {
+            handlePlay(queue[0].uri, queue.map(t => t.uri), 0, queue);
+        }
+    };
+
+    const handleAlbumShuffle = () => {
+        if (!fullItemData || !albumsData[selectedId]) return;
+        const rawTracks = fullItemData.tracks.items;
+        const youtubeIDs = albumsData[selectedId].youtubeIDs;
+
+        // Filter valid tracks
+        const queue = rawTracks.map((item, i) => {
+            if (!item.track || !youtubeIDs[i]) return null;
+            return {
+                ...item.track,
+                linked_youtube_id: youtubeIDs[i],
+                linked_format: albumsData[selectedId].format,
+                lyrics: `${item.track.id}.lrc`
+            };
+        }).filter(Boolean);
+
+        // Shuffle logic
+        const shuffledQueue = [...queue];
+        for (let i = shuffledQueue.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledQueue[i], shuffledQueue[j]] = [shuffledQueue[j], shuffledQueue[i]];
+        }
+
+        if (shuffledQueue.length > 0) {
+            handlePlay(shuffledQueue[0].uri, shuffledQueue.map(t => t.uri), 0, shuffledQueue);
+        }
+    };
+
     const onPlayAllSongs = (trackUri) => {
         // Find index
         const index = allSongs.findIndex(t => t.uri === trackUri);
@@ -229,6 +278,17 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         // Windowed queue for performance if list is huge?
         // For now, pass all. 
         handlePlay(trackUri, allSongs.map(t => t.uri), 0, allSongs);
+    };
+
+    const formatDuration = (ms) => {
+        const totalMinutes = Math.floor(ms / 60000);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+
+        if (hours > 0) {
+            return `${hours} hr ${minutes} min`;
+        }
+        return `${minutes} min`;
     };
 
 
@@ -253,6 +313,21 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
         const localData = albumsData[selectedId];
         const tracks = fullItemData.tracks.items;
 
+        // Calculate Duration
+        const totalDurationMs = tracks.reduce((acc, item) => acc + (item.track?.duration_ms || 0), 0);
+        const formattedTotalDuration = formatDuration(totalDurationMs);
+
+        // Get Year
+        // Try getting it from the first track's album info if not directly on playlist object (playlists don't usually have release dates)
+        // But for "Albums" treated as playlists, we might rely on description or just omit if unknown.
+        // If it's a real Spotify Album, `fullItemData.release_date` works.
+        // `getPlaylist` returns a Playlist object which doesn't have release_date.
+        // We'll check the first track's album.
+        let releaseYear = "";
+        if (tracks.length > 0 && tracks[0].track?.album?.release_date) {
+            releaseYear = tracks[0].track.album.release_date.split('-')[0];
+        }
+
         return (
             <div className="albums-view-container detail-mode">
                 <div className="albums-header">
@@ -271,8 +346,23 @@ const AlbumsView = ({ handlePlay, searchTerm }) => {
                     <div className="album-details-info">
                         <p>{localData.type || "Playlist"}</p>
                         <h1>{fullItemData.name}</h1>
-                        <p>{fullItemData.owner?.display_name} • {localData.language || ""} • {tracks.length} songs</p>
+                        <p>{fullItemData.owner?.display_name} • {releaseYear ? `${releaseYear} • ` : ""}{tracks.length} songs, {formattedTotalDuration}</p>
                         <p className="description">{fullItemData.description}</p>
+
+                        <div className="album-actions">
+                            <button className="play-btn-primary" onClick={handleAlbumPlay}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                                Play
+                            </button>
+                            <button className="shuffle-btn-secondary" onClick={handleAlbumShuffle}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
+                                </svg>
+                                Shuffle
+                            </button>
+                        </div>
                     </div>
                 </div>
 

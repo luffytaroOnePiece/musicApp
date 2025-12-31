@@ -616,7 +616,7 @@ const Dashboard = () => {
         ) : showYoutube ? (
           <YouTubeView handlePlay={handlePlay} searchTerm={searchTerm} />
         ) : showAlbums ? (
-          <AlbumsView handlePlay={handlePlay} searchTerm={searchTerm} />
+          <AlbumsView handlePlay={handlePlay} searchTerm={searchTerm} formatTime={formatTime} />
         ) : showLive ? (
           <LiveView />
         ) : showArtists ? (

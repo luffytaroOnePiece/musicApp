@@ -154,6 +154,48 @@
     margin: 0;
 }
 
+.album-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.play-btn-primary,
+.shuffle-btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, filter 0.2s;
+    border: none;
+}
+
+.play-btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.shuffle-btn-secondary {
+    background-color: transparent;
+    border: 1px solid var(--text-secondary);
+    color: var(--text-primary);
+}
+
+.play-btn-primary:hover,
+.shuffle-btn-secondary:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.shuffle-btn-secondary:hover {
+    border-color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.1);
+}
+
 /* Reusing YouTube Grid for tracks with 3 columns enforcement */
 .album-tracks-grid {
     display: grid;
