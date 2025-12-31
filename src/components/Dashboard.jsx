@@ -69,6 +69,7 @@ const Dashboard = () => {
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isExploreOpen, setIsExploreOpen] = useState(false);
+  const [albumsResetToken, setAlbumsResetToken] = useState(0);
 
   const themes = [
     { id: "ocean-depths", name: "Ocean Depths" },
@@ -424,6 +425,11 @@ const Dashboard = () => {
   };
 
   const handleShowAlbums = () => {
+    // If already showing albums, increment token to trigger reset
+    if (showAlbums) {
+      setAlbumsResetToken(prev => prev + 1);
+    }
+
     setSelectedPlaylist(null);
     setSearchResults(null);
     setIsSearching(false);
@@ -616,7 +622,7 @@ const Dashboard = () => {
         ) : showYoutube ? (
           <YouTubeView handlePlay={handlePlay} searchTerm={searchTerm} />
         ) : showAlbums ? (
-          <AlbumsView handlePlay={handlePlay} searchTerm={searchTerm} formatTime={formatTime} />
+          <AlbumsView handlePlay={handlePlay} searchTerm={searchTerm} formatTime={formatTime} resetToken={albumsResetToken} />
         ) : showLive ? (
           <LiveView />
         ) : showArtists ? (

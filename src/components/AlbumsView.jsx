@@ -8,7 +8,7 @@ import AlbumsList from './albums/AlbumsList';
 import AlbumDetail from './albums/AlbumDetail';
 import '../styles/AlbumsView.css';
 
-const AlbumsView = ({ handlePlay, searchTerm, formatTime }) => {
+const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
     const [selectedId, setSelectedId] = useState(null);
     const [itemsMetadata, setItemsMetadata] = useState({});
     const [fullItemData, setFullItemData] = useState(null);
@@ -113,6 +113,18 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime }) => {
 
         fetchFullData();
     }, [selectedId]);
+
+    // Reset View when token changes (Albums button clicked again)
+    useEffect(() => {
+        if (resetToken > 0) {
+            setSelectedId(null);
+            setFullItemData(null);
+            setViewMode('albums');
+            // We can also reset filters if desired
+            // setSelectedType("All");
+            // setSelectedLanguage("All");
+        }
+    }, [resetToken]);
 
     // Fetch All Songs
     useEffect(() => {
