@@ -54,7 +54,7 @@ const Dashboard = () => {
 
   // UI State
   const [viewMode, setViewMode] = useState("list"); // 'list' or 'card'
-  const [currentTheme, setCurrentTheme] = useState("cyber-city");
+  const [currentTheme, setCurrentTheme] = useState("pure-dark");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [likedTrackIds, setLikedTrackIds] = useState(new Set()); // Set of strings
   const [lastActivePlaylistContext, setLastActivePlaylistContext] = useState(null);
@@ -77,6 +77,7 @@ const Dashboard = () => {
     { id: "forest-rain", name: "Forest Rain" },
     { id: "cyber-city", name: "Cyber City" },
     { id: "royal-velvet", name: "Royal Velvet" },
+    { id: "pure-dark", name: "Pure Dark" },
   ];
 
   // Fetch Playlists on Mount

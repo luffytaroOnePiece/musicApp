@@ -42,6 +42,13 @@
     --accent-color: #ffd700;
 }
 
+/* Theme: Pure Dark */
+.dashboard-container.pure-dark {
+    --bg-gradient: linear-gradient(135deg, #000000 0%, #000000 100%);
+    --accent-color: #ffffff;
+    --text-primary: #ffffff;
+}
+
 
 /* Glass-Morphism Dashboard */
 .dashboard-container {
