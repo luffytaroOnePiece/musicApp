@@ -109,8 +109,9 @@
     font-weight: 600;
 }
 
-/* Reset Button */
-.live-reset-btn {
+/* Reset Button & Shuffle Button */
+.live-reset-btn,
+.live-shuffle-btn {
     margin-left: 8px;
     padding: 6px;
     border-radius: 50%;
@@ -125,11 +126,21 @@
     justify-content: center;
 }
 
-.live-reset-btn:hover {
+.live-reset-btn:hover,
+.live-shuffle-btn:hover {
     color: #ffcccc;
     background: rgba(255, 255, 255, 0.1);
     transform: scale(1.05);
-    /* Match other btns */
+}
+
+.live-shuffle-btn:hover {
+    color: white;
+    /* Override hover color for shuffle */
+}
+
+.live-shuffle-btn.active {
+    color: #64bdac;
+    background: rgba(255, 255, 255, 0.15);
 }
 
 /* Arrow Rotation */

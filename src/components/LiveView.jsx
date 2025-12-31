@@ -7,6 +7,7 @@ import "../styles/LiveView.css";
 const LiveView = () => {
     const [selectedType, setSelectedType] = useState(["All"]);
     const [sortOrder, setSortOrder] = useState("Newest");
+    const [isShuffled, setIsShuffled] = useState(false);
     const gridColumns = 3;
 
     const videos = useMemo(() => {
@@ -14,7 +15,11 @@ const LiveView = () => {
     }, []);
 
     // Extract unique types
-    const types = useMemo(() => ["All", ...new Set(videos.map((data) => data.type).filter(Boolean))].sort(), [videos]);
+    // Extract unique types - maintain All at start, then alphabetical
+    const types = useMemo(() => {
+        const uniqueTypes = [...new Set(videos.map((data) => data.type).filter(Boolean))].sort();
+        return ["All", ...uniqueTypes];
+    }, [videos]);
 
     // Filter videos
     const filteredVideos = useMemo(() => {
@@ -24,18 +29,28 @@ const LiveView = () => {
         });
 
         // Sort videos
-        if (sortOrder === "Newest") {
-            result.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
-        } else if (sortOrder === "Oldest") {
-            result.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+        // Sort videos
+        if (isShuffled) {
+            // Fisher-Yates shuffle
+            for (let i = result.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [result[i], result[j]] = [result[j], result[i]];
+            }
+        } else {
+            if (sortOrder === "Newest") {
+                result.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+            } else if (sortOrder === "Oldest") {
+                result.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+            }
         }
 
         return result;
-    }, [videos, selectedType, sortOrder]);
+    }, [videos, selectedType, sortOrder, isShuffled]);
 
     const handleReset = () => {
         setSelectedType(["All"]);
         setSortOrder("Newest");
+        setIsShuffled(false);
     };
 
     return (
@@ -48,6 +63,8 @@ const LiveView = () => {
                         types={types}
                         sortOrder={sortOrder}
                         onSortChange={setSortOrder}
+                        isShuffled={isShuffled}
+                        onShuffleToggle={() => setIsShuffled(!isShuffled)}
                         onReset={handleReset}
                     />
                 </div>
