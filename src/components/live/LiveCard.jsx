@@ -1,9 +1,14 @@
 import React from 'react';
 import '../../styles/LiveCard.css';
 
-const LiveCard = ({ data }) => {
+const LiveCard = ({ data, onVideoClick }) => {
     const handleVideoClick = () => {
-        window.open(`https://www.youtube.com/watch?v=${data.youtubeLinkID}`, '_blank');
+        if (onVideoClick) {
+            onVideoClick(data);
+        } else {
+            // Fallback if no handler provided
+            window.open(`https://www.youtube.com/watch?v=${data.youtubeLinkID}`, '_blank');
+        }
     };
 
     // Format date if available

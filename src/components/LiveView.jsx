@@ -8,6 +8,7 @@ const LiveView = () => {
     const [selectedType, setSelectedType] = useState(["All"]);
     const [sortOrder, setSortOrder] = useState("Newest");
     const [isShuffled, setIsShuffled] = useState(false);
+    const [playingVideo, setPlayingVideo] = useState(null); // { id, title } or null
     const gridColumns = 3;
 
     const videos = useMemo(() => {
@@ -53,8 +54,43 @@ const LiveView = () => {
         setIsShuffled(false);
     };
 
+    const handleVideoClick = (videoData) => {
+        setPlayingVideo({
+            id: videoData.youtubeLinkID,
+            title: videoData.title
+        });
+    };
+
+    const closePlayer = () => {
+        setPlayingVideo(null);
+    };
+
     return (
         <div className="youtube-view-container">
+            {/* Embedded Player Modal */}
+            {playingVideo && (
+                <div className="live-player-modal-overlay" onClick={closePlayer}>
+                    <div className="live-player-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <button className="live-player-close-btn" onClick={closePlayer}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                        <div className="live-player-wrapper">
+                            <iframe
+                                src={`https://www.youtube.com/embed/${playingVideo.id}?autoplay=1&rel=0`}
+                                title={playingVideo.title}
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                                className="live-player-iframe"
+                            ></iframe>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="youtube-header">
                 <div className="header-controls">
                     <LiveFilters
@@ -85,6 +121,7 @@ const LiveView = () => {
                         <LiveCard
                             key={index}
                             data={item}
+                            onVideoClick={handleVideoClick}
                         />
                     ))}
                 </div>
