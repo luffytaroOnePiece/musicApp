@@ -12,7 +12,7 @@
     backdrop-filter: blur(30px);
     z-index: 10000;
     /* Highest layer */
-    padding: 120px 40px 60px;
+    padding: 40px 40px 60px;
     display: flex;
     flex-direction: column;
     opacity: 0;

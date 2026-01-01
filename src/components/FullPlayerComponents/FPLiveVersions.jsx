@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import '../../styles/components/FPLiveVersions.css';
-import '../../styles/components/FPLiveVersions.css';
+
 
 const FPLiveVersions = ({ youtubeData, onSelectVersion, onClose, activeVersionIndex }) => {
     // Animation state
@@ -51,7 +51,7 @@ const FPLiveVersions = ({ youtubeData, onSelectVersion, onClose, activeVersionIn
                         >
                             <div className="fp-live-thumb-container">
                                 <img
-                                    src={`https://img.youtube.com/vi/${cleanId}/mqdefault.jpg`}
+                                    src={`https://img.youtube.com/vi/${cleanId}/maxresdefault.jpg`}
                                     alt={`Version ${index}`}
                                     onError={(e) => e.target.style.display = 'none'}
                                     className="fp-live-thumb"

@@ -140,7 +140,7 @@
     position: absolute;
     top: 20px;
     /* Aligned with margin inside the container */
-    right: 20px;
+    right: -50px;
     /* Aligned with margin inside the container */
     z-index: 1000;
     /* Ensure this is above card and other elements */
