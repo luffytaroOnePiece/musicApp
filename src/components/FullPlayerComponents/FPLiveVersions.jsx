@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
 import '../../styles/components/FPLiveVersions.css';
 import '../../styles/components/FPLiveVersions.css';
 
@@ -22,16 +23,17 @@ const FPLiveVersions = ({ youtubeData, onSelectVersion, onClose, activeVersionIn
 
     const rawIds = youtubeData?.youtubelinkID ? youtubeData.youtubelinkID.split(',') : [];
 
-    return (
+    return ReactDOM.createPortal(
         <div className={`fp-live-page ${isVisible ? 'visible' : ''}`}>
+            <button className="fp-close-live-page" onClick={handleClose}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
             <div className="fp-live-page-header">
                 <h2>Live Content</h2>
-                <button className="fp-close-live-page" onClick={handleClose}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
             </div>
 
             <div className="fp-live-grid">
@@ -72,7 +74,8 @@ const FPLiveVersions = ({ youtubeData, onSelectVersion, onClose, activeVersionIn
                     );
                 })}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

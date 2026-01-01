@@ -45,6 +45,9 @@
 }
 
 .fp-close-live-page {
+    position: absolute;
+    top: 40px;
+    right: 40px;
     width: 48px;
     height: 48px;
     border-radius: 50%;
@@ -56,6 +59,7 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
+    z-index: 10001;
 }
 
 .fp-close-live-page:hover {

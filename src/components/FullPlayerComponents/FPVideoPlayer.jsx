@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import YouTube from 'react-youtube';
 import FPLyrics from './FPLyrics';
 import '../../styles/components/FPVideoPlayer.css';
-import '../../styles/components/FPVideoPlayer.css';
+
 
 const FPVideoPlayer = ({
     youtubeData,
@@ -95,7 +95,7 @@ const FPVideoPlayer = ({
                                     width: '100%',
                                     height: '100%',
                                     playerVars: {
-                                        autoplay: 1,
+                                        autoplay: 0,
                                         rel: 0,
                                         modestbranding: 1
                                     },
