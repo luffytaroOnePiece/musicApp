@@ -19,10 +19,14 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
     const [selectedType, setSelectedType] = useState("All");
     const [selectedLanguage, setSelectedLanguage] = useState("All");
 
-    // All Songs State
-    const [viewMode, setViewMode] = useState('albums'); // 'albums' | 'all-songs'
+    // All Songs & Live State
+    const [viewMode, setViewMode] = useState('albums'); // 'albums' | 'all-songs' | 'live'
     const [allSongs, setAllSongs] = useState([]);
+    const [liveSongs, setLiveSongs] = useState([]);
     const [loadingSongs, setLoadingSongs] = useState(false);
+
+    // Modal Playback State
+    const [playingVideo, setPlayingVideo] = useState(null);
 
     // Extract Filter Options
     const { types, languages } = useMemo(() => {
@@ -126,10 +130,10 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
         }
     }, [resetToken]);
 
-    // Fetch All Songs
+    // Fetch All Songs OR Live Songs
     useEffect(() => {
-        const fetchAllSongs = async () => {
-            if (viewMode !== 'all-songs') return;
+        const fetchSongs = async () => {
+            if (viewMode === 'albums') return;
 
             setLoadingSongs(true);
             const songs = [];
@@ -138,9 +142,6 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
             const currentFilteredItems = Object.entries(itemsMetadata).filter(([id, meta]) => {
                 const matchesType = selectedType === "All" || meta.type === selectedType;
                 const matchesLanguage = selectedLanguage === "All" || meta.language === selectedLanguage;
-                // Note: We don't filter all-songs by SEARCH term here to keep "All Songs" truly all, 
-                // but we could apply it if desired. Existing logic did apply it.
-                // Let's stick to filtering by Type/Language for the "pool" of songs.
                 return matchesType && matchesLanguage;
             });
 
@@ -150,15 +151,45 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
                     const rawTracks = playlist.tracks.items;
                     const youtubeIDs = albumsData[id].youtubeIDs;
 
-                    return rawTracks.map((item, i) => {
-                        if (!item.track || !youtubeIDs[i]) return null;
-                        return {
-                            ...item.track,
-                            linked_youtube_id: youtubeIDs[i], // Pass full ID string (comma-separated) so FullPlayer can detect Live versions
-                            linked_format: albumsData[id].format,
-                            related_album_type: meta.type
-                        };
-                    }).filter(Boolean);
+                    // Processing for "Live" View
+                    if (viewMode === 'live') {
+                        const liveTracks = [];
+                        rawTracks.forEach((item, i) => {
+                            if (!item.track || !youtubeIDs[i]) return;
+                            const ytIds = youtubeIDs[i].split(',');
+
+                            // Check if live versions exist (index 1+)
+                            if (ytIds.length > 1) {
+                                const liveIds = ytIds.slice(1); // Get all live IDs
+                                liveIds.forEach((liveId, liveIndex) => {
+                                    liveTracks.push({
+                                        ...item.track,
+                                        id: `${item.track.id}-live-${liveIndex}`, // Unique ID for key
+                                        name: `${item.track.name} (Live ${liveIndex + 1})`,
+                                        linked_youtube_id: liveId.trim(),
+                                        linked_format: albumsData[id].format || "HD",
+                                        related_album_type: meta.type || "Live",
+                                        original_track_id: item.track.id // Reference to original
+                                    });
+                                });
+                            }
+                        });
+                        return liveTracks;
+                    }
+
+                    // Processing for "All Songs" View
+                    else {
+                        return rawTracks.map((item, i) => {
+                            if (!item.track || !youtubeIDs[i]) return null;
+                            return {
+                                ...item.track,
+                                linked_youtube_id: youtubeIDs[i], // Pass full ID string
+                                linked_format: albumsData[id].format,
+                                related_album_type: meta.type
+                            };
+                        }).filter(Boolean);
+                    }
+
                 } catch (e) {
                     return [];
                 }
@@ -173,12 +204,16 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
                 [songs[i], songs[j]] = [songs[j], songs[i]];
             }
 
-            setAllSongs(songs);
+            if (viewMode === 'live') {
+                setLiveSongs(songs);
+            } else {
+                setAllSongs(songs);
+            }
             setLoadingSongs(false);
         };
 
-        if (viewMode === 'all-songs') {
-            fetchAllSongs();
+        if (viewMode !== 'albums') {
+            fetchSongs();
         }
     }, [viewMode, itemsMetadata, selectedType, selectedLanguage]);
 
@@ -208,7 +243,6 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
     };
 
     const handlePlayTrack = (trackUri) => {
-        // Logic to play a specific track from detail view
         if (!fullItemData) return;
         const rawTracks = fullItemData.tracks.items;
         const youtubeIDs = albumsData[selectedId].youtubeIDs;
@@ -229,7 +263,6 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
     };
 
     const handlePlayContext = () => {
-        // Play Album Button
         if (!fullItemData || !albumsData[selectedId]) return;
         const rawTracks = fullItemData.tracks.items;
         const youtubeIDs = albumsData[selectedId].youtubeIDs;
@@ -249,7 +282,6 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
     };
 
     const handleShuffleContext = () => {
-        // Shuffle Album Button
         if (!fullItemData || !albumsData[selectedId]) return;
         const rawTracks = fullItemData.tracks.items;
         const youtubeIDs = albumsData[selectedId].youtubeIDs;
@@ -278,6 +310,15 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
         const index = allSongs.findIndex(t => t.uri === trackUri);
         if (index === -1) return;
         handlePlay(trackUri, allSongs.map(t => t.uri), 0, allSongs);
+    };
+
+    // Modal Handlers
+    const handleVideoClick = (id, title) => {
+        setPlayingVideo({ id, title });
+    };
+
+    const closePlayer = () => {
+        setPlayingVideo(null);
     };
 
     if (error) {
@@ -310,6 +351,30 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
 
     return (
         <div className="albums-view-container">
+            {/* Embedded Player Modal for Live View */}
+            {playingVideo && (
+                <div className="live-player-modal-overlay" onClick={closePlayer}>
+                    <div className="live-player-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <button className="live-player-close-btn" onClick={closePlayer}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                        <div className="live-player-wrapper">
+                            <iframe
+                                src={`https://www.youtube.com/embed/${playingVideo.id}?autoplay=1&rel=0`}
+                                title={playingVideo.title}
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                                className="live-player-iframe"
+                            ></iframe>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="albums-list-header">
                 <div className="header-top-row">
                     <h2>Collections</h2>
@@ -325,6 +390,12 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
                             onClick={() => setViewMode('all-songs')}
                         >
                             All Songs
+                        </button>
+                        <button
+                            className={`toggle-btn ${viewMode === 'live' ? 'active' : ''}`}
+                            onClick={() => setViewMode('live')}
+                        >
+                            Live
                         </button>
                     </div>
                 </div>
@@ -347,7 +418,7 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
                     items={filteredItems}
                     onItemClick={handleItemClick}
                 />
-            ) : (
+            ) : viewMode === 'all-songs' ? (
                 <div className="all-songs-grid">
                     {loadingSongs ? (
                         <div className="albums-loading">Loading Songs...</div>
@@ -355,10 +426,6 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
                         <div className="album-tracks-grid">
                             {allSongs.length > 0 ? (
                                 allSongs.map((track) => {
-                                    // Re-apply search filter here if needed, currently filtering on Album list metadata not individual songs for perf?
-                                    // Logic check: The user requirement was "Search within Album" (Detail view).
-                                    // "Search" prop passed to AlbumsView is typically Global Search.
-                                    // If Global Search is active, we should filter these songs.
                                     if (searchTerm && !track.name.toLowerCase().includes(searchTerm.toLowerCase())) {
                                         return null;
                                     }
@@ -381,6 +448,41 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
                                 })
                             ) : (
                                 <div className="no-albums-msg">No songs found.</div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <div className="all-songs-grid">
+                    {/* Reuse Grid style for Live View */}
+                    {loadingSongs ? (
+                        <div className="albums-loading">Loading Live Performances...</div>
+                    ) : (
+                        <div className="album-tracks-grid">
+                            {liveSongs.length > 0 ? (
+                                liveSongs.map((track) => {
+                                    if (searchTerm && !track.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+                                        return null;
+                                    }
+
+                                    const cardData = {
+                                        name: track.name, // Already formatted as "Name (Live N)"
+                                        youtubelinkID: track.linked_youtube_id,
+                                        genre: "Live Performance",
+                                        format: track.linked_format || "HD"
+                                    };
+
+                                    return (
+                                        <YouTubeCard
+                                            key={track.id}
+                                            trackId={track.original_track_id} // Use original ID if possible, but might need unique key handling
+                                            data={cardData}
+                                            handlePlay={() => handleVideoClick(track.linked_youtube_id, track.name)}
+                                        />
+                                    );
+                                })
+                            ) : (
+                                <div className="no-albums-msg">No live performances found.</div>
                             )}
                         </div>
                     )}
