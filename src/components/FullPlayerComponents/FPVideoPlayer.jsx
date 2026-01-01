@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import YouTube from 'react-youtube';
 import FPLyrics from './FPLyrics';
+import '../../styles/components/FPVideoPlayer.css';
+import '../../styles/components/FPVideoPlayer.css';
 
 const FPVideoPlayer = ({
     youtubeData,
@@ -11,7 +13,8 @@ const FPVideoPlayer = ({
     artistNames,
     duration,
     onVersionChange, // Callback to notify parent about active version index
-    onOpenLivePage
+    onOpenLivePage,
+    activeVersionIndex
 }) => {
     const [embedError, setEmbedError] = useState(false);
     const [selectedVersionIndex, setSelectedVersionIndex] = useState(0);
@@ -22,6 +25,13 @@ const FPVideoPlayer = ({
         setSelectedVersionIndex(0);
         if (onVersionChange) onVersionChange(0);
     }, [youtubeData?.youtubelinkID]);
+
+    // Constructively sync internal state with parent prop if provided
+    useEffect(() => {
+        if (activeVersionIndex !== undefined && activeVersionIndex !== null && activeVersionIndex !== selectedVersionIndex) {
+            setSelectedVersionIndex(activeVersionIndex);
+        }
+    }, [activeVersionIndex]);
 
     // Parse IDs
     const rawIds = youtubeData?.youtubelinkID ? youtubeData.youtubelinkID.split(',') : [];

@@ -1,6 +1,8 @@
 import React from 'react';
 import FPProgress from './FPProgress';
 import FPControls from './FPControls';
+import '../../styles/components/FPLeftSection.css';
+import '../../styles/components/FPLeftSection.css';
 
 const FPLeftSection = ({
     currentTrack,

@@ -75,6 +75,8 @@ const FPSplitLayout = ({
                 artistNames={artistNames}
                 duration={duration}
                 onVersionChange={setActiveLiveVersionIndex}
+                onOpenLivePage={() => setShowLivePage(true)}
+                activeVersionIndex={activeLiveVersionIndex}
             />
         </div>
     );

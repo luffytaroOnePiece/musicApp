@@ -1,0 +1,169 @@
+/* --- FPVideoPlayer.css --- */
+
+.fp-right-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    animation: fadeInRight 0.5s ease-out;
+    position: relative;
+    /* Essential for absolute positioning of children */
+    height: 100%;
+}
+
+.fp-right-section.lyrics-mode {
+    height: 100%;
+    justify-content: center;
+    align-items: stretch;
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* --- YouTube Card --- */
+.fp-youtube-card {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    margin-bottom: 20px;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.fp-youtube-card:hover {
+    transform: scale(1.02);
+}
+
+.fp-youtube-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.fp-youtube-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.fp-youtube-card:hover .fp-youtube-overlay {
+    opacity: 1;
+}
+
+.fp-overlay-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+}
+
+.fp-youtube-card:hover .fp-overlay-buttons {
+    transform: translateY(0);
+}
+
+.fp-watch-btn {
+    border: none;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s ease;
+    width: 200px;
+    justify-content: center;
+}
+
+.fp-watch-btn.transparent-play {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    padding: 0;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.fp-watch-btn.transparent-play:hover {
+    background: rgba(255, 0, 0, 0.8);
+    border-color: transparent;
+    transform: scale(1.1);
+}
+
+.fp-youtube-info {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.fp-youtube-info h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.fp-youtube-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+/* --- LIVE TOGGLE BUTTON - FIXED Z-INDEX AND POSITION --- */
+.fp-live-toggle-btn {
+    position: absolute;
+    top: 20px;
+    /* Aligned with margin inside the container */
+    right: 20px;
+    /* Aligned with margin inside the container */
+    z-index: 1000;
+    /* Ensure this is above card and other elements */
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    pointer-events: auto;
+    /* Force events to be captured */
+}
+
+.fp-live-toggle-btn:hover {
+    background: rgba(29, 185, 84, 0.8);
+    border-color: rgba(29, 185, 84, 0.8);
+    transform: scale(1.05);
+    /* Slight grow */
+}

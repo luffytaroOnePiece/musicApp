@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import '../../styles/components/FPLiveVersions.css';
+import '../../styles/components/FPLiveVersions.css';
 
 const FPLiveVersions = ({ youtubeData, onSelectVersion, onClose, activeVersionIndex }) => {
     // Animation state
@@ -34,6 +36,8 @@ const FPLiveVersions = ({ youtubeData, onSelectVersion, onClose, activeVersionIn
 
             <div className="fp-live-grid">
                 {rawIds.map((id, index) => {
+                    if (index === 0) return null; // Skip original version (index 0)
+
                     const cleanId = id.trim();
                     const isSelected = activeVersionIndex === index;
 
@@ -58,10 +62,10 @@ const FPLiveVersions = ({ youtubeData, onSelectVersion, onClose, activeVersionIn
                             </div>
                             <div className="fp-live-info">
                                 <span className="fp-live-title">
-                                    {index === 0 ? "Original Version" : `Live Performance ${index}`}
+                                    {`Live Performance ${index}`}
                                 </span>
                                 <span className="fp-live-type">
-                                    {index === 0 ? "Official Audio/Video" : "Live Performance"}
+                                    {"Live Performance"}
                                 </span>
                             </div>
                         </div>
