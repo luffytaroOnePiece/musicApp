@@ -3,6 +3,9 @@ import '../../styles/YouTubeCard.css';
 import genreData from '../../data/genres.json';
 
 const YouTubeCard = ({ data, trackId, handlePlay }) => {
+    // Handle comma-separated IDs (take the first one)
+    const primaryId = data.youtubelinkID ? data.youtubelinkID.split(',')[0].trim() : "";
+
     const handleVideoClick = (e) => {
         // Did not prevent default here because we want the whole card to be clickable
         let qualityParam = "";
@@ -20,7 +23,7 @@ const YouTubeCard = ({ data, trackId, handlePlay }) => {
                 default: qualityParam = "";
             }
         }
-        window.open(`https://www.youtube.com/watch?v=${data.youtubelinkID}${qualityParam}`, '_blank');
+        window.open(`https://www.youtube.com/watch?v=${primaryId}${qualityParam}`, '_blank');
     };
 
     const genreDisplay = Array.isArray(data.genre)
@@ -31,18 +34,18 @@ const YouTubeCard = ({ data, trackId, handlePlay }) => {
         <div className="youtube-card" onClick={handleVideoClick}>
             <div className="card-thumbnail-container">
                 <img
-                    src={`https://img.youtube.com/vi/${data.youtubelinkID}/maxresdefault.jpg`}
+                    src={`https://img.youtube.com/vi/${primaryId}/maxresdefault.jpg`}
                     alt="Thumbnail"
                     className="card-thumbnail"
                     onError={(e) => {
                         e.target.onerror = null; // Prevent infinite loop
-                        e.target.src = `https://img.youtube.com/vi/${data.youtubelinkID}/hqdefault.jpg`;
+                        e.target.src = `https://img.youtube.com/vi/${primaryId}/hqdefault.jpg`;
                     }}
                     onLoad={(e) => {
                         // YouTube's "missing" maxres image is often 120px wide (placeholder)
                         // Only replace if we are currently looking at maxresdefault to avoid loops
                         if (e.target.src.includes('maxresdefault.jpg') && e.target.naturalWidth === 120) {
-                            e.target.src = `https://img.youtube.com/vi/${data.youtubelinkID}/hqdefault.jpg`;
+                            e.target.src = `https://img.youtube.com/vi/${primaryId}/hqdefault.jpg`;
                         }
                     }}
                 />

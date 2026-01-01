@@ -18,6 +18,8 @@ const AlbumDetail = ({
     const [localSearchTerm, setLocalSearchTerm] = useState("");
     const [sortOrder, setSortOrder] = useState("Original"); // 'Original' | 'Title' | 'Duration' | 'Date Added' | 'Date Published'
 
+    const [showLive, setShowLive] = useState(false);
+
     // Basic Metadata
     const tracks = fullItemData.tracks.items;
 
@@ -115,6 +117,16 @@ const AlbumDetail = ({
                             </svg>
                             Shuffle
                         </button>
+                        <button
+                            className={`shuffle-btn-secondary ${showLive ? 'active' : ''}`}
+                            onClick={() => setShowLive(!showLive)}
+                        >
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M23 7l-7 5 7 5V7z"></path>
+                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                            </svg>
+                            Live Performance
+                        </button>
                     </div>
                 </div>
             </div>
@@ -152,26 +164,57 @@ const AlbumDetail = ({
                     const originalIndex = tracks.findIndex(raw => raw.track && raw.track.id === track.id);
                     if (originalIndex === -1) return null;
 
-                    const ytId = localData.youtubeIDs[originalIndex];
-                    if (!ytId) return null;
+                    const ytIdRaw = localData.youtubeIDs[originalIndex];
+                    if (!ytIdRaw) return null;
 
+                    const ytIds = ytIdRaw.split(',');
 
+                    if (showLive) {
+                        // Display live versions (index 1+)
+                        const liveIds = ytIds.slice(1);
+                        if (liveIds.length === 0) return null; // Or return a placeholder?
 
-                    const cardData = {
-                        name: track.name,
-                        youtubelinkID: ytId,
-                        genre: track.album && track.album.release_date ? new Date(track.album.release_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : (localData.type || "Playlist"),
-                        format: localData.format || "HD"
-                    };
+                        return liveIds.map((liveId, i) => {
+                            const cardData = {
+                                name: `${track.name} (Live ${i + 1})`,
+                                youtubelinkID: liveId.trim(),
+                                genre: "Live",
+                                format: localData.format || "HD"
+                            };
+                            return (
+                                <YouTubeCard
+                                    key={`${track.id}-live-${i}`}
+                                    trackId={track.id} // Reusing trackId might cause duplicate keys if managed globally, but here we add a unique suffix to the map key. 
+                                    // However, the Player might need a unique ID for the queue. 
+                                    // For now, let's pass the same trackId as it maps to Spotify metadata.
+                                    data={cardData}
+                                    handlePlay={() => onPlay(track.uri)} // Play expects track URI, which maps to index 0 usually. We might need to adjust play logic if we want to play THIS specific video.
+                                // The current onPlay uses track.uri to find the track in the list and play it.
+                                // If we are in live mode, we might want to just play the video directly? 
+                                // But typically onPlay initiates the player with a queue.
+                                />
+                            );
+                        });
 
-                    return (
-                        <YouTubeCard
-                            key={track.id}
-                            trackId={track.id}
-                            data={cardData}
-                            handlePlay={() => onPlay(track.uri)}
-                        />
-                    );
+                    } else {
+                        // Display original version (index 0)
+                        const originalId = ytIds[0];
+                        const cardData = {
+                            name: track.name,
+                            youtubelinkID: originalId.trim(),
+                            genre: track.album && track.album.release_date ? new Date(track.album.release_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : (localData.type || "Playlist"),
+                            format: localData.format || "HD"
+                        };
+
+                        return (
+                            <YouTubeCard
+                                key={track.id}
+                                trackId={track.id}
+                                data={cardData}
+                                handlePlay={() => onPlay(track.uri)}
+                            />
+                        );
+                    }
                 })}
             </div>
 

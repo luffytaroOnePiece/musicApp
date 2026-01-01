@@ -113,6 +113,12 @@
     background: rgba(255, 255, 255, 0.1);
 }
 
+.shuffle-btn-secondary.active {
+    border-color: var(--primary-color, #1DB954);
+    color: var(--primary-color, #1DB954);
+    background: rgba(29, 185, 84, 0.1);
+}
+
 /* Album Controls Bar (Search & Sort) */
 .album-controls-bar {
     display: flex;

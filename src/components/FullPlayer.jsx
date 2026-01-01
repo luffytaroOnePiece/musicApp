@@ -105,7 +105,8 @@ const FullPlayer = ({ currentTrack, paused, player, duration, position, handleVo
 
     // USER REQUEST: In full view mode background should be based on youtube video thumbnail theme only in collections page
     if (targetTrack?.linked_youtube_id) {
-        bgImage = `https://img.youtube.com/vi/${targetTrack.linked_youtube_id}/maxresdefault.jpg`;
+        const bgId = targetTrack.linked_youtube_id.split(',')[0].trim();
+        bgImage = `https://img.youtube.com/vi/${bgId}/maxresdefault.jpg`;
     }
 
     const artistNames = currentTrack.artists?.map(a => a.name).join(', ') || 'Unknown Artist';

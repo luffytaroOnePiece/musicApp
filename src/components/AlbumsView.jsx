@@ -154,7 +154,7 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
                         if (!item.track || !youtubeIDs[i]) return null;
                         return {
                             ...item.track,
-                            linked_youtube_id: youtubeIDs[i],
+                            linked_youtube_id: youtubeIDs[i], // Pass full ID string (comma-separated) so FullPlayer can detect Live versions
                             linked_format: albumsData[id].format,
                             related_album_type: meta.type
                         };
