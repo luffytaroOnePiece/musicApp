@@ -216,4 +216,119 @@
     font-weight: 700;
     margin-bottom: 24px;
     color: var(--text-primary);
+}.youtube-view-container {
+    padding: 80px 40px 120px 40px;
+    box-sizing: border-box;
+    background: transparent;
+}
+
+.youtube-header {
+    margin-bottom: 24px;
+}
+
+.header-controls {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+/* Grid Layout */
+.youtube-grid {
+    display: grid;
+    gap: 24px;
+    width: 100%;
+    padding-bottom: 40px;
+}
+
+.no-videos-msg {
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.1rem;
+    font-style: italic;
+}
+
+/* Modal Styles */
+.live-player-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.live-player-modal-content {
+    position: relative;
+    width: 80%;
+    max-width: 1000px;
+    aspect-ratio: 16/9;
+    background: black;
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.live-player-wrapper {
+    width: 100%;
+    height: 100%;
+}
+
+.live-player-iframe {
+    width: 100%;
+    height: 100%;
+}
+
+.live-player-close-btn {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 2100;
+}
+
+.live-player-close-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleUp {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
