@@ -71,18 +71,20 @@ const AlbumDetail = ({
     const currentType = localData.type;
     const currentLanguage = localData.language;
 
-    const moreByArtist = Object.entries(itemsMetadata).filter(([id, meta]) => {
-        if (id === fullItemData.id) return false;
-        if (meta.type !== currentType) return false; // Filter by same type (Movie/Private)
-        if (meta.language !== currentLanguage) return false; // Filter by same language
+    const moreByArtist = React.useMemo(() => {
+        return Object.entries(itemsMetadata).filter(([id, meta]) => {
+            if (id === fullItemData.id) return false;
+            if (meta.type !== currentType) return false; // Filter by same type (Movie/Private)
+            if (meta.language !== currentLanguage) return false; // Filter by same language
 
-        const targetName = currentArtistName?.toLowerCase();
-        if (!targetName) return false;
+            const targetName = currentArtistName?.toLowerCase();
+            if (!targetName) return false;
 
-        return (meta.name && meta.name.toLowerCase().includes(targetName)) ||
-            (meta.owner && meta.owner.toLowerCase().includes(targetName)) ||
-            (meta.spotifyName && meta.spotifyName.toLowerCase().includes(targetName));
-    }).sort(() => 0.5 - Math.random()).slice(0, 10);
+            return (meta.name && meta.name.toLowerCase().includes(targetName)) ||
+                (meta.owner && meta.owner.toLowerCase().includes(targetName)) ||
+                (meta.spotifyName && meta.spotifyName.toLowerCase().includes(targetName));
+        }).sort(() => 0.5 - Math.random()).slice(0, 10);
+    }, [itemsMetadata, fullItemData.id, currentArtistName, currentType, currentLanguage]);
 
     return (
         <div className="albums-view-container detail-mode">
