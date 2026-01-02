@@ -4,6 +4,8 @@ import AlbumCard from './AlbumCard';
 import '../../styles/albums/AlbumDetail.css';
 import '../../styles/YouTubeFilters.css'; // Reuse dropdown styles
 
+import othersData from '../../data/others.json';
+
 const AlbumDetail = ({
     fullItemData,
     localData,
@@ -24,6 +26,9 @@ const AlbumDetail = ({
 
     // Basic Metadata
     const tracks = fullItemData.tracks.items;
+
+    // Check for Others Data
+    const albumOthers = othersData[fullItemData.id];
 
     // Calculate Total Duration
     const totalDurationMs = tracks.reduce((acc, item) => acc + (item.track?.duration_ms || 0), 0);
@@ -250,6 +255,27 @@ const AlbumDetail = ({
                     }
                 })}
             </div>
+
+            {albumOthers && albumOthers.length > 0 && (
+                <div className="others-section" style={{ marginTop: '40px' }}>
+                    <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '24px', color: 'var(--text-primary)' }}>Others</h2>
+                    <div className="album-tracks-grid">
+                        {albumOthers.map((item, index) => (
+                            <YouTubeCard
+                                key={item.id}
+                                trackId={`other-${index}`}
+                                data={{
+                                    name: item.name,
+                                    youtubelinkID: item.id,
+                                    genre: item.type,
+                                    format: "HD"
+                                }}
+                                handlePlay={() => handleVideoClick(item.id, item.name)}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {moreByArtist.length > 0 && (
                 <div className="more-by-artist-section">
