@@ -20,7 +20,7 @@ const AlbumDetail = ({
     const [localSearchTerm, setLocalSearchTerm] = useState("");
     const [sortOrder, setSortOrder] = useState("Original"); // 'Original' | 'Title' | 'Duration' | 'Date Added' | 'Date Published'
 
-    const [showLive, setShowLive] = useState(false);
+    const [viewMode, setViewMode] = useState("original"); // 'original' | 'live' | 'others'
 
     const [playingVideo, setPlayingVideo] = useState(null);
 
@@ -29,6 +29,17 @@ const AlbumDetail = ({
 
     // Check for Others Data
     const albumOthers = othersData[fullItemData.id];
+
+    // Shuffle Others Data
+    const shuffledOthers = useMemo(() => {
+        if (!albumOthers) return [];
+        const shuffled = [...albumOthers];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }, [albumOthers]);
 
     // Calculate Total Duration
     const totalDurationMs = tracks.reduce((acc, item) => acc + (item.track?.duration_ms || 0), 0);
@@ -159,8 +170,8 @@ const AlbumDetail = ({
                             Shuffle
                         </button>
                         <button
-                            className={`shuffle-btn-secondary ${showLive ? 'active' : ''}`}
-                            onClick={() => setShowLive(!showLive)}
+                            className={`shuffle-btn-secondary ${viewMode === 'live' ? 'active' : ''}`}
+                            onClick={() => setViewMode(viewMode === 'live' ? 'original' : 'live')}
                         >
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M23 7l-7 5 7 5V7z"></path>
@@ -168,6 +179,20 @@ const AlbumDetail = ({
                             </svg>
                             Live Performance
                         </button>
+
+                        {albumOthers && albumOthers.length > 0 && (
+                            <button
+                                className={`shuffle-btn-secondary ${viewMode === 'others' ? 'active' : ''}`}
+                                onClick={() => setViewMode(viewMode === 'others' ? 'original' : 'others')}
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                </svg>
+                                Others
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -197,85 +222,82 @@ const AlbumDetail = ({
             </div>
 
             <div className="album-tracks-grid">
-                {visibleTracks.map((item) => {
-                    const track = item.track;
-                    if (!track) return null;
+                {viewMode === 'others' ? (
+                    albumOthers.map((item, index) => (
+                        <YouTubeCard
+                            key={item.id}
+                            trackId={`other-${index}`}
+                            data={{
+                                name: item.name,
+                                youtubelinkID: item.id,
+                                genre: item.type,
+                                format: "HD"
+                            }}
+                            handlePlay={() => handleVideoClick(item.id, item.name)}
+                        />
+                    ))
+                ) : (
+                    visibleTracks.map((item) => {
+                        const track = item.track;
+                        if (!track) return null;
 
-                    // Locate original index for Youtube Mapping
-                    const originalIndex = tracks.findIndex(raw => raw.track && raw.track.id === track.id);
-                    if (originalIndex === -1) return null;
+                        // Locate original index for Youtube Mapping
+                        const originalIndex = tracks.findIndex(raw => raw.track && raw.track.id === track.id);
+                        if (originalIndex === -1) return null;
 
-                    const ytIdRaw = localData.youtubeIDs[originalIndex];
-                    if (!ytIdRaw) return null;
+                        const ytIdRaw = localData.youtubeIDs[originalIndex];
+                        if (!ytIdRaw) return null;
 
-                    const ytIds = ytIdRaw.split(',');
+                        const ytIds = ytIdRaw.split(',');
 
-                    if (showLive) {
-                        // Display live versions (index 1+)
-                        const liveIds = ytIds.slice(1);
-                        if (liveIds.length === 0) return null; // Or return a placeholder?
+                        if (viewMode === 'live') {
+                            // Display live versions (index 1+)
+                            const liveIds = ytIds.slice(1);
+                            if (liveIds.length === 0) return null; // Or return a placeholder?
 
-                        return liveIds.map((liveId, i) => {
+                            return liveIds.map((liveId, i) => {
+                                const cardData = {
+                                    name: `${track.name} (Live ${i + 1})`,
+                                    youtubelinkID: liveId.trim(),
+                                    genre: "Live",
+                                    format: localData.format || "HD"
+                                };
+                                return (
+                                    <YouTubeCard
+                                        key={`${track.id}-live-${i}`}
+                                        trackId={track.id} // Reusing trackId might cause duplicate keys if managed globally, but here we add a unique suffix to the map key. 
+                                        // However, the Player might need a unique ID for the queue. 
+                                        // For now, let's pass the same trackId as it maps to Spotify metadata.
+                                        data={cardData}
+                                        handlePlay={() => handleVideoClick(liveId.trim(), cardData.name)}
+                                    />
+                                );
+                            });
+
+                        } else {
+                            // Display original version (index 0)
+                            const originalId = ytIds[0];
                             const cardData = {
-                                name: `${track.name} (Live ${i + 1})`,
-                                youtubelinkID: liveId.trim(),
-                                genre: "Live",
+                                name: track.name,
+                                youtubelinkID: originalId.trim(),
+                                genre: track.album && track.album.release_date ? new Date(track.album.release_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : (localData.type || "Playlist"),
                                 format: localData.format || "HD"
                             };
+
                             return (
                                 <YouTubeCard
-                                    key={`${track.id}-live-${i}`}
-                                    trackId={track.id} // Reusing trackId might cause duplicate keys if managed globally, but here we add a unique suffix to the map key. 
-                                    // However, the Player might need a unique ID for the queue. 
-                                    // For now, let's pass the same trackId as it maps to Spotify metadata.
+                                    key={track.id}
+                                    trackId={track.id}
                                     data={cardData}
-                                    handlePlay={() => handleVideoClick(liveId.trim(), cardData.name)}
+                                    handlePlay={() => onPlay(track.uri)}
                                 />
                             );
-                        });
-
-                    } else {
-                        // Display original version (index 0)
-                        const originalId = ytIds[0];
-                        const cardData = {
-                            name: track.name,
-                            youtubelinkID: originalId.trim(),
-                            genre: track.album && track.album.release_date ? new Date(track.album.release_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : (localData.type || "Playlist"),
-                            format: localData.format || "HD"
-                        };
-
-                        return (
-                            <YouTubeCard
-                                key={track.id}
-                                trackId={track.id}
-                                data={cardData}
-                                handlePlay={() => onPlay(track.uri)}
-                            />
-                        );
-                    }
-                })}
+                        }
+                    })
+                )}
             </div>
 
-            {albumOthers && albumOthers.length > 0 && (
-                <div className="others-section" style={{ marginTop: '40px' }}>
-                    <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '24px', color: 'var(--text-primary)' }}>Others</h2>
-                    <div className="album-tracks-grid">
-                        {albumOthers.map((item, index) => (
-                            <YouTubeCard
-                                key={item.id}
-                                trackId={`other-${index}`}
-                                data={{
-                                    name: item.name,
-                                    youtubelinkID: item.id,
-                                    genre: item.type,
-                                    format: "HD"
-                                }}
-                                handlePlay={() => handleVideoClick(item.id, item.name)}
-                            />
-                        ))}
-                    </div>
-                </div>
-            )}
+
 
             {moreByArtist.length > 0 && (
                 <div className="more-by-artist-section">
