@@ -216,3 +216,41 @@ export const checkIfUserFollowsArtists = async (artistIds) => {
 };
 
 
+
+export const getArtists = async (ids) => {
+    // Spotify allows max 50 IDs per request
+    const chunk = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+        arr.slice(i * size, i * size + size)
+    );
+
+    const chunks = chunk(ids, 50);
+    let allArtists = [];
+
+    for (const c of chunks) {
+        const chunkIds = c.join(',');
+        const data = await apiCall(`/artists?ids=${chunkIds}`);
+        if (data && data.artists) {
+            allArtists = [...allArtists, ...data.artists];
+        }
+    }
+    return { artists: allArtists };
+};
+
+export const getAlbums = async (ids) => {
+    // Spotify allows max 20 IDs per request for albums
+    const chunk = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+        arr.slice(i * size, i * size + size)
+    );
+
+    const chunks = chunk(ids, 20);
+    let allAlbums = [];
+
+    for (const c of chunks) {
+        const chunkIds = c.join(',');
+        const data = await apiCall(`/albums?ids=${chunkIds}`);
+        if (data && data.albums) {
+            allAlbums = [...allAlbums, ...data.albums];
+        }
+    }
+    return { albums: allAlbums };
+};
