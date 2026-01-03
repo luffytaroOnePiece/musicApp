@@ -57,4 +57,4 @@ const AggregatedGrid = ({ viewMode, items, loading, searchTerm, onPlay }) => {
     );
 };
 
-export default AggregatedGrid;
+export default React.memo(AggregatedGrid);

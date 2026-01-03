@@ -98,4 +98,4 @@ const YouTubeCard = ({ data, trackId, handlePlay }) => {
     );
 };
 
-export default YouTubeCard;
+export default React.memo(YouTubeCard);

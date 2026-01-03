@@ -268,7 +268,11 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
 
 
     // Handlers
-    const handleItemClick = (id) => setSelectedId(id);
+    const handleItemClick = (id) => {
+        setFullItemData(null);
+        setLoading(true);
+        setSelectedId(id);
+    };
     const handleBack = () => {
         setSelectedId(null);
         setFullItemData(null);

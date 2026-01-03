@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import YouTubeCard from '../youtube/YouTubeCard';
 import AlbumCard from './AlbumCard';
 import '../../styles/albums/AlbumDetail.css';
@@ -21,7 +21,6 @@ const AlbumDetail = ({
     const [sortOrder, setSortOrder] = useState("Original"); // 'Original' | 'Title' | 'Duration' | 'Date Added' | 'Date Published'
 
     const [viewMode, setViewMode] = useState("original"); // 'original' | 'live' | 'others'
-
     const [playingVideo, setPlayingVideo] = useState(null);
 
     // Basic Metadata
@@ -31,6 +30,7 @@ const AlbumDetail = ({
     const albumOthers = othersData[fullItemData.id];
 
     // Shuffle Others Data
+    // Memoize shuffledOthers to prevent re-shuffle on every render
     const shuffledOthers = useMemo(() => {
         if (!albumOthers) return [];
         const shuffled = [...albumOthers];
@@ -55,34 +55,39 @@ const AlbumDetail = ({
     }
 
     // --- Filter & Sort Logic ---
-    let visibleTracks = [...tracks];
+    // --- Filter & Sort Logic ---
+    // Memoize this calculation as it involves array filtering and sorting
+    const visibleTracks = useMemo(() => {
+        let filtered = [...tracks];
 
-    // 1. Filter by Local Search
-    if (localSearchTerm) {
-        visibleTracks = visibleTracks.filter(item =>
-            item.track && item.track.name.toLowerCase().includes(localSearchTerm.toLowerCase())
-        );
-    }
+        // 1. Filter by Local Search
+        if (localSearchTerm) {
+            filtered = filtered.filter(item =>
+                item.track && item.track.name.toLowerCase().includes(localSearchTerm.toLowerCase())
+            );
+        }
 
-    // 2. Sort
-    if (sortOrder === 'Title') {
-        visibleTracks.sort((a, b) => a.track.name.localeCompare(b.track.name));
-    } else if (sortOrder === 'Duration') {
-        visibleTracks.sort((a, b) => (a.track.duration_ms || 0) - (b.track.duration_ms || 0));
-    } else if (sortOrder === 'Date Added') {
-        visibleTracks.sort((a, b) => {
-            const dateA = new Date(a.added_at || 0); // specific for playlist tracks
-            const dateB = new Date(b.added_at || 0);
-            return dateB - dateA; // Newest first
-        });
-    } else if (sortOrder === 'Date Published') {
-        visibleTracks.sort((a, b) => {
-            // Check specific track album release date, fallback to 0
-            const dateA = new Date(a.track?.album?.release_date || 0);
-            const dateB = new Date(b.track?.album?.release_date || 0);
-            return dateB - dateA; // Newest first
-        });
-    }
+        // 2. Sort
+        if (sortOrder === 'Title') {
+            filtered.sort((a, b) => a.track.name.localeCompare(b.track.name));
+        } else if (sortOrder === 'Duration') {
+            filtered.sort((a, b) => (a.track.duration_ms || 0) - (b.track.duration_ms || 0));
+        } else if (sortOrder === 'Date Added') {
+            filtered.sort((a, b) => {
+                const dateA = new Date(a.added_at || 0); // specific for playlist tracks
+                const dateB = new Date(b.added_at || 0);
+                return dateB - dateA; // Newest first
+            });
+        } else if (sortOrder === 'Date Published') {
+            filtered.sort((a, b) => {
+                // Check specific track album release date, fallback to 0
+                const dateA = new Date(a.track?.album?.release_date || 0);
+                const dateB = new Date(b.track?.album?.release_date || 0);
+                return dateB - dateA; // Newest first
+            });
+        }
+        return filtered;
+    }, [tracks, localSearchTerm, sortOrder]);
 
     // --- More By Artist Logic ---
     const currentArtistName = fullItemData.owner?.display_name || (tracks[0]?.track?.artists?.[0]?.name);
@@ -104,13 +109,13 @@ const AlbumDetail = ({
         }).sort(() => 0.5 - Math.random()).slice(0, 10);
     }, [itemsMetadata, fullItemData.id, currentArtistName, currentType, currentLanguage]);
 
-    const handleVideoClick = (id, title) => {
+    const handleVideoClick = useCallback((id, title) => {
         setPlayingVideo({ id, title });
-    };
+    }, []);
 
-    const closePlayer = () => {
+    const closePlayer = useCallback(() => {
         setPlayingVideo(null);
-    };
+    }, []);
 
     return (
         <div className="albums-view-container detail-mode">
