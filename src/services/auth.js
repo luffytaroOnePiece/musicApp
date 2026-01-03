@@ -114,22 +114,29 @@ export const logout = () => {
     window.location.href = '/';
 }
 
-export const getAccessToken = () => {
-    const accessToken = localStorage.getItem('spotify_access_token');
+export const getValidToken = async () => {
+    let accessToken = localStorage.getItem('spotify_access_token');
     const timestamp = localStorage.getItem('spotify_token_timestamp');
     const expiresIn = localStorage.getItem('spotify_expires_in');
 
     if (!accessToken) return null;
 
-    // Check if expired (give 5 min buffer)
-    if (Date.now() - parseInt(timestamp) > (parseInt(expiresIn) - 300) * 1000) {
-        // Ideally we auto-refresh here, but for async simplicity we will just return null 
-        // or trigger refresh which is async. 
-        // For this simple impl, we can try to return the current one and let the caller handle 401, 
-        // or better, implement a wrapper that checks validity.
-        // Let's rely on the app logic to call refreshToken() if 401.
-        return accessToken;
+    // Check if expired or expiring soon (within 5 minutes = 300 seconds)
+    // timestamp is ms, expiresIn is seconds
+    const expirationTime = parseInt(timestamp) + (parseInt(expiresIn) * 1000);
+    const now = Date.now();
+    const timeRemaining = expirationTime - now;
+
+    // If less than 5 minutes remaining, refresh
+    if (timeRemaining < 300 * 1000) {
+        console.log('Token expiring soon, refreshing...');
+        accessToken = await refreshToken();
     }
 
+    return accessToken;
+}
+
+export const getAccessToken = () => {
+    const accessToken = localStorage.getItem('spotify_access_token');
     return accessToken;
 }

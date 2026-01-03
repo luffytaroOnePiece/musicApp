@@ -1,9 +1,9 @@
-import { getAccessToken } from './auth';
+import { getValidToken, refreshToken } from './auth';
 
 const BASE_URL = 'https://api.spotify.com/v1';
 
 const apiCall = async (endpoint, method = 'GET', body = null) => {
-    const token = getAccessToken();
+    let token = await getValidToken();
     if (!token) throw new Error("No token");
 
     const headers = {
@@ -17,34 +17,48 @@ const apiCall = async (endpoint, method = 'GET', body = null) => {
         body: body ? JSON.stringify(body) : null
     };
 
-    const response = await fetch(`${BASE_URL}${endpoint}`, config);
-    if (!response.ok) {
-        if (response.status === 401) {
-            // Handle token expiry if needed, or propagate error
-            // window.location.href = '/login'; // Or let the caller handle it
+    let response = await fetch(`${BASE_URL}${endpoint}`, config);
+
+    if (response.status === 401) {
+        console.log('Received 401, trying to refresh token...');
+        const newToken = await refreshToken();
+        if (newToken) {
+            // Retry with new token
+            config.headers['Authorization'] = `Bearer ${newToken}`;
+            response = await fetch(`${BASE_URL}${endpoint}`, config);
+        } else {
+            throw new Error('Session expired. Please login again.');
         }
-        throw new Error(`API Error: ${response.statusText}`);
     }
-    return response.json();
+
+    if (!response.ok) {
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
+
+    // Some endpoints returning 204 No Content will throw on .json()
+    if (response.status === 204) return null;
+
+    // Check if there is content to parse
+    const contentLength = response.headers.get("content-length");
+    if (contentLength && parseInt(contentLength) === 0) return null;
+
+    try {
+        return await response.json();
+    } catch (e) {
+        // If json parsing fails although status is ok and not 204, return null or handle gracefully
+        return null;
+    }
 }
 
 export const getClassUserProfile = () => apiCall('/me');
 export const getUserPlaylists = () => apiCall('/me/playlists');
 export const getPlaylistTracks = (playlistId) => apiCall(`/playlists/${playlistId}/tracks`);
 export const searchTracks = (query) => apiCall(`/search?q=${encodeURIComponent(query)}&type=track&limit=20`);
-export const playTrack = async (deviceId, contextUri, offset = 0) => {
-    // This requires PUT
-    const token = getAccessToken();
-    const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-    };
 
-    // contextUri can be an album/playlist URI, or we can pass use uris: [trackUri]
+export const playTrack = async (deviceId, contextUri, offset = 0) => {
     const body = {};
     if (Array.isArray(contextUri)) {
         body.uris = contextUri;
-        // Support offset for URI arrays too
         if (offset || offset === 0) {
             body.offset = { position: offset };
         }
@@ -61,127 +75,70 @@ export const playTrack = async (deviceId, contextUri, offset = 0) => {
         }
     }
 
-    await fetch(`${BASE_URL}/me/player/play?device_id=${deviceId}`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify(body)
-    });
+    const endpoint = deviceId
+        ? `/me/player/play?device_id=${deviceId}`
+        : `/me/player/play`;
+
+    return apiCall(endpoint, 'PUT', body);
 };
 
 export const resumePlayback = async (deviceId) => {
-    const token = getAccessToken();
-    const url = deviceId
-        ? `${BASE_URL}/me/player/play?device_id=${deviceId}`
-        : `${BASE_URL}/me/player/play`;
-
-    await fetch(url, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        // No body for resume
-    });
+    const endpoint = deviceId
+        ? `/me/player/play?device_id=${deviceId}`
+        : `/me/player/play`;
+    return apiCall(endpoint, 'PUT');
 };
 
 export const pauseTrack = async (deviceId) => {
-    const token = getAccessToken();
-    const url = deviceId
-        ? `${BASE_URL}/me/player/pause?device_id=${deviceId}`
-        : `${BASE_URL}/me/player/pause`;
-
-    await fetch(url, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const endpoint = deviceId
+        ? `/me/player/pause?device_id=${deviceId}`
+        : `/me/player/pause`;
+    return apiCall(endpoint, 'PUT');
 }
 
 export const nextTrack = async (deviceId) => {
-    const token = getAccessToken();
-    const url = deviceId
-        ? `${BASE_URL}/me/player/next?device_id=${deviceId}`
-        : `${BASE_URL}/me/player/next`;
-
-    await fetch(url, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const endpoint = deviceId
+        ? `/me/player/next?device_id=${deviceId}`
+        : `/me/player/next`;
+    return apiCall(endpoint, 'POST');
 }
 
 export const prevTrack = async (deviceId) => {
-    const token = getAccessToken();
-    const url = deviceId
-        ? `${BASE_URL}/me/player/previous?device_id=${deviceId}`
-        : `${BASE_URL}/me/player/previous`;
-
-    await fetch(url, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const endpoint = deviceId
+        ? `/me/player/previous?device_id=${deviceId}`
+        : `/me/player/previous`;
+    return apiCall(endpoint, 'POST');
 }
 
 export const setShuffle = async (state, deviceId) => {
-    const token = getAccessToken();
-    await fetch(`${BASE_URL}/me/player/shuffle?state=${state}&device_id=${deviceId}`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
+    return apiCall(`/me/player/shuffle?state=${state}&device_id=${deviceId}`, 'PUT');
 }
 
 export const setRepeat = async (state, deviceId) => {
-    const token = getAccessToken();
-    await fetch(`${BASE_URL}/me/player/repeat?state=${state}&device_id=${deviceId}`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
+    return apiCall(`/me/player/repeat?state=${state}&device_id=${deviceId}`, 'PUT');
 }
 
 export const seekTrack = async (positionMs, deviceId) => {
-    const token = getAccessToken();
-    const url = deviceId
-        ? `${BASE_URL}/me/player/seek?position_ms=${positionMs}&device_id=${deviceId}`
-        : `${BASE_URL}/me/player/seek?position_ms=${positionMs}`;
-
-    await fetch(url, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const endpoint = deviceId
+        ? `/me/player/seek?position_ms=${positionMs}&device_id=${deviceId}`
+        : `/me/player/seek?position_ms=${positionMs}`;
+    return apiCall(endpoint, 'PUT');
 }
 
 export const removeTrackFromPlaylist = async (playlistId, trackUri) => {
-    const token = getAccessToken();
-    await fetch(`${BASE_URL}/playlists/${playlistId}/tracks`, {
-        method: 'DELETE',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            tracks: [{ uri: trackUri }]
-        })
+    return apiCall(`/playlists/${playlistId}/tracks`, 'DELETE', {
+        tracks: [{ uri: trackUri }]
     });
 }
 
 export const addTrackToPlaylist = async (playlistId, trackUri) => {
-    const token = getAccessToken();
-    const response = await fetch(`${BASE_URL}/playlists/${playlistId}/tracks`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            uris: [trackUri]
-        })
+    return apiCall(`/playlists/${playlistId}/tracks`, 'POST', {
+        uris: [trackUri]
     });
-    if (!response.ok) {
-        throw new Error(`Failed to add track: ${response.status} ${response.statusText}`);
-    }
 }
+
 export const checkUserSavedTracks = async (trackIds) => {
     // Spotify allows max 50 IDs per request for checking
-    const token = getAccessToken();
-    // Helper to chunk array
     const chunk = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
         arr.slice(i * size, i * size + size)
     );
@@ -191,6 +148,9 @@ export const checkUserSavedTracks = async (trackIds) => {
 
     for (const c of chunks) {
         const ids = c.join(',');
+        // apiCall uses BASE_URL, so we don't need full URL here if we change apiCall to take path
+        // but wait, verify apiCall implementation logic
+        // apiCall adds BASE_URL.
         const data = await apiCall(`/me/tracks/contains?ids=${ids}`);
         results.push(...data);
     }
@@ -198,19 +158,11 @@ export const checkUserSavedTracks = async (trackIds) => {
 }
 
 export const saveTracks = async (trackIds) => {
-    const token = getAccessToken();
-    await fetch(`${BASE_URL}/me/tracks?ids=${trackIds.join(',')}`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
+    return apiCall(`/me/tracks?ids=${trackIds.join(',')}`, 'PUT');
 }
 
 export const removeSavedTracks = async (trackIds) => {
-    const token = getAccessToken();
-    await fetch(`${BASE_URL}/me/tracks?ids=${trackIds.join(',')}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
+    return apiCall(`/me/tracks?ids=${trackIds.join(',')}`, 'DELETE');
 }
 
 export const getUserSavedTracks = (limit = 50, offset = 0) => apiCall(`/me/tracks?limit=${limit}&offset=${offset}`);
@@ -224,17 +176,9 @@ export const getAvailableDevices = () => apiCall('/me/player/devices');
 export const getUserQueue = () => apiCall('/me/player/queue');
 
 export const transferPlayback = async (deviceId, play = false) => {
-    const token = getAccessToken();
-    await fetch(`${BASE_URL}/me/player`, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            device_ids: [deviceId],
-            play: play
-        })
+    return apiCall('/me/player', 'PUT', {
+        device_ids: [deviceId],
+        play: play
     });
 };
 
@@ -250,33 +194,13 @@ export const getArtistAlbums = (artistId, limit = 5) => apiCall(`/artists/${arti
 
 // Artists
 export const followArtists = async (artistIds) => {
-    const token = getAccessToken();
-    const response = await fetch(`${BASE_URL}/me/following?type=artist&ids=${artistIds.join(',')}`, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ ids: artistIds })
-    });
-    if (!response.ok) {
-        throw new Error(`Failed to follow artists: ${response.statusText}`);
-    }
+    return apiCall(`/me/following?type=artist&ids=${artistIds.join(',')}`, 'PUT', { ids: artistIds });
 };
 
 export const unfollowArtists = async (artistIds) => {
-    const token = getAccessToken();
-    const response = await fetch(`${BASE_URL}/me/following?type=artist&ids=${artistIds.join(',')}`, {
-        method: 'DELETE',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ ids: artistIds })
-    });
-    if (!response.ok) {
-        throw new Error(`Failed to unfollow artists: ${response.statusText}`);
-    }
+    // method DELETE with body is unusual but spotify requires it for this endpoint
+    // standard apiCall supports body on DELETE
+    return apiCall(`/me/following?type=artist&ids=${artistIds.join(',')}`, 'DELETE', { ids: artistIds });
 };
 
 export const getFollowedArtists = (limit = 20, after = null) => {
@@ -288,11 +212,7 @@ export const getFollowedArtists = (limit = 20, after = null) => {
 };
 
 export const checkIfUserFollowsArtists = async (artistIds) => {
-    const token = getAccessToken();
-    // chunking might be needed if many IDs, but simple use case usually checks one or few
-    const response = await fetch(`${BASE_URL}/me/following/contains?type=artist&ids=${artistIds.join(',')}`, {
-        method: 'GET',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-    return response.json();
+    return apiCall(`/me/following/contains?type=artist&ids=${artistIds.join(',')}`);
 };
+
+
