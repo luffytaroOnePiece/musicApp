@@ -10,8 +10,8 @@ const AlbumFilters = ({
     languages,
     onReset
 }) => {
-    const isFiltered = (selectedType && selectedType !== "All") ||
-        (selectedLanguage && selectedLanguage !== "All");
+    const isFiltered = (selectedType && selectedType !== "Private") ||
+        (selectedLanguage && selectedLanguage !== "English");
 
     return (
         <div className="filters-container">

@@ -21,8 +21,8 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
     const [viewMode, setViewMode] = useState('albums'); // 'albums' | 'all-songs' | 'live' | 'others'
 
     // Filter States
-    const [selectedType, setSelectedType] = useState("All");
-    const [selectedLanguage, setSelectedLanguage] = useState("All");
+    const [selectedType, setSelectedType] = useState("Private");
+    const [selectedLanguage, setSelectedLanguage] = useState("English");
 
     // Computed Lists State
     const [songsList, setSongsList] = useState([]);
@@ -284,8 +284,8 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
         setFullItemData(null);
     };
     const handleResetFilters = () => {
-        setSelectedType("All");
-        setSelectedLanguage("All");
+        setSelectedType("Private");
+        setSelectedLanguage("English");
     };
 
     // Playback Handlers
