@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { searchArtists, getPlaylist, getArtistTopTracks } from '../services/spotifyApi';
-import albumsData from '../data/albums.json';
+import movieAlbums from '../data/movieAlbums.json';
+import privateAlbums from '../data/privateAlbums.json';
+
+const albumsData = { ...movieAlbums, ...privateAlbums };
 import othersData from '../data/others.json';
 import '../styles/StatsView.css';
 
@@ -66,7 +69,7 @@ const StatsView = ({ handlePlay, formatTime }) => {
                 const fetchedMovies = [];
                 const genreCounts = {};
 
-                // 1. Process albums.json (Parallel Fetching)
+                // 1. Process merged albums data (Parallel Fetching)
                 const entries = Object.entries(albumsData);
                 await Promise.all(entries.map(async ([id, data]) => {
                     try {
