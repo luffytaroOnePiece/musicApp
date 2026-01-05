@@ -29,28 +29,15 @@ const NewsSection = ({ artistName }) => {
             timeParam = 'all';
         }
 
-        // Fetch from Reddit via CORS Proxy (Using 'get' to handle non-JSON responses gracefully)
+        // Fetch from Reddit (Direct)
         const redditUrl = `https://www.reddit.com/search.json?q=${encodeURIComponent(artistName)}&sort=${sortParam}&t=${timeParam}&limit=50`;
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(redditUrl)}`;
 
-        fetch(proxyUrl)
+        fetch(redditUrl)
             .then(res => {
-                if (!res.ok) throw new Error(`Proxy error! Status: ${res.status}`);
+                if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
                 return res.json();
             })
-            .then(wrapper => {
-                // allorigins returns { contents: "string...", status: { http_code: 200, ... } }
-                if (!wrapper.contents) throw new Error("No content from proxy");
-
-                // Parse the inner content
-                let data;
-                try {
-                    data = JSON.parse(wrapper.contents);
-                } catch (e) {
-                    console.warn("Retrying with fallback proxy...", e);
-                    throw new Error("Failed to parse Reddit JSON");
-                }
-
+            .then(data => {
                 if (!data || !data.data) {
                     setNewsData([]);
                     return;
