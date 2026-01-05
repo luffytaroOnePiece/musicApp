@@ -74,38 +74,60 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
 
                 if (isMounted) setLoading(true); // Ensure loading is true before start
 
-                const results = await Promise.all(
-                    entries.map(async ([spotifyId, localData]) => {
-                        try {
-                            const playlist = await getPlaylist(spotifyId);
-                            if (!playlist) throw new Error("Playlist not found");
-
-                            return [spotifyId, {
-                                ...localData,
-                                spotifyName: playlist.name,
-                                images: playlist.images,
-                                owner: playlist.owner?.display_name,
-                                release_date: playlist.release_date || (playlist.tracks?.items?.[0]?.track?.album?.release_date),
-                                description: playlist.description
-                            }];
-                        } catch (err) {
-                            console.error(`Failed to fetch playlist ${spotifyId}`, err);
-                            // Return local data even if Spotify fetch fails, so we don't crash
-                            return [spotifyId, { ...localData, error: true, name: localData.name || "Unknown Album" }];
-                        }
-                    })
-                );
-
-                // Shuffle results to randomize album order
-                for (let i = results.length - 1; i > 0; i--) {
+                // Randomization: Shuffle entries BEFORE fetching so they appear in random order incrementally
+                for (let i = entries.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
-                    [results[i], results[j]] = [results[j], results[i]];
+                    [entries[i], entries[j]] = [entries[j], entries[i]];
                 }
 
-                if (isMounted) {
-                    const metadata = Object.fromEntries(results);
-                    setItemsMetadata(metadata);
-                    setLoading(false);
+                // Optimization: Batch requests to avoid 429s and show content progressively
+                const BATCH_SIZE = 10;
+                const DELAY_MS = 500;
+
+                const chunk = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+                    arr.slice(i * size, i * size + size)
+                );
+
+                const batches = chunk(entries, BATCH_SIZE);
+
+                for (const batch of batches) {
+                    if (!isMounted) break;
+
+                    const batchResults = await Promise.all(
+                        batch.map(async ([spotifyId, localData]) => {
+                            try {
+                                const playlist = await getPlaylist(spotifyId);
+                                if (!playlist) throw new Error("Playlist not found");
+
+                                return [spotifyId, {
+                                    ...localData,
+                                    spotifyName: playlist.name,
+                                    images: playlist.images,
+                                    owner: playlist.owner?.display_name,
+                                    release_date: playlist.release_date || (playlist.tracks?.items?.[0]?.track?.album?.release_date),
+                                    description: playlist.description
+                                }];
+                            } catch (err) {
+                                console.error(`Failed to fetch playlist ${spotifyId}`, err);
+                                // Return local data even if Spotify fetch fails, so we don't crash
+                                return [spotifyId, { ...localData, error: true, name: localData.name || "Unknown Album" }];
+                            }
+                        })
+                    );
+
+                    // Progressive Update: Update state after each batch
+                    if (isMounted) {
+                        const batchMetadata = Object.fromEntries(batchResults);
+                        setItemsMetadata(prev => ({ ...prev, ...batchMetadata }));
+
+                        // Stop global loading spinner after first batch so user sees content immediately
+                        setLoading(false);
+                    }
+
+                    // Small delay between batches
+                    if (batches.indexOf(batch) < batches.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, DELAY_MS));
+                    }
                 }
             } catch (err) {
                 console.error("Critical error in AlbumsView", err);

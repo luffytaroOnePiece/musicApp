@@ -19,6 +19,14 @@ const apiCall = async (endpoint, method = 'GET', body = null) => {
 
     let response = await fetch(`${BASE_URL}${endpoint}`, config);
 
+    if (response.status === 429) {
+        const retryAfter = response.headers.get('Retry-After');
+        const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : 3000;
+        console.warn(`Rate limited. Waiting ${waitTime}ms before retrying...`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+        return apiCall(endpoint, method, body);
+    }
+
     if (response.status === 401) {
         console.log('Received 401, trying to refresh token...');
         const newToken = await refreshToken();
@@ -26,6 +34,16 @@ const apiCall = async (endpoint, method = 'GET', body = null) => {
             // Retry with new token
             config.headers['Authorization'] = `Bearer ${newToken}`;
             response = await fetch(`${BASE_URL}${endpoint}`, config);
+
+            // Re-check for 429 after 401 retry, just in case
+            if (response.status === 429) {
+                const retryAfter = response.headers.get('Retry-After');
+                const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : 3000;
+                console.warn(`Rate limited after refresh. Waiting ${waitTime}ms before retrying...`);
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+                return apiCall(endpoint, method, body);
+            }
+
         } else {
             throw new Error('Session expired. Please login again.');
         }
