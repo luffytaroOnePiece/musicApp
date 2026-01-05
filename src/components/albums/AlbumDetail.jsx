@@ -127,7 +127,7 @@ const AlbumDetail = ({
             />
 
             {viewMode === 'news' ? (
-                <NewsSection artistName={currentArtistName} />
+                <NewsSection artistName={localData.name} />
             ) : (
                 <AlbumTracks
                     viewMode={viewMode}
