@@ -250,7 +250,47 @@
     "5smapYouEMKb0hbgPiteo1": {
         "name": "Shakira",
         "youtubeIDs": [
-            "DUT5rEU6pqM,2Ndra-1Pwug,41ZY18JqI2A"
+            "DUT5rEU6pqM,2Ndra-1Pwug,41ZY18JqI2A",
+            "weRHyjj34ZE",
+            "pRpeEdMmmQ0",
+            "6Mgqbai3fKo",
+            "7-7knsP2n5w"
+        ],
+        "type": "Private",
+        "language": "English"
+    },
+    "5Z119RpBdGcv7mTbX03YbP": {
+        "name": "Ava Max",
+        "youtubeIDs": [
+            "WXBHCQYxwr0",
+            "jH1RNk8954Q",
+            "lVx1s89Zbbo"
+        ],
+        "type": "Private",
+        "language": "English"
+    },
+    "0MI7cq9uYfmf4eftDOqV9P": {
+        "name": "Sia",
+        "youtubeIDs": [
+            "31crA53Dgu0",
+            "YaEG2aWJnZ8"
+        ],
+        "type": "Private",
+        "language": "English"
+    },
+    "1tp5ywFNuMxEYC3H6WTVPu": {
+        "name": "Jennifer Lopez",
+        "youtubeIDs": [
+            "t4H_Zoh7G5A",
+            "Pgmx7z49OEk"
+        ],
+        "type": "Private",
+        "language": "English"
+    },
+    "0AfpyaHLzR8joYhUNIiJ4O": {
+        "name": "Joe Keery",
+        "youtubeIDs": [
+            "xy3AcmW0lrQ"
         ],
         "type": "Private",
         "language": "English"
