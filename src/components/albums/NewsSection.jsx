@@ -29,42 +29,42 @@ const NewsSection = ({ artistName }) => {
             timeParam = 'all';
         }
 
-        // Fetch from Reddit (Direct)
-        const redditUrl = `https://www.reddit.com/search.json?q=${encodeURIComponent(artistName)}&sort=${sortParam}&t=${timeParam}&limit=50`;
+        // Fetch from Reddit RSS via rss2json (Bypasses detailed API blocking)
+        const rssUrl = `https://www.reddit.com/search.rss?q=${encodeURIComponent(artistName)}&sort=${sortParam}&t=${timeParam}&limit=50`;
+        const converterUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
-        fetch(redditUrl)
+        fetch(converterUrl)
             .then(res => {
-                if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+                if (!res.ok) throw new Error(`RSS Error! Status: ${res.status}`);
                 return res.json();
             })
             .then(data => {
-                if (!data || !data.data) {
+                if (!data || !data.items) {
                     setNewsData([]);
                     return;
                 }
 
-                const posts = data.data.children
-                    .map(child => child.data)
-                    .filter(post => {
-                        // Relaxed filtering: Check for post_hint OR specific url extensions OR thumbnail that looks like a url
-                        const isImage = post.post_hint === 'image';
-                        const hasExt = post.url && post.url.match(/\.(jpeg|jpg|gif|png)$/) != null;
-                        const hasThumbnail = post.thumbnail && post.thumbnail.startsWith('http');
-                        return isImage || hasExt || (hasThumbnail && post.thumbnail !== 'self' && post.thumbnail !== 'default');
+                const posts = data.items
+                    .filter(item => {
+                        // Filter for items that likely have images
+                        const hasEnclosure = item.enclosure && item.enclosure.link && item.enclosure.type.startsWith('image/');
+                        const hasThumbnail = item.thumbnail && item.thumbnail.startsWith('http');
+                        // Simple content check for image tag if needed, but risky. Stick to reliable fields.
+                        return hasEnclosure || hasThumbnail;
                     })
-                    .map(post => ({
-                        id: post.id,
-                        title: post.title,
-                        imageUrl: (post.post_hint === 'image' || (post.url && post.url.match(/\.(jpeg|jpg|gif|png)$/))) ? post.url : post.thumbnail,
-                        permalink: `https://reddit.com${post.permalink}`,
-                        author: post.author,
-                        subreddit: post.subreddit_name_prefixed
+                    .map(item => ({
+                        id: item.guid,
+                        title: item.title,
+                        imageUrl: (item.enclosure && item.enclosure.link) ? item.enclosure.link : item.thumbnail,
+                        permalink: item.link,
+                        author: item.author,
+                        subreddit: "reddit" // RSS doesn't always give subreddit clearly in root, acceptable trade-off
                     }));
                 setNewsData(posts);
             })
             .catch(err => {
                 console.error("Failed to fetch news", err);
-                setNewsData([]); // Clear data on error
+                setNewsData([]);
             })
             .finally(() => setLoadingNews(false));
     }, [artistName, newsSort]);
