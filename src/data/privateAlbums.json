@@ -294,5 +294,39 @@
         ],
         "type": "Private",
         "language": "English"
+    },
+    "2vxVGJVuYzmb6ho43zvTbA": {
+        "name": "Beyonce",
+        "youtubeIDs": [
+            "bnVUHWCynig"
+        ],
+        "type": "Private",
+        "language": "English"
+    },
+    "1GsOa6N1vvTfjCiyxDejt5": {
+        "name": "Demi Lovato",
+        "youtubeIDs": [
+            "il9nqWw9W3Y"
+        ],
+        "type": "Private",
+        "language": "English"
+    },
+    "7hlgMKKRwAAT4Efkvtah9F": {
+        "name": "Adele",
+        "youtubeIDs": [
+            "DeumyOzKqgI",
+            "YQHsXMglC9A"
+        ],
+        "type": "Private",
+        "language": "English"
+    },
+    "5g9W6oklhG4VYttUpOxfbY": {
+        "name": "Tyla",
+        "youtubeIDs": [
+            "xiZUf98A1Ts",
+            "XoiOOiuH8iI"
+        ],
+        "type": "Private",
+        "language": "English"
     }
 }
