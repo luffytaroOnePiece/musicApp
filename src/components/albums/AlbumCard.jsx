@@ -20,4 +20,4 @@ const AlbumCard = ({ meta, onClick }) => {
     );
 };
 
-export default AlbumCard;
+export default React.memo(AlbumCard);

@@ -7,6 +7,10 @@
     border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
+    /* Optimization for long lists */
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 300px;
+    /* Width (auto-ish) Height (approx card height) */
 }
 
 .album-card:hover {

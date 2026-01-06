@@ -21,4 +21,4 @@ const AlbumsList = ({ items, onItemClick }) => {
     );
 };
 
-export default AlbumsList;
+export default React.memo(AlbumsList);
