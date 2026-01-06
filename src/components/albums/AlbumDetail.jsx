@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { getPlaylist } from '../../services/spotifyApi';
 import othersData from '../../data/others.json';
 import AlbumCard from "./AlbumCard";
 import privateAlbums from '../../data/privateAlbums.json';
@@ -7,7 +8,7 @@ import '../../styles/albums/AlbumDetail.css';
 
 // Sub-components
 import AlbumHeader from './AlbumHeader';
-import NewsSection from './NewsSection';
+// NewsSection removed
 import AlbumTracks from './AlbumTracks';
 
 const AlbumDetail = ({
@@ -38,6 +39,11 @@ const AlbumDetail = ({
     // "More by Artist"
     // IMPROVED: For playlists, artists array might be empty or generic. Try to get from first track.
     const currentArtistName = useMemo(() => {
+        // Force "Srikar" for local collections to show "More by Srikar"
+        if (localData && (localData.type === 'Private' || localData.type === 'Movie')) {
+            return "Srikar";
+        }
+
         if (fullItemData.artists && fullItemData.artists.length > 0 && fullItemData.artists[0].name !== "Spotify") {
             return fullItemData.artists[0].name;
         }
@@ -51,6 +57,29 @@ const AlbumDetail = ({
     const moreByArtist = useMemo(() => {
         if (!currentArtistName) return [];
         const allAlbums = { ...movieAlbums, ...privateAlbums };
+
+        // Special Case: "Srikar" -> Show 10 random albums matching Type & Language
+        if (currentArtistName.toLowerCase().includes("srikar")) {
+            const targetType = localData?.type;
+            const targetLang = localData?.language;
+
+            const filteredEntries = Object.entries(allAlbums).filter(([id, meta]) => {
+                if (id === fullItemData.id) return false;
+                // Filter by Type if exists
+                if (targetType && meta.type !== targetType) return false;
+                // Filter by Language if exists
+                if (targetLang && meta.language !== targetLang) return false;
+                return true;
+            });
+
+            // Shuffle
+            for (let i = filteredEntries.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [filteredEntries[i], filteredEntries[j]] = [filteredEntries[j], filteredEntries[i]];
+            }
+            return filteredEntries.slice(0, 10);
+        }
+
         return Object.entries(allAlbums)
             .filter(([id, meta]) => id !== fullItemData.id && meta.name === currentArtistName)
             .slice(0, 10);
@@ -85,6 +114,43 @@ const AlbumDetail = ({
     const closePlayer = useCallback(() => {
         setPlayingVideo(null);
     }, []);
+
+    // -- Fetch Images for "More by Artist" --
+    const [enrichedMoreByArtist, setEnrichedMoreByArtist] = useState([]);
+
+    useEffect(() => {
+        let mounted = true;
+        if (moreByArtist.length === 0) {
+            setEnrichedMoreByArtist([]);
+            return;
+        }
+
+        const fetchImages = async () => {
+            const promises = moreByArtist.map(async ([id, meta]) => {
+                // If we already have images images (unlikely for local), use them
+                if (meta.images) return [id, meta];
+
+                try {
+                    // Start with placeholder to avoid flicker if API is slow
+                    // But we want the real image
+                    const data = await getPlaylist(id);
+                    if (data && mounted) {
+                        return [id, { ...meta, images: data.images }];
+                    }
+                } catch (e) {
+                    console.warn("Failed to fetch image for", id, e);
+                }
+                return [id, meta];
+            });
+
+            const results = await Promise.all(promises);
+            if (mounted) setEnrichedMoreByArtist(results);
+        };
+
+        fetchImages();
+
+        return () => { mounted = false; };
+    }, [moreByArtist]);
 
     return (
         <div className="albums-view-container detail-mode">
@@ -126,29 +192,25 @@ const AlbumDetail = ({
                 hasOthers={albumOthers && albumOthers.length > 0}
             />
 
-            {viewMode === 'news' ? (
-                <NewsSection artistName={localData.name} />
-            ) : (
-                <AlbumTracks
-                    viewMode={viewMode}
-                    albumOthers={albumOthers}
-                    visibleTracks={visibleTracks}
-                    tracks={tracks}
-                    localData={localData}
-                    handleVideoClick={handleVideoClick}
-                    onPlay={onPlay}
-                    localSearchTerm={localSearchTerm}
-                    setLocalSearchTerm={setLocalSearchTerm}
-                    sortOrder={sortOrder}
-                    setSortOrder={setSortOrder}
-                />
-            )}
+            <AlbumTracks
+                viewMode={viewMode}
+                albumOthers={albumOthers}
+                visibleTracks={visibleTracks}
+                tracks={tracks}
+                localData={localData}
+                handleVideoClick={handleVideoClick}
+                onPlay={onPlay}
+                localSearchTerm={localSearchTerm}
+                setLocalSearchTerm={setLocalSearchTerm}
+                sortOrder={sortOrder}
+                setSortOrder={setSortOrder}
+            />
 
-            {moreByArtist.length > 0 && (
+            {enrichedMoreByArtist.length > 0 && (
                 <div className="more-by-artist-section">
                     <h2>More by {currentArtistName}</h2>
                     <div className="albums-grid">
-                        {moreByArtist.map(([id, meta]) => (
+                        {enrichedMoreByArtist.map(([id, meta]) => (
                             <AlbumCard
                                 key={id}
                                 meta={meta}

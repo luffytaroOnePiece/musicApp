@@ -71,16 +71,6 @@ const AlbumHeader = ({
                                 Others
                             </button>
                         )}
-
-                        <button
-                            className={`shuffle-btn-secondary ${viewMode === 'news' ? 'active' : ''}`}
-                            onClick={() => setViewMode(viewMode === 'news' ? 'original' : 'news')}
-                        >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H5v-2h9v2zm5-4H5v-2h14v2zm0-4H5V7h14v2z"></path>
-                            </svg>
-                            News
-                        </button>
                     </div>
                 </div>
             </div>

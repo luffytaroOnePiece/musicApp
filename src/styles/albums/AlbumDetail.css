@@ -441,3 +441,66 @@
 .news-modal-link:hover {
     text-decoration: underline;
 }
+
+/* Masonry Layout Overrides */
+.news-grid {
+    display: block !important; /* Override grid */
+    column-count: 5;
+    column-gap: 24px;
+}
+
+@media (max-width: 1400px) {
+    .news-grid {
+        column-count: 4;
+    }
+}
+
+@media (max-width: 1100px) {
+    .news-grid {
+        column-count: 3;
+    }
+}
+
+@media (max-width: 800px) {
+    .news-grid {
+        column-count: 2;
+    }
+}
+
+@media (max-width: 500px) {
+    .news-grid {
+        column-count: 1;
+    }
+}
+
+.news-card {
+    break-inside: avoid;
+    margin-bottom: 24px;
+    display: inline-block; /* Fixes stacking context issues in columns */
+    width: 100%;
+}
+
+/* Enhancements for loading state */
+.news-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    margin-bottom: 20px;
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+}
+
+.news-progress-value {
+    height: 100%;
+    background: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.news-status-text {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-bottom: 20px;
+    opacity: 0.7;
+}
