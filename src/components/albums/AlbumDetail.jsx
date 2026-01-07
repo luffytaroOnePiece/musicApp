@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { getPlaylist } from '../../services/spotifyApi';
+import { searchMulti, getDetails, getImages, getImageUrl } from '../../services/tmdbApi';
 import othersData from '../../data/others.json';
 import AlbumCard from "./AlbumCard";
 import privateAlbums from '../../data/privateAlbums.json';
@@ -22,10 +23,27 @@ const AlbumDetail = ({
     onAlbumClick,
     formatTime
 }) => {
-    const [viewMode, setViewMode] = useState("original"); // 'original' | 'live' | 'others' | 'news'
+    const [viewMode, setViewMode] = useState("original"); // 'original' | 'live' | 'others' | 'info' | 'news'
     const [localSearchTerm, setLocalSearchTerm] = useState("");
     const [sortOrder, setSortOrder] = useState("Original");
     const [playingVideo, setPlayingVideo] = useState(null);
+
+
+    // TMDB State
+    const [tmdbInfo, setTmdbInfo] = useState(null);
+    const [tmdbImages, setTmdbImages] = useState([]);
+    const [loadingTmdb, setLoadingTmdb] = useState(false);
+
+    // Lightbox State
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    const openLightbox = (imgUrl) => {
+        setSelectedImage(imgUrl);
+    };
+
+    const closeLightbox = () => {
+        setSelectedImage(null);
+    };
 
     // Basic Metadata
     const tracks = fullItemData.tracks.items;
@@ -35,6 +53,62 @@ const AlbumDetail = ({
     const totalDurationMs = tracks.reduce((acc, curr) => acc + (curr.track?.duration_ms || 0), 0);
     const formattedTotalDuration = formatTime(totalDurationMs);
     const releaseYear = fullItemData.release_date?.split('-')[0];
+
+    // -- Fetch TMDB Data --
+    useEffect(() => {
+        const fetchTmdbData = async () => {
+            if (!fullItemData.name) return;
+
+            setLoadingTmdb(true);
+            try {
+                // Priority 1: Check if tmdbID exists in localData
+                if (localData?.tmdbID) {
+                    // Assume 'movie' as default for now, or check localData.type
+                    // Since the user said "Movie Albums", prioritizing movie.
+                    const type = 'movie';
+                    const details = await getDetails(localData.tmdbID, type);
+                    const images = await getImages(localData.tmdbID, type);
+
+                    setTmdbInfo(details);
+                    if (images) {
+                        const allImages = [...(images.backdrops || []), ...(images.posters || [])];
+                        setTmdbImages(allImages);
+                    }
+                    return; // Exit if ID was found and used
+                }
+
+                // Priority 2: Search by Name
+                // Heuristic: remove "Soundtrack", "OST", "(Original Motion Picture Soundtrack)" etc. 
+                const query = fullItemData.name.replace(/\(.*\)/g, '').trim();
+
+                const searchRes = await searchMulti(query);
+
+                if (searchRes && searchRes.results && searchRes.results.length > 0) {
+                    // Prioritize Movie and TV
+                    const match = searchRes.results.find(r => r.media_type === 'movie' || r.media_type === 'tv');
+
+                    if (match) {
+                        const details = await getDetails(match.id, match.media_type);
+                        const images = await getImages(match.id, match.media_type);
+
+                        setTmdbInfo(details);
+                        if (images) {
+                            // Combine backdrops and posters
+                            const allImages = [...(images.backdrops || []), ...(images.posters || [])];
+                            setTmdbImages(allImages);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch TMDB data", err);
+            } finally {
+                setLoadingTmdb(false);
+            }
+        };
+
+        fetchTmdbData();
+    }, [fullItemData.name, localData]);
+
 
     // "More by Artist"
     // IMPROVED: For playlists, artists array might be empty or generic. Try to get from first track.
@@ -154,6 +228,21 @@ const AlbumDetail = ({
 
     return (
         <div className="albums-view-container detail-mode">
+            {/* Image Lightbox Modal */}
+            {selectedImage && (
+                <div className="lightbox-modal-overlay" onClick={closeLightbox}>
+                    <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+                        <button className="lightbox-close-btn" onClick={closeLightbox}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                        <img src={selectedImage} alt="Full view" className="lightbox-image" />
+                    </div>
+                </div>
+            )}
+
             {/* Embedded Player Modal */}
             {playingVideo && (
                 <div className="live-player-modal-overlay" onClick={closePlayer}>
@@ -192,21 +281,64 @@ const AlbumDetail = ({
                 hasOthers={albumOthers && albumOthers.length > 0}
             />
 
-            <AlbumTracks
-                viewMode={viewMode}
-                albumOthers={albumOthers}
-                visibleTracks={visibleTracks}
-                tracks={tracks}
-                localData={localData}
-                handleVideoClick={handleVideoClick}
-                onPlay={onPlay}
-                localSearchTerm={localSearchTerm}
-                setLocalSearchTerm={setLocalSearchTerm}
-                sortOrder={sortOrder}
-                setSortOrder={setSortOrder}
-            />
+            {viewMode === 'info' ? (
+                <div className="tmdb-info-section">
+                    {loadingTmdb ? (
+                        <div className="loading-spinner">Loading Info...</div>
+                    ) : tmdbInfo ? (
+                        <div className="tmdb-content">
+                            <div className="tmdb-overview">
+                                <h3>{tmdbInfo.title || tmdbInfo.name}</h3>
+                                <p className="tmdb-tagline">{tmdbInfo.tagline}</p>
+                                <p className="tmdb-plot">{tmdbInfo.overview}</p>
+                                <div className="tmdb-meta">
+                                    {tmdbInfo.release_date && <span>Release: {tmdbInfo.release_date}</span>}
+                                    {tmdbInfo.first_air_date && <span>First Air: {tmdbInfo.first_air_date}</span>}
+                                    {tmdbInfo.vote_average && <span>Rating: {tmdbInfo.vote_average.toFixed(1)}/10</span>}
+                                </div>
+                            </div>
 
-            {enrichedMoreByArtist.length > 0 && (
+                            {tmdbImages.length > 0 && (
+                                <div className="tmdb-images-gallery">
+                                    <h4>Images</h4>
+                                    <div className="tmdb-images-scroll">
+                                        {tmdbImages.map((img, idx) => (
+                                            <img
+                                                key={idx}
+                                                src={getImageUrl(img.file_path, 'original')}
+                                                alt="Scene"
+                                                className="tmdb-gallery-img"
+                                                loading="lazy"
+                                                onClick={() => openLightbox(getImageUrl(img.file_path, 'original'))}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="no-info-found">
+                            <p>No information found for "{fullItemData.name}"</p>
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <AlbumTracks
+                    viewMode={viewMode}
+                    albumOthers={albumOthers}
+                    visibleTracks={visibleTracks}
+                    tracks={tracks}
+                    localData={localData}
+                    handleVideoClick={handleVideoClick}
+                    onPlay={onPlay}
+                    localSearchTerm={localSearchTerm}
+                    setLocalSearchTerm={setLocalSearchTerm}
+                    sortOrder={sortOrder}
+                    setSortOrder={setSortOrder}
+                />
+            )}
+
+            {enrichedMoreByArtist.length > 0 && viewMode !== 'info' && (
                 <div className="more-by-artist-section">
                     <h2>More by {currentArtistName}</h2>
                     <div className="albums-grid">

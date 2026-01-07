@@ -216,7 +216,9 @@
     font-weight: 700;
     margin-bottom: 24px;
     color: var(--text-primary);
-}.youtube-view-container {
+}
+
+.youtube-view-container {
     padding: 80px 40px 120px 40px;
     box-sizing: border-box;
     background: transparent;
@@ -332,6 +334,7 @@
         opacity: 1;
     }
 }
+
 /* News Grid */
 .news-container {
     padding-bottom: 40px;
@@ -444,7 +447,8 @@
 
 /* Masonry Layout Overrides */
 .news-grid {
-    display: block !important; /* Override grid */
+    display: block !important;
+    /* Override grid */
     column-count: 5;
     column-gap: 24px;
 }
@@ -476,7 +480,8 @@
 .news-card {
     break-inside: avoid;
     margin-bottom: 24px;
-    display: inline-block; /* Fixes stacking context issues in columns */
+    display: inline-block;
+    /* Fixes stacking context issues in columns */
     width: 100%;
 }
 
@@ -484,7 +489,7 @@
 .news-progress-bar {
     width: 100%;
     height: 4px;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     margin-bottom: 20px;
     border-radius: 2px;
     overflow: hidden;
@@ -503,4 +508,149 @@
     font-size: 13px;
     margin-bottom: 20px;
     opacity: 0.7;
+}
+
+/* TMDB Info Section */
+.tmdb-info-section {
+    padding: 0 0 40px 0;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.tmdb-content {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.tmdb-overview h3 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.tmdb-tagline {
+    font-size: 18px;
+    font-style: italic;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    opacity: 0.8;
+}
+
+.tmdb-plot {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    max-width: 800px;
+    margin-bottom: 24px;
+}
+
+.tmdb-meta {
+    display: flex;
+    gap: 20px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.tmdb-meta span {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 6px 12px;
+    border-radius: 16px;
+}
+
+.tmdb-images-gallery h4 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.tmdb-images-scroll {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding-bottom: 16px;
+}
+
+.tmdb-gallery-img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.tmdb-gallery-img:hover {
+    transform: scale(1.01);
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-secondary);
+    font-size: 16px;
+}
+
+.no-info-found {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-secondary);
+    font-size: 16px;
+    font-style: italic;
+}
+
+/* Lightbox Styles */
+.lightbox-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.95);
+    z-index: 2200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.lightbox-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.lightbox-image {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-close-btn {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 2300;
+}
+
+.lightbox-close-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
 }
