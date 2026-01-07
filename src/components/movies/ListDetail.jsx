@@ -21,7 +21,7 @@ const ListDetail = ({
         return saved ? JSON.parse(saved) : {};
     });
 
-    const filters = ['All', 'Movie', 'TV'];
+    const filters = ['All', 'Not Watched', 'Movie', 'TV'];
     const sortOptions = ['Original Order', 'Top Rated', 'Release Date', 'Title (A-Z)'];
 
     // Helper formats
@@ -54,7 +54,9 @@ const ListDetail = ({
         let processed = [...items];
 
         // 1. Filter
-        if (activeFilter !== 'All') {
+        if (activeFilter === 'Not Watched') {
+            processed = processed.filter(item => !watchedItems[item.id]);
+        } else if (activeFilter !== 'All') {
             const lowerFilter = activeFilter.toLowerCase();
             processed = processed.filter(item => item.media_type === lowerFilter);
         }
@@ -70,7 +72,7 @@ const ListDetail = ({
         // 'Original Order' = no sort
 
         setFilteredItems(processed);
-    }, [items, activeFilter, sortOrder]);
+    }, [items, activeFilter, sortOrder, watchedItems]);
 
 
     return (
@@ -141,7 +143,6 @@ const ListDetail = ({
                                     key={item.id}
                                     className={`movie-card glass-card ${isWatched ? 'watched' : ''}`}
                                     onClick={() => onMovieSelect(item)}
-                                    style={isWatched ? { opacity: 0.6, filter: 'grayscale(0.5)' } : {}}
                                 >
                                     <div className="movie-poster-wrapper">
                                         {item.poster_path ? (
