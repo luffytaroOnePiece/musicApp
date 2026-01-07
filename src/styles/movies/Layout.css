@@ -2,34 +2,25 @@
 
 /* --- Fonts & Base --- */
 .movies-view-container {
-    padding: 0;
-    height: 100%;
-    overflow: hidden;
-    /* Scroll handled by inner containers */
-    background: #000;
-    /* Deep black foundation */
+    /* Match AlbumsView padding roughly */
+    padding: 120px 32px 120px 32px;
+    /* Remove height/overflow constraints to allow parent scrolling */
+    height: auto;
+    min-height: 100%;
+    background: transparent;
     color: #f5f5f7;
-    /* Apple off-white text */
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     position: relative;
+    box-sizing: border-box;
+    /* Ensure z-index doesn't hide it but allows top bar over it */
+    z-index: 1;
 }
 
 /* --- Scroll Areas --- */
 .content-scroll-area {
-    /* 
-       FIX: Increased top padding to 150px.
-       - 64px for Global TopBar
-       - ~80px for Local MoviesHeader 
-    */
-    padding: 150px 32px 40px 32px;
-    height: 100%;
-    overflow-y: auto;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-}
-
-.content-scroll-area::-webkit-scrollbar {
-    width: 0px;
-    background: transparent;
+    /* No longer a scroll container, just a flow wrapper */
+    padding: 0;
+    height: auto;
+    overflow: visible;
 }
