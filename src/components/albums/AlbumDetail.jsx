@@ -61,7 +61,26 @@ const AlbumDetail = ({
 
             setLoadingTmdb(true);
             try {
-                // Priority 1: Check if tmdbID exists in localData
+                // Priority 1: Check if personID exists in localData (Private/Artist Albums)
+                if (localData?.personID) {
+                    // personID format example: "77948-selena-gomez" -> extract "77948"
+                    const personIdRaw = localData.personID.split('-')[0];
+                    if (personIdRaw) {
+                        const type = 'person';
+                        const details = await getDetails(personIdRaw, type);
+                        const images = await getImages(personIdRaw, type);
+
+                        setTmdbInfo(details);
+                        if (images) {
+                            // Person images usually have 'profiles'
+                            const allImages = images.profiles || [];
+                            setTmdbImages(allImages);
+                        }
+                        return;
+                    }
+                }
+
+                // Priority 2: Check if tmdbID exists in localData (Movie Albums)
                 if (localData?.tmdbID) {
                     // Assume 'movie' as default for now, or check localData.type
                     // Since the user said "Movie Albums", prioritizing movie.
@@ -289,13 +308,43 @@ const AlbumDetail = ({
                         <div className="tmdb-content">
                             <div className="tmdb-overview">
                                 <h3>{tmdbInfo.title || tmdbInfo.name}</h3>
-                                <p className="tmdb-tagline">{tmdbInfo.tagline}</p>
-                                <p className="tmdb-plot">{tmdbInfo.overview}</p>
-                                <div className="tmdb-meta">
-                                    {tmdbInfo.release_date && <span>Release: {tmdbInfo.release_date}</span>}
-                                    {tmdbInfo.first_air_date && <span>First Air: {tmdbInfo.first_air_date}</span>}
-                                    {tmdbInfo.vote_average && <span>Rating: {tmdbInfo.vote_average.toFixed(1)}/10</span>}
-                                </div>
+                                {tmdbInfo.biography ? (
+                                    /* Person Details */
+                                    <>
+                                        <p className="tmdb-plot">{tmdbInfo.biography}</p>
+
+                                        <div className="tmdb-person-details">
+                                            {tmdbInfo.birthday && (
+                                                <div className="person-detail-item">
+                                                    <h5>Birthday</h5>
+                                                    <p>
+                                                        {new Date(tmdbInfo.birthday).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                                                        {' '}
+                                                        ({new Date().getFullYear() - new Date(tmdbInfo.birthday).getFullYear() - (new Date() < new Date(new Date().getFullYear(), new Date(tmdbInfo.birthday).getMonth(), new Date(tmdbInfo.birthday).getDate()) ? 1 : 0)} years old)
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {tmdbInfo.place_of_birth && (
+                                                <div className="person-detail-item">
+                                                    <h5>Place of Birth</h5>
+                                                    <p>{tmdbInfo.place_of_birth}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </>
+                                ) : (
+                                    /* Movie/TV Details */
+                                    <>
+                                        <p className="tmdb-tagline">{tmdbInfo.tagline}</p>
+                                        <p className="tmdb-plot">{tmdbInfo.overview}</p>
+                                        <div className="tmdb-meta">
+                                            {tmdbInfo.release_date && <span>Release: {tmdbInfo.release_date}</span>}
+                                            {tmdbInfo.first_air_date && <span>First Air: {tmdbInfo.first_air_date}</span>}
+                                            {tmdbInfo.vote_average && <span>Rating: {tmdbInfo.vote_average.toFixed(1)}/10</span>}
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             {tmdbImages.length > 0 && (

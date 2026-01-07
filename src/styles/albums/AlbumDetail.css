@@ -67,6 +67,7 @@
     opacity: 0.8;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -541,8 +542,9 @@
     font-size: 16px;
     line-height: 1.6;
     color: var(--text-secondary);
-    max-width: 800px;
+    width: 100%;
     margin-bottom: 24px;
+    text-align: justify;
 }
 
 .tmdb-meta {
@@ -650,7 +652,24 @@
     z-index: 2300;
 }
 
-.lightbox-close-btn:hover {
-    background: rgba(255, 255, 255, 0.4);
-    transform: scale(1.1);
+/* Person Details Styles */
+.tmdb-person-details {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 40px;
+    margin-top: 10px;
+}
+
+.person-detail-item h5 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+}
+
+.person-detail-item p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin: 0;
 }
