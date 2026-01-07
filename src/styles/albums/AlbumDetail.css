@@ -574,6 +574,10 @@
     padding-bottom: 16px;
 }
 
+.tmdb-images-scroll.person-gallery {
+    grid-template-columns: repeat(4, 1fr);
+}
+
 .tmdb-gallery-img {
     width: 100%;
     height: auto;

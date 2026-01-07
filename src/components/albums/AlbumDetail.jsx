@@ -350,7 +350,7 @@ const AlbumDetail = ({
                             {tmdbImages.length > 0 && (
                                 <div className="tmdb-images-gallery">
                                     <h4>Images</h4>
-                                    <div className="tmdb-images-scroll">
+                                    <div className={`tmdb-images-scroll ${localData?.type === 'Private' ? 'person-gallery' : ''}`}>
                                         {tmdbImages.map((img, idx) => (
                                             <img
                                                 key={idx}
