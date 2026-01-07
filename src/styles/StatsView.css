@@ -495,6 +495,7 @@
         grid-template-columns: repeat(4, 1fr);
     }
 }
+
 /* Interactive Summary Cards */
 .summary-card.clickable {
     cursor: pointer;
@@ -562,6 +563,7 @@
         opacity: 0;
         transform: translateY(40px) scale(0.95);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -682,4 +684,94 @@
     color: var(--apple-text-secondary);
     font-variant-numeric: tabular-nums;
     margin-left: 12px;
+}
+
+/* Songs Stat Card */
+.songs-stat-card {
+    grid-column: span 2;
+    grid-row: span 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.songs-stat-content {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 20px;
+}
+
+.song-stat-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.song-main-value {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+    background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.song-main-label {
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--apple-text-secondary);
+    letter-spacing: 1px;
+}
+
+.song-stat-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    padding-left: 30px;
+}
+
+.song-detail-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    justify-content: space-between;
+    min-width: 120px;
+}
+
+.song-detail-label {
+    font-size: 0.9rem;
+    color: var(--apple-text-secondary);
+    font-weight: 500;
+}
+
+.song-detail-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 768px) {
+    .songs-stat-card {
+        grid-column: span 1;
+        padding: 24px;
+    }
+
+    .songs-stat-content {
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .song-stat-details {
+        border-left: none;
+        padding-left: 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 20px;
+        width: 100%;
+    }
 }

@@ -55,7 +55,10 @@ const StatsView = ({ handlePlay, formatTime }) => {
         totalArtists: 0,
         totalMovies: 0,
         highlightArtist: null,
-        featuredTracks: []
+        featuredTracks: [],
+        privateSongsCount: 0,
+        movieSongsCount: 0,
+        totalSongsCount: 0
     });
     const [loading, setLoading] = useState(true);
     const [activeModal, setActiveModal] = useState(null);
@@ -68,6 +71,24 @@ const StatsView = ({ handlePlay, formatTime }) => {
                 const fetchedArtists = [];
                 const fetchedMovies = [];
                 const genreCounts = {};
+
+                // Calculate Song Counts
+                let privateSongsCount = 0;
+                let movieSongsCount = 0;
+
+                Object.values(privateAlbums).forEach(album => {
+                    if (album.youtubeIDs) {
+                        privateSongsCount += album.youtubeIDs.length;
+                    }
+                });
+
+                Object.values(movieAlbums).forEach(album => {
+                    if (album.youtubeIDs) {
+                        movieSongsCount += album.youtubeIDs.length;
+                    }
+                });
+
+                const totalSongsCount = privateSongsCount + movieSongsCount;
 
                 // 1. Process merged albums data (Parallel Fetching)
                 const entries = Object.entries(albumsData);
@@ -154,7 +175,10 @@ const StatsView = ({ handlePlay, formatTime }) => {
                     totalArtists: fetchedArtists.length,
                     totalMovies: fetchedMovies.length,
                     highlightArtist,
-                    featuredTracks
+                    featuredTracks,
+                    privateSongsCount,
+                    movieSongsCount,
+                    totalSongsCount
                 });
 
             } catch (err) {
@@ -243,6 +267,27 @@ const StatsView = ({ handlePlay, formatTime }) => {
                     <div className="summary-stat">
                         <span className="stat-value">{stats.totalMovies}</span>
                         <span className="stat-label">Movies / Albums</span>
+                    </div>
+                </div>
+
+                {/* New Songs Stats Card */}
+                <div className="bento-card songs-stat-card">
+                    <h3>Library Songs</h3>
+                    <div className="songs-stat-content">
+                        <div className="song-stat-main">
+                            <span className="song-main-value">{stats.totalSongsCount}</span>
+                            <span className="song-main-label">Total Songs</span>
+                        </div>
+                        <div className="song-stat-details">
+                            <div className="song-detail-row">
+                                <span className="song-detail-label">Private</span>
+                                <span className="song-detail-value">{stats.privateSongsCount}</span>
+                            </div>
+                            <div className="song-detail-row">
+                                <span className="song-detail-label">Movie</span>
+                                <span className="song-detail-value">{stats.movieSongsCount}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
