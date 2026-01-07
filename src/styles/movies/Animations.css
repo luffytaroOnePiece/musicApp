@@ -1,0 +1,70 @@
+/* src/styles/movies/Animations.css */
+
+/* --- ANIMATIONS --- */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-slide-up {
+    animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.delay-1 {
+    animation-delay: 0.1s;
+}
+
+.delay-2 {
+    animation-delay: 0.2s;
+}
+
+/* Stagger Children Utility */
+.animate-stagger-children>div {
+    opacity: 0;
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-stagger-children>div:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.animate-stagger-children>div:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.animate-stagger-children>div:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.animate-stagger-children>div:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.animate-stagger-children>div:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.animate-stagger-children>div:nth-child(6) {
+    animation-delay: 0.3s;
+}

@@ -1,0 +1,178 @@
+/* src/styles/movies/Detail.css */
+
+/* --- MOVIE DETAIL VIEW --- */
+.movie-detail-view {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 200;
+    overflow-y: auto;
+    background: #000;
+}
+
+/* Background Layer */
+.movie-backdrop-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70vh;
+    background-size: cover;
+    background-position: center top;
+    z-index: -1;
+    mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
+    opacity: 0.5;
+}
+
+.movie-detail-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px;
+}
+
+.movie-hero {
+    display: flex;
+    gap: 48px;
+    margin-top: 20px;
+    align-items: flex-start;
+}
+
+.detail-poster {
+    width: 300px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.detail-info {
+    flex: 1;
+    padding-top: 20px;
+}
+
+.detail-title {
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 16px;
+    background: linear-gradient(to bottom right, #fff, #a1a1aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.detail-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    color: #a1a1aa;
+    margin-bottom: 32px;
+}
+
+.detail-stats-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.stat-pill.glass-pill {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.pill-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #86868b;
+    margin-bottom: 2px;
+}
+
+.pill-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.detail-overview {
+    font-size: 17px;
+    line-height: 1.6;
+    color: #d1d1d6;
+    margin-bottom: 48px;
+    max-width: 800px;
+}
+
+/* Cast Section */
+.cast-scroll-container {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 20px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.cast-scroll-container::-webkit-scrollbar {
+    display: none;
+}
+
+.cast-card-minimal {
+    text-align: center;
+    min-width: 100px;
+}
+
+.cast-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.cast-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.cast-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.cast-role {
+    font-size: 11px;
+    color: #86868b;
+    margin-top: 2px;
+}
+
+/* Gallery Masonry */
+.detail-gallery-section h3,
+.detail-section h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 24px;
+}
+
+.gallery-masonry {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.gallery-item img {
+    width: 100%;
+    border-radius: 12px;
+    transition: transform 0.4s;
+    cursor: zoom-in;
+}
+
+.gallery-item img:hover {
+    transform: scale(1.02);
+}

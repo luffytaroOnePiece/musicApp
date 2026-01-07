@@ -15,6 +15,7 @@ const TopBar = ({
     onShowYoutube,
     onShowAlbums,
     onShowLive,
+    onShowMovies,
     onShowZenMode,
 }) => {
     const [themeMenuOpen, setThemeMenuOpen] = useState(false);
@@ -147,6 +148,25 @@ const TopBar = ({
                         <circle cx="12" cy="12" r="4"></circle>
                     </svg>
                     Live
+                </button>
+                <button
+                    onClick={onShowMovies}
+                    className="movies-btn-top topbar-nav-btn"
+                    title="Movies"
+                >
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline>
+                    </svg>
+                    Movies
                 </button>
 
                 <button

@@ -28,6 +28,7 @@ import PlayerBar from "./PlayerBar";
 import StatsView from "./StatsView";
 import ArtistsView from "./ArtistsView";
 import ExploreView from "./ExploreView";
+import MoviesView from "./MoviesView";
 
 import LiveView from "./LiveView";
 
@@ -69,6 +70,7 @@ const Dashboard = () => {
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isExploreOpen, setIsExploreOpen] = useState(false);
+  const [showMovies, setShowMovies] = useState(false);
   const [albumsResetToken, setAlbumsResetToken] = useState(0);
 
   const themes = [
@@ -408,7 +410,9 @@ const Dashboard = () => {
     setShowArtists(false);
     setIsStatsOpen(false);
     setIsProfileOpen(false);
+    setIsProfileOpen(false);
     setIsExploreOpen(false);
+    setShowMovies(false);
   };
 
   const handleShowYoutube = () => {
@@ -422,6 +426,7 @@ const Dashboard = () => {
     setIsStatsOpen(false);
     setIsProfileOpen(false);
     setIsExploreOpen(false);
+    setShowMovies(false);
   };
 
   const handleShowAlbums = () => {
@@ -439,7 +444,9 @@ const Dashboard = () => {
     setShowArtists(false);
     setIsStatsOpen(false);
     setIsProfileOpen(false);
+    setIsProfileOpen(false);
     setIsExploreOpen(false);
+    setShowMovies(false);
   };
 
   const handleShowLive = () => {
@@ -453,6 +460,7 @@ const Dashboard = () => {
     setIsStatsOpen(false);
     setIsProfileOpen(false);
     setIsExploreOpen(false);
+    setShowMovies(false);
   };
 
   const handleShowArtists = () => {
@@ -465,7 +473,9 @@ const Dashboard = () => {
     setShowArtists(true);
     setIsStatsOpen(false);
     setIsProfileOpen(false);
+    setIsProfileOpen(false);
     setIsExploreOpen(false);
+    setShowMovies(false);
   };
 
   const handleShowZenMode = () => {
@@ -482,7 +492,9 @@ const Dashboard = () => {
     setShowArtists(false);
     setIsStatsOpen(true);
     setIsProfileOpen(false);
+    setIsProfileOpen(false);
     setIsExploreOpen(false);
+    setShowMovies(false);
   };
 
   const handleShowProfile = () => {
@@ -496,6 +508,7 @@ const Dashboard = () => {
     setIsStatsOpen(false);
     setIsProfileOpen(true);
     setIsExploreOpen(false);
+    setShowMovies(false);
   };
 
   const handleShowExplore = () => {
@@ -509,6 +522,21 @@ const Dashboard = () => {
     setIsStatsOpen(false);
     setIsProfileOpen(false);
     setIsExploreOpen(true);
+    setShowMovies(false);
+  };
+
+  const handleShowMovies = () => {
+    setSelectedPlaylist(null);
+    setSearchResults(null);
+    setIsSearching(false);
+    setShowYoutube(false);
+    setShowAlbums(false);
+    setShowLive(false);
+    setShowArtists(false);
+    setIsStatsOpen(false);
+    setIsProfileOpen(false);
+    setIsExploreOpen(false);
+    setShowMovies(true);
   };
 
   const getActiveModule = () => {
@@ -519,6 +547,7 @@ const Dashboard = () => {
     if (showArtists) return "artists";
     if (isStatsOpen) return "stats";
     if (isProfileOpen) return "profile";
+    if (showMovies) return "movies";
     if (isExploreOpen) return "explore";
     return "home";
   };
@@ -526,6 +555,9 @@ const Dashboard = () => {
   const handleModuleSelect = (moduleId) => {
     if (moduleId === "home") {
       goHome();
+      setIsZenModeOpen(false);
+    } else if (moduleId === "movies") {
+      handleShowMovies();
       setIsZenModeOpen(false);
     } else if (moduleId === "youtube") {
       handleShowYoutube();
@@ -613,6 +645,7 @@ const Dashboard = () => {
           onShowYoutube={handleShowYoutube}
           onShowAlbums={handleShowAlbums}
           onShowLive={handleShowLive}
+          onShowMovies={handleShowMovies}
           onShowZenMode={handleShowZenMode}
         />
 
@@ -636,6 +669,8 @@ const Dashboard = () => {
           />
         ) : isStatsOpen ? (
           <StatsView handlePlay={handlePlay} formatTime={formatTime} />
+        ) : showMovies ? (
+          <MoviesView />
         ) : isExploreOpen ? (
           selectedPlaylist && selectedPlaylist.source === "explore" ? (
             <div className="explore-details-wrapper">

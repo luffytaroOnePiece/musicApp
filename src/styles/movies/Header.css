@@ -1,0 +1,101 @@
+/* src/styles/movies/Header.css */
+
+/* --- Headers (Sticky & Glass) --- */
+.movies-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 32px;
+    /* Slightly reduced padding for tighter fit */
+    position: absolute;
+    /* 
+       FIX: Moved top down to 64px to sit BELOW the global TopBar.
+       Assuming global TopBar is approx 60-64px height.
+    */
+    top: 64px;
+    left: 0;
+    width: 100%;
+    z-index: 90;
+    /* Below Global TopBar (usually 100+), above content */
+
+    /* Glass Effect */
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.header-title-large {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.header-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.header-subtitle {
+    font-size: 13px;
+    color: #86868b;
+    margin-top: 2px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* --- Buttons --- */
+.glass-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.glass-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.02);
+}
+
+.glass-btn.active {
+    background: #fff;
+    color: #000;
+}
+
+.back-btn.icon-only {
+    padding: 8px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.back-btn.icon-only:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.movies-filters {
+    display: flex;
+    gap: 12px;
+}

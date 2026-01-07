@@ -1,0 +1,58 @@
+/* src/styles/movies/Stats.css */
+
+/* --- List Stats Bar (Glass Panel) --- */
+.list-stats-bar {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(28, 28, 30, 0.6);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+
+.stat-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 10%;
+    height: 80%;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    margin-top: 4px;
+    letter-spacing: -0.02em;
+}
+
+.stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #86868b;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+/* Colors for specific stats */
+.rating-text {
+    color: #ffd60a;
+}
+
+.revenue-text {
+    color: #30d158;
+}

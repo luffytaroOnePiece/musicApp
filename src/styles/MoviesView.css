@@ -1,0 +1,9 @@
+/* MoviesView.css - Main Entry */
+
+@import './movies/Layout.css';
+@import './movies/Header.css';
+@import './movies/Stats.css';
+@import './movies/Cards.css';
+@import './movies/Detail.css';
+@import './movies/Animations.css';
+@import './movies/Queries.css';

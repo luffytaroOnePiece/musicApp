@@ -1,0 +1,41 @@
+/* src/styles/movies/Queries.css */
+
+/* --- Mobile Adjustments --- */
+@media (max-width: 768px) {
+    .movie-hero {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .detail-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .detail-title {
+        font-size: 32px;
+    }
+
+    .list-stats-bar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .stat-item:not(:last-child)::after {
+        display: none;
+    }
+
+    .content-scroll-area {
+        /* Mobile adjustment if needed, usually less padding */
+        padding-top: 140px;
+    }
+
+    .movies-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+}

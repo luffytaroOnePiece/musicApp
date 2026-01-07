@@ -58,3 +58,22 @@ export const getImageUrl = (path, size = 'original') => {
     if (!path) return null;
     return `https://image.tmdb.org/t/p/${size}${path}`;
 };
+
+export const getAccountDetails = async () => {
+    return fetchTmdb('/account');
+};
+
+export const getAccountLists = async (accountId, page = 1) => {
+    if (!accountId) return null;
+    return fetchTmdb(`/account/${accountId}/lists`, { page });
+};
+
+export const getListDetails = async (listId, page = 1) => {
+    if (!listId) return null;
+    return fetchTmdb(`/list/${listId}`, { page });
+};
+
+export const getCredits = async (id, type) => {
+    if (!id || !type) return null;
+    return fetchTmdb(`/${type}/${id}/credits`);
+};
