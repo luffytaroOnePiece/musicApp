@@ -63,19 +63,38 @@ const AlbumDetail = ({
             try {
                 // Priority 1: Check if personID exists in localData (Private/Artist Albums)
                 if (localData?.personID) {
-                    // personID format example: "77948-selena-gomez" -> extract "77948"
                     const personIdRaw = localData.personID.split('-')[0];
                     if (personIdRaw) {
                         const type = 'person';
                         const details = await getDetails(personIdRaw, type);
-                        const images = await getImages(personIdRaw, type);
+                        const tmdbImgs = await getImages(personIdRaw, type);
+
+                        let finalImages = tmdbImgs?.profiles || [];
+
+                        // FETCH EXTERNAL IMAGES
+                        try {
+                            const extResp = await fetch("https://gist.githubusercontent.com/luffytaroOnePiece/88364f756d48eeb36a21e6542dc32c61/raw/info.json");
+                            if (extResp.ok) {
+                                const extData = await extResp.json();
+                                if (extData[personIdRaw]) {
+                                    // Map external images to a compatible structure or just use them
+                                    // We will handle rendering check: if has 'file_path' -> TMDB, if 'url' -> External
+                                    const externalImages = extData[personIdRaw];
+                                    finalImages = [...finalImages, ...externalImages];
+                                }
+                            }
+                        } catch (extErr) {
+                            console.error("Failed to fetch external images", extErr);
+                        }
+
+                        // Shuffle images for Private albums
+                        for (let i = finalImages.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            [finalImages[i], finalImages[j]] = [finalImages[j], finalImages[i]];
+                        }
 
                         setTmdbInfo(details);
-                        if (images) {
-                            // Person images usually have 'profiles'
-                            const allImages = images.profiles || [];
-                            setTmdbImages(allImages);
-                        }
+                        setTmdbImages(finalImages);
                         return;
                     }
                 }
@@ -351,16 +370,19 @@ const AlbumDetail = ({
                                 <div className="tmdb-images-gallery">
                                     <h4>Images</h4>
                                     <div className={`tmdb-images-scroll ${localData?.type === 'Private' ? 'person-gallery' : ''}`}>
-                                        {tmdbImages.map((img, idx) => (
-                                            <img
-                                                key={idx}
-                                                src={getImageUrl(img.file_path, 'original')}
-                                                alt="Scene"
-                                                className="tmdb-gallery-img"
-                                                loading="lazy"
-                                                onClick={() => openLightbox(getImageUrl(img.file_path, 'original'))}
-                                            />
-                                        ))}
+                                        {tmdbImages.map((img, idx) => {
+                                            const imgSrc = img.url || getImageUrl(img.file_path, 'original');
+                                            return (
+                                                <img
+                                                    key={idx}
+                                                    src={imgSrc}
+                                                    alt="Scene"
+                                                    className="tmdb-gallery-img"
+                                                    loading="lazy"
+                                                    onClick={() => openLightbox(imgSrc)}
+                                                />
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
