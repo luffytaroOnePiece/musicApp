@@ -197,7 +197,7 @@
     height: 100vh;
     background: rgba(0, 0, 0, 0.9);
     backdrop-filter: blur(20px);
-    z-index: 1000;
+    z-index: 2000;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -345,4 +345,48 @@
         opacity: 1;
         transform: scale(1);
     }
+}
+
+/* Actor Gallery Styles */
+.actor-modal-gallery-section {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.actor-modal-gallery-section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #fff;
+}
+
+.actor-images-scroll {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.actor-images-scroll::-webkit-scrollbar {
+    height: 4px;
+}
+
+.actor-images-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.actor-gallery-image {
+    width: 100px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+    cursor: zoom-in;
+    transition: transform 0.2s;
+}
+
+.actor-gallery-image:hover {
+    transform: scale(1.05);
 }

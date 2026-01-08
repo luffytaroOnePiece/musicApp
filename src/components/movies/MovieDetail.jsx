@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { getImageUrl, getDetails } from '../../services/tmdbApi';
+import { getImageUrl, getDetails, getImages } from '../../services/tmdbApi';
 
 const MovieDetail = ({
     movie,
@@ -14,6 +14,7 @@ const MovieDetail = ({
     const [selectedImage, setSelectedImage] = useState(null);
     const [selectedActor, setSelectedActor] = useState(null);
     const [actorDetails, setActorDetails] = useState(null);
+    const [actorImages, setActorImages] = useState([]);
     const [loadingActor, setLoadingActor] = useState(false);
 
     // Handlers
@@ -24,9 +25,14 @@ const MovieDetail = ({
         setSelectedActor(actor);
         setLoadingActor(true);
         setActorDetails(null); // Reset previous details
+        setActorImages([]); // Reset previous images
         try {
-            const data = await getDetails(actor.id, 'person');
-            setActorDetails(data);
+            const [detailsData, imagesData] = await Promise.all([
+                getDetails(actor.id, 'person'),
+                getImages(actor.id, 'person')
+            ]);
+            setActorDetails(detailsData);
+            setActorImages(imagesData?.profiles || []);
         } catch (error) {
             console.error("Failed to fetch person details:", error);
         } finally {
@@ -37,6 +43,7 @@ const MovieDetail = ({
     const closeActorModal = () => {
         setSelectedActor(null);
         setActorDetails(null);
+        setActorImages([]);
     };
     // Helper formats
     const formatMoney = (amount) => {
@@ -72,17 +79,18 @@ const MovieDetail = ({
     return (
         <div className="movies-view-container movie-detail-view animate-fade-in">
             {/* Lightbox Modal */}
-            {selectedImage && (
+            {selectedImage && ReactDOM.createPortal(
                 <div className="lightbox-modal-overlay" onClick={closeLightbox}>
                     <div className="lightbox-content" onClick={e => e.stopPropagation()}>
                         <button className="lightbox-close-btn" onClick={closeLightbox}>×</button>
                         <img src={selectedImage} alt="Full View" className="lightbox-image" />
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {/* Actor Profile Modal */}
-            {selectedActor && (
+            {selectedActor && ReactDOM.createPortal(
                 <div className="actor-modal-overlay" onClick={closeActorModal}>
                     <div className="actor-modal-content glass-panel" onClick={e => e.stopPropagation()}>
                         <button className="actor-modal-close-btn" onClick={closeActorModal}>×</button>
@@ -109,13 +117,34 @@ const MovieDetail = ({
                             {loadingActor ? (
                                 <div className="loading-spinner">Loading Profile...</div>
                             ) : actorDetails ? (
-                                <p className="actor-biography">{actorDetails.biography || "No biography available."}</p>
+                                <>
+                                    <p className="actor-biography">{actorDetails.biography || "No biography available."}</p>
+
+                                    {/* Actor Images Gallery */}
+                                    {actorImages && actorImages.length > 0 && (
+                                        <div className="actor-modal-gallery-section">
+                                            <h3>Photos</h3>
+                                            <div className="actor-images-scroll">
+                                                {actorImages.map((img, idx) => (
+                                                    <img
+                                                        key={idx}
+                                                        src={getImageUrl(img.file_path, 'w185')}
+                                                        alt="Actor Profile"
+                                                        className="actor-gallery-image clickable"
+                                                        onClick={() => openLightbox(getImageUrl(img.file_path, 'original'))}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
                             ) : (
                                 <div className="loading-spinner">Loading...</div>
                             )}
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
             <div
                 className="movie-backdrop-layer"

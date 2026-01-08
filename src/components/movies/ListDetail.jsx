@@ -11,7 +11,7 @@ const ListDetail = ({
     onMovieSelect
 }) => {
     // State for local filtering/sorting
-    const [sortOrder, setSortOrder] = useState('Original Order'); // Matches options in Dropdown
+    const [sortOrder, setSortOrder] = useState('Release Date'); // Matches options in Dropdown
     const [activeFilter, setActiveFilter] = useState('All');
     const [filteredItems, setFilteredItems] = useState([]);
 
