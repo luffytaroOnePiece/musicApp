@@ -15,13 +15,7 @@ const ListDetail = ({
     const [activeFilter, setActiveFilter] = useState('All');
     const [filteredItems, setFilteredItems] = useState([]);
 
-    // Watched State
-    const [watchedItems, setWatchedItems] = useState(() => {
-        const saved = localStorage.getItem('watched_movies');
-        return saved ? JSON.parse(saved) : {};
-    });
-
-    const filters = ['All', 'Not Watched', 'Movie', 'TV'];
+    const filters = ['All', 'Movie', 'TV'];
     const sortOptions = ['Original Order', 'Top Rated', 'Release Date', 'Title (A-Z)'];
 
     // Helper formats
@@ -39,14 +33,7 @@ const ListDetail = ({
         return `${h}h ${m}m`;
     };
 
-    const toggleWatched = (e, id) => {
-        e.stopPropagation();
-        setWatchedItems(prev => {
-            const next = { ...prev, [id]: !prev[id] };
-            localStorage.setItem('watched_movies', JSON.stringify(next));
-            return next;
-        });
-    };
+
 
     useEffect(() => {
         if (!items) return;
@@ -54,9 +41,7 @@ const ListDetail = ({
         let processed = [...items];
 
         // 1. Filter
-        if (activeFilter === 'Not Watched') {
-            processed = processed.filter(item => !watchedItems[item.id]);
-        } else if (activeFilter !== 'All') {
+        if (activeFilter !== 'All') {
             const lowerFilter = activeFilter.toLowerCase();
             processed = processed.filter(item => item.media_type === lowerFilter);
         }
@@ -72,7 +57,7 @@ const ListDetail = ({
         // 'Original Order' = no sort
 
         setFilteredItems(processed);
-    }, [items, activeFilter, sortOrder, watchedItems]);
+    }, [items, activeFilter, sortOrder]);
 
 
     return (
@@ -136,67 +121,36 @@ const ListDetail = ({
                     <div className="movies-view-loading apple-loader">Loading...</div>
                 ) : (
                     <div className="movies-grid animate-stagger-children">
-                        {filteredItems.map(item => {
-                            const isWatched = watchedItems[item.id];
-                            return (
-                                <div
-                                    key={item.id}
-                                    className={`movie-card glass-card ${isWatched ? 'watched' : ''}`}
-                                    onClick={() => onMovieSelect(item)}
-                                >
-                                    <div className="movie-poster-wrapper">
-                                        {item.poster_path ? (
-                                            <img
-                                                src={getImageUrl(item.poster_path, 'w500')}
-                                                alt={item.title || item.name}
-                                                className="movie-poster"
-                                                loading="lazy"
-                                            />
-                                        ) : (
-                                            <div className="no-poster"><span>No Image</span></div>
-                                        )}
-                                        <div className="rating-badge glass-badge">
-                                            ★ {item.vote_average?.toFixed(1)}
-                                        </div>
-
-                                        {/* Watched Toggle Button */}
-                                        <button
-                                            className="watched-btn glass-btn icon-only"
-                                            onClick={(e) => toggleWatched(e, item.id)}
-                                            title={isWatched ? "Mark Unwatched" : "Mark Watched"}
-                                            style={{
-                                                position: 'absolute',
-                                                top: '10px',
-                                                left: '10px',
-                                                width: '32px',
-                                                height: '32px',
-                                                padding: '0',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                background: isWatched ? 'rgba(48, 209, 88, 0.8)' : 'rgba(0,0,0,0.5)',
-                                                border: '1px solid rgba(255,255,255,0.2)',
-                                                color: '#fff',
-                                                zIndex: 5
-                                            }}
-                                        >
-                                            {isWatched ? (
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                            ) : (
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                                            )}
-                                        </button>
-                                    </div>
-                                    <div className="movie-info">
-                                        <h3 className="movie-title">{item.title || item.name}</h3>
-                                        <div className="movie-meta">
-                                            <span>{(item.release_date || item.first_air_date || '').split('-')[0]}</span>
-                                            {item.media_type && <span>• {item.media_type === 'tv' ? 'TV' : 'Movie'}</span>}
-                                        </div>
+                        {filteredItems.map(item => (
+                            <div
+                                key={item.id}
+                                className={`movie-card glass-card`}
+                                onClick={() => onMovieSelect(item)}
+                            >
+                                <div className="movie-poster-wrapper">
+                                    {item.poster_path ? (
+                                        <img
+                                            src={getImageUrl(item.poster_path, 'w500')}
+                                            alt={item.title || item.name}
+                                            className="movie-poster"
+                                            loading="lazy"
+                                        />
+                                    ) : (
+                                        <div className="no-poster"><span>No Image</span></div>
+                                    )}
+                                    <div className="rating-badge glass-badge">
+                                        ★ {item.vote_average?.toFixed(1)}
                                     </div>
                                 </div>
-                            );
-                        })}
+                                <div className="movie-info">
+                                    <h3 className="movie-title">{item.title || item.name}</h3>
+                                    <div className="movie-meta">
+                                        <span>{(item.release_date || item.first_air_date || '').split('-')[0]}</span>
+                                        {item.media_type && <span>• {item.media_type === 'tv' ? 'TV' : 'Movie'}</span>}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                         {filteredItems.length === 0 && (
                             <div className="no-items-found">No items found.</div>
                         )}

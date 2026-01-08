@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getAccountDetails, getAccountLists, getListDetails, getDetails, getCredits, getImages } from '../services/tmdbApi';
+import { getAccountDetails, getAccountLists, getListDetails, getDetails, getCredits, getImages, getAccountWatchlist } from '../services/tmdbApi';
 import '../styles/MoviesView.css';
 
 // Components
@@ -45,7 +45,19 @@ const MoviesView = () => {
 
                 const listsData = await getAccountLists(accountData.id);
                 if (!listsData || !listsData.results) throw new Error('Failed to fetch lists.');
-                setLists(listsData.results);
+
+                // Add Watchlist as a special list
+                const watchlist = {
+                    id: 'watchlist',
+                    name: 'My Watchlist',
+                    description: 'Movies you have added to your watchlist using TMDB.',
+                    item_count: 'Unknown', // We could fetch this separately or just leave vague until clicked
+                    list_type: 'movie',
+                    poster_path: null // Or fetch a random movie poster from it?
+                };
+
+                // Prepend watchlist
+                setLists([watchlist, ...listsData.results]);
             } catch (err) {
                 console.error("Error fetching lists:", err);
                 setError(err.message || 'An error occurred fetching lists.');
@@ -66,15 +78,87 @@ const MoviesView = () => {
         const fetchListItemsAndStats = async () => {
             setListLoading(true);
             try {
-                const listData = await getListDetails(selectedList.id);
-                if (listData && listData.items) {
-                    setListItems(listData.items);
+                let items = [];
+                let accountData = null;
+
+                const fetchAllPages = async (initialResponse, fetchFunction, ...args) => {
+                    if (!initialResponse || !initialResponse.results) return [];
+                    let combinedResults = [...initialResponse.results];
+                    const totalPages = initialResponse.total_pages;
+
+                    if (totalPages > 1) {
+                        const promises = [];
+                        for (let i = 2; i <= totalPages; i++) {
+                            // Watchlist and ListDetails take (id, page) usually
+                            // But arguments might differ.
+                            // Watchlist: (accountId, page)
+                            // ListDetails: (listId, page)
+                            promises.push(fetchFunction(...args, i));
+                        }
+
+                        const pageResponses = await Promise.all(promises);
+                        pageResponses.forEach(response => {
+                            if (response && response.results) {
+                                combinedResults = [...combinedResults, ...response.results];
+                            } else if (response && response.items) { // Handle ListDetails return structure check if standardized
+                                combinedResults = [...combinedResults, ...response.items];
+                            }
+                        });
+
+                        // Note: Depending on API, ListDetails might return { items: [] } or { results: [] }
+                        // Normalized in the loop above? 
+                        // Let's check: getListDetails uses /list/{id} which V3 returns { items: [], ... } often but V4 uses results.
+                        // Standardize below.
+                    }
+                    return combinedResults;
+                };
+
+                if (selectedList.id === 'watchlist') {
+                    accountData = await getAccountDetails();
+                    if (accountData && accountData.id) {
+                        const firstPage = await getAccountWatchlist(accountData.id, 1);
+                        items = await fetchAllPages(firstPage, getAccountWatchlist, accountData.id);
+                    }
+                } else {
+                    const firstPage = await getListDetails(selectedList.id, 1);
+                    // Standard TMDB v3 /list/{id} returns 'items', not 'results'. 
+                    // Let's handle this difference carefully.
+                    if (firstPage && firstPage.items) {
+                        // Adapting fetchAllPages for 'items' vs 'results' if needed, OR just manually loop here for lists
+                        // since structure differs (watchlist=results, list=items).
+
+                        let combinedItems = [...firstPage.items];
+                        // /list/{id} endpoint in V3 actually MIGHT NOT support typical page param for items in the same way? 
+                        // Check TMDB docs: GET /list/{list_id} doesn't document 'page' well for V3, usually returns all or has specific pagination?
+                        // Actually V3 /list/{id} DOES NOT paginate items usually? It returns all?
+                        // Wait, check standard. V4 lists paginate. V3 user created lists might be limited?
+                        // If V3 list responses contain 'items', we assume one page unless we verify.
+                        // But if user says 30 items showing 20, likely it IS paginated or limited.
+                        // Let's assume pagination works via page param.
+
+                        // Re-impl for List specifically to be safe about 'items' key
+                        if (firstPage.total_pages && firstPage.total_pages > 1) {
+                            const promises = [];
+                            for (let i = 2; i <= firstPage.total_pages; i++) {
+                                promises.push(getListDetails(selectedList.id, i));
+                            }
+                            const responses = await Promise.all(promises);
+                            responses.forEach(res => {
+                                if (res && res.items) combinedItems = [...combinedItems, ...res.items];
+                            });
+                        }
+                        items = combinedItems;
+                    }
+                }
+
+                if (items) {
+                    setListItems(items);
                     // Filter/Sort logic moved to ListDetail
 
-                    const count = listData.items.length;
+                    const count = items.length;
 
                     // Filter out unrated items (0 rating) for more accurate average
-                    const ratedItems = listData.items.filter(item => item.vote_average > 0);
+                    const ratedItems = items.filter(item => item.vote_average > 0);
                     const ratedCount = ratedItems.length;
 
                     const totalVoteSum = ratedItems.reduce((acc, item) => acc + item.vote_average, 0);
@@ -94,7 +178,9 @@ const MoviesView = () => {
                     let totalRuntimeMins = 0;
                     let totalRevenueUSD = 0;
 
-                    const enrichPromises = listData.items.map(async (item) => {
+
+
+                    const enrichPromises = items.map(async (item) => {
                         const type = item.media_type || 'movie';
                         const details = await getDetails(item.id, type);
                         return details;

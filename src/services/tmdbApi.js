@@ -59,6 +59,11 @@ export const getImageUrl = (path, size = 'original') => {
     return `https://image.tmdb.org/t/p/${size}${path}`;
 };
 
+export const getAccountWatchlist = async (accountId, page = 1) => {
+    if (!accountId) return null;
+    return fetchTmdb(`/account/${accountId}/watchlist/movies`, { page, sort_by: 'created_at.desc' });
+};
+
 export const getAccountDetails = async () => {
     return fetchTmdb('/account');
 };
