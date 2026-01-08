@@ -82,3 +82,8 @@ export const getCredits = async (id, type) => {
     if (!id || !type) return null;
     return fetchTmdb(`/${type}/${id}/credits`);
 };
+
+export const getSeasonDetails = async (tvId, seasonNumber) => {
+    if (!tvId || seasonNumber === undefined) return null;
+    return fetchTmdb(`/tv/${tvId}/season/${seasonNumber}`);
+};

@@ -16,6 +16,9 @@ const MovieDetail = ({
     const [actorDetails, setActorDetails] = useState(null);
     const [actorImages, setActorImages] = useState([]);
     const [loadingActor, setLoadingActor] = useState(false);
+    const [selectedSeason, setSelectedSeason] = useState(null);
+    const [seasonDetails, setSeasonDetails] = useState(null);
+    const [loadingSeason, setLoadingSeason] = useState(false);
 
     // Handlers
     const openLightbox = (imgUrl) => setSelectedImage(imgUrl);
@@ -38,6 +41,25 @@ const MovieDetail = ({
         } finally {
             setLoadingActor(false);
         }
+    };
+
+    const handleSeasonClick = async (season) => {
+        setSelectedSeason(season);
+        setLoadingSeason(true);
+        setSeasonDetails(null);
+        try {
+            const data = await import('../../services/tmdbApi').then(mod => mod.getSeasonDetails(details.id, season.season_number));
+            setSeasonDetails(data);
+        } catch (error) {
+            console.error("Failed to fetch season details:", error);
+        } finally {
+            setLoadingSeason(false);
+        }
+    };
+
+    const closeSeasonModal = () => {
+        setSelectedSeason(null);
+        setSeasonDetails(null);
     };
 
     const closeActorModal = () => {
@@ -146,6 +168,66 @@ const MovieDetail = ({
                 </div>,
                 document.body
             )}
+
+            {/* Season Detail Modal */}
+            {selectedSeason && ReactDOM.createPortal(
+                <div className="actor-modal-overlay" onClick={closeSeasonModal}>
+                    <div className="actor-modal-content glass-panel season-modal-content" onClick={e => e.stopPropagation()}>
+                        <button className="actor-modal-close-btn" onClick={closeSeasonModal}>×</button>
+
+                        <div className="actor-modal-header">
+                            <img
+                                src={selectedSeason.poster_path ? getImageUrl(selectedSeason.poster_path, 'w185') : 'https://via.placeholder.com/150x225?text=No+Image'}
+                                alt={selectedSeason.name}
+                                className="season-modal-poster"
+                            />
+                            <div className="actor-modal-title">
+                                <h2>{selectedSeason.name}</h2>
+                                <p className="actor-modal-role">{selectedSeason.episode_count} Episodes</p>
+                                {selectedSeason.air_date && (
+                                    <p className="actor-modal-birth">
+                                        Premiered: {new Date(selectedSeason.air_date).toLocaleDateString()}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="actor-modal-body custom-scrollbar">
+                            {loadingSeason ? (
+                                <div className="loading-spinner">Loading Episodes...</div>
+                            ) : seasonDetails ? (
+                                <div className="episodes-list">
+                                    {seasonDetails.episodes?.map(episode => (
+                                        <div key={episode.id} className="episode-item">
+                                            <div className="episode-still-wrapper">
+                                                <img
+                                                    src={episode.still_path ? getImageUrl(episode.still_path, 'w300') : 'https://via.placeholder.com/200x112?text=No+Image'}
+                                                    alt={episode.name}
+                                                    className="episode-still"
+                                                />
+                                            </div>
+                                            <div className="episode-info">
+                                                <div className="episode-header">
+                                                    <span className="episode-number">{episode.episode_number}.</span>
+                                                    <span className="episode-title">{episode.name}</span>
+                                                </div>
+                                                <span className="episode-date">
+                                                    {episode.air_date ? new Date(episode.air_date).toLocaleDateString() : 'TBA'}
+                                                </span>
+                                                <p className="episode-overview">{episode.overview || 'No overview available.'}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="error-message">Failed to load season details.</div>
+                            )}
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+
             <div
                 className="movie-backdrop-layer"
                 style={{ backgroundImage: `url(${backdropUrl})` }}
@@ -227,6 +309,40 @@ const MovieDetail = ({
                         </div>
                     </div>
                 </div>
+
+
+                {/* Seasons Section (for TV Shows) */}
+                {details.seasons && details.seasons.length > 0 && (
+                    <div className="detail-section animate-slide-up delay-2">
+                        <h3>Seasons</h3>
+                        <div className="seasons-scroll-container">
+                            {details.seasons.map(season => (
+                                <div
+                                    key={season.id}
+                                    className="season-card clickable"
+                                    onClick={() => handleSeasonClick(season)}
+                                >
+                                    <div className="season-poster-wrapper">
+                                        <img
+                                            src={season.poster_path ? getImageUrl(season.poster_path, 'w300') : 'https://via.placeholder.com/150x225?text=No+Image'}
+                                            alt={season.name}
+                                            className="season-poster"
+                                        />
+                                        <div className="season-overlay">
+                                            <span className="season-episode-count">{season.episode_count} Episodes</span>
+                                        </div>
+                                    </div>
+                                    <div className="season-info">
+                                        <span className="season-name">{season.name}</span>
+                                        <span className="season-year">
+                                            {season.air_date ? season.air_date.split('-')[0] : 'TBA'}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Images Section */}
                 {gallery.length > 0 && (
