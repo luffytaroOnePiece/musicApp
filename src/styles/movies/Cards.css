@@ -8,6 +8,11 @@
     padding-bottom: 40px;
 }
 
+/* Specific Grid for Lists - Wider Cards */
+.list-grid {
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+}
+
 .glass-card {
     background: var(--card-bg);
     border-radius: 12px;
@@ -25,8 +30,7 @@
     border-color: var(--primary-color);
 }
 
-.movie-poster-wrapper,
-.list-poster-wrapper {
+.movie-poster-wrapper {
     width: 100%;
     aspect-ratio: 2/3;
     border-radius: 8px;
@@ -46,11 +50,6 @@
 .glass-card:hover .movie-poster {
     transform: scale(1.08);
 }
-
-/* Update Card Dimming - REMOVED per user request */
-/* .movie-card.watched .movie-poster {
-    filter: brightness(0.4);
-} */
 
 .glass-badge {
     position: absolute;
@@ -96,11 +95,116 @@
     gap: 6px;
 }
 
-.list-count-badge {
+/* --- ENHANCED LIST CARD STYLES --- */
+.list-card-enhanced {
+    padding: 0;
+    /* Remove default padding */
+    border: none;
+    /* Remove default border to let image shine */
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 16/9;
+    /* Landscape aspect ratio */
+    justify-content: flex-end;
+    /* Push content to bottom */
+    background: #1a1a1a;
+}
+
+.list-card-enhanced:hover {
+    transform: scale(1.02);
+    /* Slight scale up */
+}
+
+.list-card-backdrop {
     position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    top: auto;
-    right: auto;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.list-backdrop-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+    /* Slightly dim the image by default */
+    transition: transform 0.6s ease;
+}
+
+.list-card-enhanced:hover .list-backdrop-img {
+    transform: scale(1.05);
+    /* Zoom effect on hover */
+    opacity: 0.6;
+    /* Darken slightly more on hover for readability */
+}
+
+.list-backdrop-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #2b3a42 0%, #3f5e5a 100%);
+}
+
+.list-card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(30, 30, 40, 0.6) 100%);
+    z-index: 1;
+}
+
+.list-card-content {
+    position: relative;
+    z-index: 2;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.list-card-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 8px 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    font-family: 'Outfit', sans-serif;
+    /* Ensuring modern font */
+    font-style: italic;
+}
+
+.list-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.list-item-count {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    font-style: italic;
+}
+
+.list-privacy-badge {
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.list-card-updated {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
 }

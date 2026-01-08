@@ -51,13 +51,54 @@ const MoviesView = () => {
                     id: 'watchlist',
                     name: 'My Watchlist',
                     description: 'Movies you have added to your watchlist using TMDB.',
-                    item_count: 'Unknown', // We could fetch this separately or just leave vague until clicked
+                    item_count: 'Unknown',
                     list_type: 'movie',
-                    poster_path: null // Or fetch a random movie poster from it?
+                    poster_path: null,
+                    backdrop_path: null
                 };
 
-                // Prepend watchlist
-                setLists([watchlist, ...listsData.results]);
+                let allLists = [watchlist, ...listsData.results];
+
+                // Enrich lists with a backdrop from their first item
+                // This might be heavy if many lists, but essential for the UI
+                const enrichedLists = await Promise.all(allLists.map(async (list) => {
+                    try {
+                        // 1. If list already has a backdrop (unlikely for v3 lists but possible), use it.
+                        if (list.backdrop_path) return list;
+
+                        // 2. Fetch first item to get a movie backdrop (preferred for landscape card)
+                        let firstItem = null;
+                        if (list.id === 'watchlist') {
+                            const res = await getAccountWatchlist(accountData.id, 1);
+                            if (res && res.results && res.results.length > 0) firstItem = res.results[0];
+                        } else {
+                            // Only fetch if we really need to (if we want to force backdrop over poster)
+                            // Or if we don't trust list.poster_path for landscape.
+                            const res = await getListDetails(list.id, 1);
+                            if (res && res.items && res.items.length > 0) firstItem = res.items[0];
+                        }
+
+                        if (firstItem) {
+                            return {
+                                ...list,
+                                // Prioritize: List Backdrop > Item Backdrop > Item Poster > List Poster
+                                backdrop_path: list.backdrop_path || firstItem.backdrop_path || firstItem.poster_path || list.poster_path,
+                                poster_path: list.poster_path || firstItem.poster_path
+                            };
+                        }
+
+                        // 3. Fallback: If no items, use list's own poster if available
+                        if (list.poster_path) {
+                            return { ...list, backdrop_path: list.poster_path };
+                        }
+
+                        return list;
+                    } catch (e) {
+                        return list;
+                    }
+                }));
+
+                setLists(enrichedLists);
             } catch (err) {
                 console.error("Error fetching lists:", err);
                 setError(err.message || 'An error occurred fetching lists.');
