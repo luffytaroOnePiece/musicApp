@@ -1,5 +1,6 @@
-import React from 'react';
-import { getImageUrl } from '../../services/tmdbApi';
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
+import { getImageUrl, getDetails } from '../../services/tmdbApi';
 
 const MovieDetail = ({
     movie,
@@ -9,6 +10,34 @@ const MovieDetail = ({
     loading,
     onBack
 }) => {
+    // State
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedActor, setSelectedActor] = useState(null);
+    const [actorDetails, setActorDetails] = useState(null);
+    const [loadingActor, setLoadingActor] = useState(false);
+
+    // Handlers
+    const openLightbox = (imgUrl) => setSelectedImage(imgUrl);
+    const closeLightbox = () => setSelectedImage(null);
+
+    const handleActorClick = async (actor) => {
+        setSelectedActor(actor);
+        setLoadingActor(true);
+        setActorDetails(null); // Reset previous details
+        try {
+            const data = await getDetails(actor.id, 'person');
+            setActorDetails(data);
+        } catch (error) {
+            console.error("Failed to fetch person details:", error);
+        } finally {
+            setLoadingActor(false);
+        }
+    };
+
+    const closeActorModal = () => {
+        setSelectedActor(null);
+        setActorDetails(null);
+    };
     // Helper formats
     const formatMoney = (amount) => {
         if (!amount) return '$0';
@@ -35,12 +64,59 @@ const MovieDetail = ({
     const backdropUrl = getImageUrl(details.backdrop_path || movie.backdrop_path, 'original');
     const posterUrl = getImageUrl(details.poster_path || movie.poster_path, 'w500');
 
-    // Trim Top Cast to 6
-    const topCast = credits?.cast?.slice(0, 6) || [];
-    const gallery = images?.backdrops?.slice(0, 6) || [];
+    // Trim Top Cast to 6 (keep limit for display, maybe add 'See All' later if needed, but for now user said 'click on actor')
+    // Actually user said "Show all images in gallery", so we remove gallery slice.
+    const topCast = credits?.cast?.slice(0, 6) || []; // Reverted to 6
+    const gallery = images?.backdrops || []; // Removed slice
 
     return (
         <div className="movies-view-container movie-detail-view animate-fade-in">
+            {/* Lightbox Modal */}
+            {selectedImage && (
+                <div className="lightbox-modal-overlay" onClick={closeLightbox}>
+                    <div className="lightbox-content" onClick={e => e.stopPropagation()}>
+                        <button className="lightbox-close-btn" onClick={closeLightbox}>×</button>
+                        <img src={selectedImage} alt="Full View" className="lightbox-image" />
+                    </div>
+                </div>
+            )}
+
+            {/* Actor Profile Modal */}
+            {selectedActor && (
+                <div className="actor-modal-overlay" onClick={closeActorModal}>
+                    <div className="actor-modal-content glass-panel" onClick={e => e.stopPropagation()}>
+                        <button className="actor-modal-close-btn" onClick={closeActorModal}>×</button>
+
+                        <div className="actor-modal-header">
+                            <img
+                                src={selectedActor.profile_path ? getImageUrl(selectedActor.profile_path, 'w185') : 'https://via.placeholder.com/150'}
+                                alt={selectedActor.name}
+                                className="actor-modal-avatar"
+                            />
+                            <div className="actor-modal-title">
+                                <h2>{selectedActor.name}</h2>
+                                <p className="actor-modal-role">as {selectedActor.character}</p>
+                                {actorDetails && actorDetails.birthday && (
+                                    <p className="actor-modal-birth">
+                                        Born: {new Date(actorDetails.birthday).toLocaleDateString()}
+                                        {actorDetails.place_of_birth && ` in ${actorDetails.place_of_birth}`}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="actor-modal-body custom-scrollbar">
+                            {loadingActor ? (
+                                <div className="loading-spinner">Loading Profile...</div>
+                            ) : actorDetails ? (
+                                <p className="actor-biography">{actorDetails.biography || "No biography available."}</p>
+                            ) : (
+                                <div className="loading-spinner">Loading...</div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
             <div
                 className="movie-backdrop-layer"
                 style={{ backgroundImage: `url(${backdropUrl})` }}
@@ -100,7 +176,13 @@ const MovieDetail = ({
                             <h3>Top Cast</h3>
                             <div className="cast-scroll-container">
                                 {topCast.map(actor => (
-                                    <div key={actor.id} className="cast-card-minimal">
+                                    <div
+                                        key={actor.id}
+                                        className="cast-card-minimal clickable"
+                                        onClick={() => handleActorClick(actor)}
+                                        role="button"
+                                        tabIndex={0}
+                                    >
                                         <img
                                             src={actor.profile_path ? getImageUrl(actor.profile_path, 'w185') : 'https://via.placeholder.com/100x100?text=?'}
                                             alt={actor.name}
@@ -123,7 +205,11 @@ const MovieDetail = ({
                         <h3>Gallery</h3>
                         <div className="gallery-masonry">
                             {gallery.map((img, idx) => (
-                                <div key={idx} className="gallery-item">
+                                <div
+                                    key={idx}
+                                    className="gallery-item clickable"
+                                    onClick={() => openLightbox(getImageUrl(img.file_path, 'original'))}
+                                >
                                     <img
                                         src={getImageUrl(img.file_path, 'w780')}
                                         alt="Gallery"
