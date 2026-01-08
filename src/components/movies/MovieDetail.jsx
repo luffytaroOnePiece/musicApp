@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { getImageUrl, getDetails, getImages } from '../../services/tmdbApi';
+import { getImageUrl, getDetails, getImages, getVideos } from '../../services/tmdbApi';
+import VideoModal from '../common/VideoModal';
 
 const MovieDetail = ({
     movie,
@@ -19,6 +20,24 @@ const MovieDetail = ({
     const [selectedSeason, setSelectedSeason] = useState(null);
     const [seasonDetails, setSeasonDetails] = useState(null);
     const [loadingSeason, setLoadingSeason] = useState(false);
+    const [trailer, setTrailer] = useState(null);
+    const [showTrailerModal, setShowTrailerModal] = useState(false);
+
+    // Effect to fetch trailer
+    React.useEffect(() => {
+        const fetchTrailer = async () => {
+            if (details?.id) {
+                const videoData = await getVideos(details.id, details.title ? 'movie' : 'tv');
+                if (videoData?.results) {
+                    const trailerVideo = videoData.results.find(
+                        vid => vid.site === 'YouTube' && (vid.type === 'Trailer' || vid.type === 'Teaser')
+                    );
+                    setTrailer(trailerVideo);
+                }
+            }
+        };
+        fetchTrailer();
+    }, [details]);
 
     // Handlers
     const openLightbox = (imgUrl) => setSelectedImage(imgUrl);
@@ -169,6 +188,15 @@ const MovieDetail = ({
                 document.body
             )}
 
+            {/* Video Trailer Modal */}
+            {showTrailerModal && trailer && ReactDOM.createPortal(
+                <VideoModal
+                    video={{ id: trailer.key, title: trailer.name || 'Trailer' }}
+                    onClose={() => setShowTrailerModal(false)}
+                />,
+                document.body
+            )}
+
             {/* Season Detail Modal */}
             {selectedSeason && ReactDOM.createPortal(
                 <div className="actor-modal-overlay" onClick={closeSeasonModal}>
@@ -260,6 +288,19 @@ const MovieDetail = ({
                                 </>
                             )}
                         </div>
+
+                        {trailer && (
+                            <button
+                                className="play-trailer-btn glass-btn"
+                                onClick={() => setShowTrailerModal(true)}
+                                style={{ marginTop: '15px', marginBottom: '15px' }}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" style={{ marginRight: '8px' }}>
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                                Play Trailer
+                            </button>
+                        )}
 
                         <div className="detail-stats-row">
                             <div className="stat-pill glass-pill">
