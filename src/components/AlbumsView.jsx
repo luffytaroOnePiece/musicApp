@@ -270,6 +270,9 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
                       keyId: `${item.track.id}-live-${liveIndex}`,
                       // context for playback
                       trackUri: item.track.uri,
+                      // Fix for FullPlayer consistency (though Live view might use modal mostly, if it triggers FullPlayer it needs this)
+                      linked_youtube_id: liveId.trim(),
+                      linked_format: localFormat,
                     });
                   });
                 }
@@ -283,11 +286,14 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
                   return {
                     id: item.track.id,
                     name: item.track.name,
-                    videoId: youtubeIDs[i], // Full ID string for now
+                    videoId: youtubeIDs[i], // For grid card
                     type: meta.type || "Song",
                     format: localFormat,
                     keyId: item.track.id,
                     trackUri: item.track.uri,
+                    // Fix for FullPlayer inconsistency:
+                    linked_youtube_id: youtubeIDs[i],
+                    linked_format: localFormat,
                   };
                 })
                 .filter(Boolean);
