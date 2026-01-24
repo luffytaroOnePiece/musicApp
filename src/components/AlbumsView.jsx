@@ -262,6 +262,7 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
                   const liveIds = ytIds.slice(1);
                   liveIds.forEach((liveId, liveIndex) => {
                     liveTracks.push({
+                      ...item.track,
                       id: item.track.id,
                       name: `${item.track.name} (Live ${liveIndex + 1})`,
                       videoId: liveId.trim(),
@@ -284,6 +285,7 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
                 .map((item, i) => {
                   if (!item.track || !youtubeIDs[i]) return null;
                   return {
+                    ...item.track,
                     id: item.track.id,
                     name: item.track.name,
                     videoId: youtubeIDs[i], // For grid card

@@ -378,5 +378,17 @@
     "youtubeIDs": ["PxJNNAezY0A,jaEMNlSsE4I,xK1dSeAwQMo,6wkzsE2lQkY"],
     "type": "Private",
     "language": "English"
+  },
+  "3STZXSZtjoWWD1xEDro01m": {
+    "name": "Hasan Raheem",
+    "youtubeIDs": ["b8jcGnwhHWM", "oE7lU2qj4rY"],
+    "type": "Private",
+    "language": "Hindi"
+  },
+  "1uZaGnY1C72jofHfXDsH89": {
+    "name": "Anuv Jain",
+    "youtubeIDs": ["ilNt2bikxDI", "gJLVTKhTnog"],
+    "type": "Private",
+    "language": "Hindi"
   }
 }

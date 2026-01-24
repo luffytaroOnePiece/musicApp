@@ -98,5 +98,23 @@
     "youtubeIDs": ["YyepU5ztLf4"],
     "type": "Movie",
     "language": "Hindi"
+  },
+  "1WTyvUvbHM3EVEdD2F7tky": {
+    "name": "Jawan",
+    "youtubeIDs": ["dfLH_3QXpp4"],
+    "type": "Movie",
+    "language": "Hindi"
+  },
+  "5CdxG2RqWaUgjboDBQ1cMA": {
+    "name": "Brahmastra: Part One",
+    "youtubeIDs": ["P7yRYiBiV3g"],
+    "type": "Movie",
+    "language": "Hindi"
+  },
+  "2qyn4gz94ZYuEZUPWxPupI": {
+    "name": "Laapataa Ladies",
+    "youtubeIDs": ["gYHVddokkd0"],
+    "type": "Movie",
+    "language": "Hindi"
   }
 }
