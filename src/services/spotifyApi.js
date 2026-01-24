@@ -71,6 +71,24 @@ const apiCall = async (endpoint, method = 'GET', body = null) => {
 export const getClassUserProfile = () => apiCall('/me');
 export const getUserPlaylists = () => apiCall('/me/playlists');
 export const getPlaylistTracks = (playlistId) => apiCall(`/playlists/${playlistId}/tracks`);
+
+export const getAllPlaylistTracks = async (playlistId) => {
+    let allTracks = [];
+    let nextUrl = `/playlists/${playlistId}/tracks?limit=50`;
+
+    while (nextUrl) {
+        // Handle full URL from next or relative path
+        const endpoint = nextUrl.startsWith('http') ? nextUrl.replace('https://api.spotify.com/v1', '') : nextUrl;
+        const data = await apiCall(endpoint);
+
+        if (data && data.items) {
+            allTracks = [...allTracks, ...data.items];
+        }
+
+        nextUrl = data ? data.next : null;
+    }
+    return { items: allTracks };
+};
 export const searchTracks = (query) => apiCall(`/search?q=${encodeURIComponent(query)}&type=track&limit=20`);
 
 export const playTrack = async (deviceId, contextUri, offset = 0) => {
@@ -153,6 +171,24 @@ export const addTrackToPlaylist = async (playlistId, trackUri) => {
     return apiCall(`/playlists/${playlistId}/tracks`, 'POST', {
         uris: [trackUri]
     });
+}
+
+export const addTracksToPlaylist = async (playlistId, trackUris) => {
+    // Spotify allows adding max 100 tracks per request
+    const chunk = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+        arr.slice(i * size, i * size + size)
+    );
+
+    const chunks = chunk(trackUris, 100);
+    const results = [];
+
+    for (const c of chunks) {
+        const res = await apiCall(`/playlists/${playlistId}/tracks`, 'POST', {
+            uris: c
+        });
+        results.push(res);
+    }
+    return results;
 }
 
 export const checkUserSavedTracks = async (trackIds) => {

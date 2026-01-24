@@ -35,6 +35,7 @@ import LiveView from "./LiveView";
 import FullPlayer from "./FullPlayer";
 import ZenMode from "./ZenMode";
 import UserProfile from "./UserProfile";
+import ScriptsView from "./ScriptsView";
 import "../styles/Dashboard.css";
 
 const Dashboard = () => {
@@ -71,6 +72,7 @@ const Dashboard = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isExploreOpen, setIsExploreOpen] = useState(false);
   const [showMovies, setShowMovies] = useState(false);
+  const [showScripts, setShowScripts] = useState(false);
   const [albumsResetToken, setAlbumsResetToken] = useState(0);
 
   const themes = [
@@ -413,6 +415,7 @@ const Dashboard = () => {
     setIsProfileOpen(false);
     setIsExploreOpen(false);
     setShowMovies(false);
+    setShowScripts(false);
   };
 
   const handleShowYoutube = () => {
@@ -427,6 +430,7 @@ const Dashboard = () => {
     setIsProfileOpen(false);
     setIsExploreOpen(false);
     setShowMovies(false);
+    setShowScripts(false);
   };
 
   const handleShowAlbums = () => {
@@ -447,6 +451,7 @@ const Dashboard = () => {
     setIsProfileOpen(false);
     setIsExploreOpen(false);
     setShowMovies(false);
+    setShowScripts(false);
   };
 
   const handleShowLive = () => {
@@ -461,6 +466,7 @@ const Dashboard = () => {
     setIsProfileOpen(false);
     setIsExploreOpen(false);
     setShowMovies(false);
+    setShowScripts(false);
   };
 
   const handleShowArtists = () => {
@@ -476,6 +482,7 @@ const Dashboard = () => {
     setIsProfileOpen(false);
     setIsExploreOpen(false);
     setShowMovies(false);
+    setShowScripts(false);
   };
 
   const handleShowZenMode = () => {
@@ -495,6 +502,7 @@ const Dashboard = () => {
     setIsProfileOpen(false);
     setIsExploreOpen(false);
     setShowMovies(false);
+    setShowScripts(false);
   };
 
   const handleShowProfile = () => {
@@ -509,6 +517,7 @@ const Dashboard = () => {
     setIsProfileOpen(true);
     setIsExploreOpen(false);
     setShowMovies(false);
+    setShowScripts(false);
   };
 
   const handleShowExplore = () => {
@@ -523,6 +532,7 @@ const Dashboard = () => {
     setIsProfileOpen(false);
     setIsExploreOpen(true);
     setShowMovies(false);
+    setShowScripts(false);
   };
 
   const handleShowMovies = () => {
@@ -537,6 +547,22 @@ const Dashboard = () => {
     setIsProfileOpen(false);
     setIsExploreOpen(false);
     setShowMovies(true);
+    setShowScripts(false);
+  };
+
+  const handleShowScripts = () => {
+    setSelectedPlaylist(null);
+    setSearchResults(null);
+    setIsSearching(false);
+    setShowYoutube(false);
+    setShowAlbums(false);
+    setShowLive(false);
+    setShowArtists(false);
+    setIsStatsOpen(false);
+    setIsProfileOpen(false);
+    setIsExploreOpen(false);
+    setShowMovies(false);
+    setShowScripts(true);
   };
 
   const getActiveModule = () => {
@@ -549,6 +575,7 @@ const Dashboard = () => {
     if (isProfileOpen) return "profile";
     if (showMovies) return "movies";
     if (isExploreOpen) return "explore";
+    if (showScripts) return "scripts";
     return "home";
   };
 
@@ -581,6 +608,9 @@ const Dashboard = () => {
       setIsZenModeOpen(false);
     } else if (moduleId === "explore") {
       handleShowExplore();
+      setIsZenModeOpen(false);
+    } else if (moduleId === "scripts") {
+      handleShowScripts();
       setIsZenModeOpen(false);
     }
   };
@@ -658,6 +688,8 @@ const Dashboard = () => {
           <AlbumsView handlePlay={handlePlay} searchTerm={searchTerm} formatTime={formatTime} resetToken={albumsResetToken} />
         ) : showLive ? (
           <LiveView />
+        ) : showScripts ? (
+          <ScriptsView />
         ) : showArtists ? (
           <ArtistsView
             handlePlay={handlePlay}
@@ -671,6 +703,8 @@ const Dashboard = () => {
           <StatsView handlePlay={handlePlay} formatTime={formatTime} />
         ) : showMovies ? (
           <MoviesView />
+        ) : showScripts ? (
+          <ScriptsView />
         ) : isExploreOpen ? (
           selectedPlaylist && selectedPlaylist.source === "explore" ? (
             <div className="explore-details-wrapper">
