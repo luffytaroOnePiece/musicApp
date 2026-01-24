@@ -20,9 +20,46 @@ async function fetchPlaylists() {
         const playlistsRaw = fs.readFileSync(PLAYLISTS_FILE, 'utf-8');
         const playlists = JSON.parse(playlistsRaw);
 
-        const allVideos = [];
+        // Check for specific category argument
+        const args = process.argv.slice(2);
+        const targetCategory = args[0]; // e.g. "live", "Dance"
 
-        for (const [key, url] of Object.entries(playlists)) {
+        let playlistsToFetch = Object.entries(playlists);
+        let preservedVideos = [];
+
+        if (targetCategory) {
+            if (!playlists[targetCategory]) {
+                console.error(`Error: Category '${targetCategory}' not found in playlists.json`);
+                console.log('Available categories:', Object.keys(playlists).join(', '));
+                process.exit(1);
+            }
+
+            console.log(`\n=== Mode: Updating existing category '${targetCategory}' only ===\n`);
+            playlistsToFetch = [[targetCategory, playlists[targetCategory]]];
+
+            // Load existing data to preserve other categories
+            if (fs.existsSync(LIVE_DATA_FILE)) {
+                try {
+                    const rawLive = fs.readFileSync(LIVE_DATA_FILE, 'utf-8');
+                    const liveData = JSON.parse(rawLive);
+
+                    // Normalize type name logic to match how it's stored
+                    // Logic from below: type = key.charAt(0).toUpperCase() + key.slice(1)
+                    const targetType = targetCategory.charAt(0).toUpperCase() + targetCategory.slice(1);
+
+                    preservedVideos = (liveData.live || []).filter(v => v.type !== targetType);
+                    console.log(`Preserving ${preservedVideos.length} videos from other categories.`);
+                } catch (e) {
+                    console.warn("Could not read existing live data to preserve. Starting fresh.");
+                }
+            }
+        } else {
+            console.log(`\n=== Mode: Full Update (All Categories) ===\n`);
+        }
+
+        const newVideos = [];
+
+        for (const [key, url] of playlistsToFetch) {
             console.log(`Fetching videos for category: ${key} from ${url}`);
 
             try {
@@ -61,12 +98,15 @@ async function fetchPlaylists() {
                     }
                 }
                 console.log(`\nFound ${videos.length} videos for ${key}`);
-                allVideos.push(...videos);
+                newVideos.push(...videos);
 
             } catch (err) {
                 console.error(`Error fetching playlist ${key}:`, err.message);
             }
         }
+
+        // Combine preserved and new videos
+        const allVideos = [...preservedVideos, ...newVideos];
 
         const outputData = {
             live: allVideos
