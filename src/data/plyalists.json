@@ -1,5 +1,7 @@
 {
-    "live": "https://youtube.com/playlist?list=PLk-aMlMwXfRzKZUtiE0WHoMAig5GxZ63q&si=5qtwWg5dQH2i9SMB",
-    "Dance": "https://youtube.com/playlist?list=PLk-aMlMwXfRw3uLULtPnxYbi7NhqSpTWs&si=8seWnu-HbffGe3vI",
-    "8K": "https://youtube.com/playlist?list=PLk-aMlMwXfRwe0apFBZ3zInOvqncLQ-nB&si=0Z6v89Hvt3TaXjY_"
+  "live": "https://youtube.com/playlist?list=PLk-aMlMwXfRzKZUtiE0WHoMAig5GxZ63q&si=5qtwWg5dQH2i9SMB",
+  "Dance": "https://youtube.com/playlist?list=PLk-aMlMwXfRw3uLULtPnxYbi7NhqSpTWs&si=8seWnu-HbffGe3vI",
+  "8K": "https://youtube.com/playlist?list=PLk-aMlMwXfRwe0apFBZ3zInOvqncLQ-nB&si=0Z6v89Hvt3TaXjY_",
+  "GameTrailers": "https://youtube.com/playlist?list=PLCXz5mzH0JBcUcC8fLschTpAxIk6PxntJ&si=RZI7YzAjAtNPmkkU",
+  "Cars": "https://youtube.com/playlist?list=PLCXz5mzH0JBfrCA0YYsnAxPeWsdAfhAkc&si=YT4SLDjgx64bQctq"
 }
