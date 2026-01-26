@@ -170,5 +170,17 @@
     "youtubeIDs": ["4IA_sptpYtY"],
     "type": "Movie",
     "language": "Telugu"
+  },
+  "4GygK5cNrv23bEBeg85oPt": {
+    "name": "Champion",
+    "youtubeIDs": ["7Z5abg_C2dU"],
+    "type": "Movie",
+    "language": "Telugu"
+  },
+  "2PnWeohb0Gq4GH70xm8QbW": {
+    "name": "KGF 2",
+    "youtubeIDs": ["_C1D77ogkGY", "5QDiKZA-wdI", "ebMMTDFKBIg", "PikKs62zE-A"],
+    "type": "Movie",
+    "language": "Telugu"
   }
 }
