@@ -427,5 +427,35 @@
     "youtubeIDs": ["TYpEpuP3-E8"],
     "type": "Movie",
     "language": "Tamil"
+  },
+  "0reyMF4rcaMjoLJF2CmnjQ": {
+    "name": "Sarkaru Vaari Paata",
+    "youtubeIDs": ["lcfcTbEppQM", "Aopz1VusvRU", "EqyKcZibh-Y", "VtQZEFOP1Cs"],
+    "type": "Movie",
+    "language": "Telugu"
+  },
+  "3wbzRBcgqsiG99uOkxFs6B": {
+    "name": "Bhartha Mahasayulaku Wignyapthi",
+    "youtubeIDs": ["LHCbyu_gs2I"],
+    "type": "Movie",
+    "language": "Telugu"
+  },
+  "6t7F0nkzqx1Q24a6u8L0jc": {
+    "name": "Power",
+    "youtubeIDs": ["KvqGVzobpxI", "7X3lMc7WUy4"],
+    "type": "Movie",
+    "language": "Telugu"
+  },
+  "58QPvCiy9PjyJeIoqEvHlD": {
+    "name": "Nannaku Prematho",
+    "youtubeIDs": ["JOAJoe38rXo", "P0twhKgZXnI"],
+    "type": "Movie",
+    "language": "Telugu"
+  },
+  "0wwpFVAkBtzX43TUYNkpWu": {
+    "name": "Bengal Tiger",
+    "youtubeIDs": ["ozYHoMDRoXQ", "WKhx4g2kdCs", "vP8cFd2BTfY"],
+    "type": "Movie",
+    "language": "Telugu"
   }
 }
