@@ -457,5 +457,17 @@
     "youtubeIDs": ["ozYHoMDRoXQ", "WKhx4g2kdCs", "vP8cFd2BTfY"],
     "type": "Movie",
     "language": "Telugu"
+  },
+  "0WIiyaQOvWSUKqem81zybE": {
+    "name": "Anaganaga Oka Raju",
+    "youtubeIDs": ["45h_xXANqtQ"],
+    "type": "Movie",
+    "language": "Telugu"
+  },
+  "125mQD8QUfaLhpn0MrmctK": {
+    "name": "Bhojpuri Hits",
+    "youtubeIDs": ["iqp-qq8h8uc"],
+    "type": "Movie",
+    "language": "Bhojpuri"
   }
 }
