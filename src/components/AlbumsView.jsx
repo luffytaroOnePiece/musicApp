@@ -26,6 +26,7 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
   // Filter States
   const [selectedType, setSelectedType] = useState("All");
   const [selectedLanguage, setSelectedLanguage] = useState("All");
+  const [selectedSort, setSelectedSort] = useState("Default");
 
   // Computed Lists State
   const [songsList, setSongsList] = useState([]);
@@ -336,6 +337,7 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
   const handleResetFilters = () => {
     setSelectedType("All");
     setSelectedLanguage("All");
+    setSelectedSort("Default");
   };
 
   // Playback Handlers
@@ -457,6 +459,35 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
   }, [fullItemData, selectedId, handlePlay]);
 
   // RENDER
+  // List View Filter Logic (Moved up to avoid Hook errors)
+  const filteredItems = Object.entries(itemsMetadata).filter(([id, meta]) => {
+    const matchesType = selectedType === "All" || meta.type === selectedType;
+    const matchesLanguage =
+      selectedLanguage === "All" || meta.language === selectedLanguage;
+    const matchesSearch =
+      !searchTerm ||
+      (meta.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (meta.spotifyName || "").toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesType && matchesLanguage && matchesSearch;
+  });
+
+  // Sort Logic (Moved up)
+  const sortedItems = useMemo(() => {
+    if (selectedSort === "Default") return filteredItems;
+
+    return [...filteredItems].sort((a, b) => {
+      const dateA = new Date(a[1].release_date || 0);
+      const dateB = new Date(b[1].release_date || 0);
+
+      if (selectedSort === "Date (Newest)") {
+        return dateB - dateA;
+      } else {
+        return dateA - dateB;
+      }
+    });
+  }, [filteredItems, selectedSort]);
+
+  // RENDER
   if (error) {
     return (
       <div className="albums-error">
@@ -485,16 +516,7 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
   }
 
   // List View
-  const filteredItems = Object.entries(itemsMetadata).filter(([id, meta]) => {
-    const matchesType = selectedType === "All" || meta.type === selectedType;
-    const matchesLanguage =
-      selectedLanguage === "All" || meta.language === selectedLanguage;
-    const matchesSearch =
-      !searchTerm ||
-      (meta.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (meta.spotifyName || "").toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesType && matchesLanguage && matchesSearch;
-  });
+
 
   return (
     <div className="albums-view-container">
@@ -507,6 +529,8 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
         setSelectedType={setSelectedType}
         selectedLanguage={selectedLanguage}
         setSelectedLanguage={setSelectedLanguage}
+        selectedSort={selectedSort}
+        setSelectedSort={setSelectedSort}
         types={types}
         languages={languages}
         onReset={handleResetFilters}
@@ -520,7 +544,7 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
       ) : (
         <>
           {viewMode === "albums" ? (
-            <AlbumsList items={filteredItems} onItemClick={handleItemClick} />
+            <AlbumsList items={sortedItems} onItemClick={handleItemClick} />
           ) : (
             <AggregatedGrid
               viewMode={viewMode}

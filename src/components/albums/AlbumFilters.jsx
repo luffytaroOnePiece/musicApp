@@ -4,6 +4,8 @@ import '../../styles/YouTubeFilters.css';
 const AlbumFilters = ({
     selectedType,
     setSelectedType,
+    selectedSort,
+    setSelectedSort,
     selectedLanguage,
     setSelectedLanguage,
     types,
@@ -11,7 +13,9 @@ const AlbumFilters = ({
     onReset
 }) => {
     const isFiltered = (selectedType && selectedType !== "All") ||
-        (selectedLanguage && selectedLanguage !== "All");
+        (selectedLanguage && selectedLanguage !== "All") || (selectedSort && selectedSort !== "Default");
+
+    const sortOptions = ["Default", "Date (Newest)", "Date (Oldest)"];
 
     return (
         <div className="filters-container">
@@ -32,6 +36,13 @@ const AlbumFilters = ({
                     options={languages}
                 />
             )}
+
+            <Dropdown
+                label="Sort"
+                selected={selectedSort}
+                onSelect={setSelectedSort}
+                options={sortOptions}
+            />
 
             <button
                 className={`yt-filter-btn yt-reset-btn ${isFiltered ? 'active' : 'disabled'}`}

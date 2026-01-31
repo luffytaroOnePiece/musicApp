@@ -71,7 +71,27 @@ const useSpotifyPlayer = () => {
 
             player.connect();
         };
+
+        return () => {
+            // Cleanup: Disconnect player if component unmounts
+            // Note: We can't access 'player' variable here directly if it's inside the window callback scope
+            // But we can keep a reference if we restructure, or we can just rely on the fact that 
+            // setPlayer sets the state, but state is not available in cleanup of the same effect run (stale closure).
+            // Actually, we can define player variable outside the callback? No, it's async.
+            // Better strategy: We can't easily clean up the *first* instance if it's created asynchronously inside.
+            // But we can store it in a ref or move the creation logic.
+        };
     }, []);
+
+    // New Effect for cleanup based on player state
+    useEffect(() => {
+        return () => {
+            if (player) {
+                console.log("Disconnecting Spotify Player...");
+                player.disconnect();
+            }
+        };
+    }, [player]);
 
     // Update position every second when playing
     useEffect(() => {
@@ -82,7 +102,7 @@ const useSpotifyPlayer = () => {
                 if (state) {
                     setPosition(state.position);
                 }
-            });
+            }).catch(e => console.warn("Polling state failed", e));
         }, 1000);
 
         return () => clearInterval(interval);

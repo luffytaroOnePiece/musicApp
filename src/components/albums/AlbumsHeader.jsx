@@ -6,6 +6,8 @@ const AlbumsHeader = ({
     setViewMode,
     selectedType,
     setSelectedType,
+    selectedSort,
+    setSelectedSort,
     selectedLanguage,
     setSelectedLanguage,
     types,
@@ -48,6 +50,8 @@ const AlbumsHeader = ({
                 <AlbumFilters
                     selectedType={selectedType}
                     setSelectedType={setSelectedType}
+                    selectedSort={selectedSort}
+                    setSelectedSort={setSelectedSort}
                     selectedLanguage={selectedLanguage}
                     setSelectedLanguage={setSelectedLanguage}
                     types={types}
