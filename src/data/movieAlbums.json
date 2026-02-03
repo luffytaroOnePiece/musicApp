@@ -14,27 +14,44 @@
   },
   "6bSUr0oBhPaIQBIrk4sbmg": {
     "name": "Parama Sundari",
-    "youtubeIDs": ["UMFR2nAcego", "csVPrZhr3NQ", "imaTkoWPkR8"],
+    "youtubeIDs": [
+      "UMFR2nAcego",
+      "csVPrZhr3NQ",
+      "imaTkoWPkR8"
+    ],
     "type": "Movie",
     "language": "Hindi",
     "tmdbID": "1226354"
   },
   "4e7bvx7vkXbP94e0s0nc0M": {
     "name": "Devara Part 1",
-    "youtubeIDs": ["QiZFsaCcme4", "-FMIo-OYo68", "CKpbdCciELk", "A3ws4jpMf0A"],
+    "youtubeIDs": [
+      "QiZFsaCcme4",
+      "-FMIo-OYo68",
+      "CKpbdCciELk",
+      "A3ws4jpMf0A"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "5qHF6hU01khKwEraTf7pcS": {
     "name": "The RajaSaab",
-    "youtubeIDs": ["2cF8x6Mhgj4", "eVzQL5rQMms", "bkSa4J15WNc", "P_c0Aojg0KY"],
+    "youtubeIDs": [
+      "2cF8x6Mhgj4",
+      "eVzQL5rQMms",
+      "bkSa4J15WNc",
+      "P_c0Aojg0KY"
+    ],
     "type": "Movie",
     "language": "Telugu",
     "tmdbID": "1022453"
   },
   "30ZRwlRTZB6k81TBcAxPuY": {
     "name": "Andhra King Taluka",
-    "youtubeIDs": ["iBpSuQTJdaU", "W8nny8Vm81s"],
+    "youtubeIDs": [
+      "iBpSuQTJdaU",
+      "W8nny8Vm81s"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
@@ -52,7 +69,10 @@
   },
   "0wxadQIMKgzet4H3xArPE1": {
     "name": "Mr. Majnu",
-    "youtubeIDs": ["tTpQbfHj4j4", "IW9i3bJ8bkU"],
+    "youtubeIDs": [
+      "tTpQbfHj4j4",
+      "IW9i3bJ8bkU"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
@@ -70,13 +90,23 @@
   },
   "0e8wJ9fMXakMWu0Zk06F5Q": {
     "name": "Mr. Bachchan",
-    "youtubeIDs": ["kiu9WG9eUh0", "6Nzbha_IQ0c", "JgYrGx00MLI", "06WW1v6oJMw"],
+    "youtubeIDs": [
+      "kiu9WG9eUh0",
+      "6Nzbha_IQ0c",
+      "JgYrGx00MLI",
+      "06WW1v6oJMw"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "1SAnZrDesDykzB15u5wHjw": {
     "name": "Saaho",
-    "youtubeIDs": ["owTs8Ha6Nao", "I7HwFFJGWhw", "TKhwNb-K0x0", "h2JH0vqDcYc"],
+    "youtubeIDs": [
+      "owTs8Ha6Nao",
+      "I7HwFFJGWhw",
+      "TKhwNb-K0x0",
+      "h2JH0vqDcYc"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
@@ -107,31 +137,42 @@
   },
   "1WTyvUvbHM3EVEdD2F7tky": {
     "name": "Jawan",
-    "youtubeIDs": ["dfLH_3QXpp4"],
+    "youtubeIDs": [
+      "dfLH_3QXpp4"
+    ],
     "type": "Movie",
     "language": "Hindi"
   },
   "5CdxG2RqWaUgjboDBQ1cMA": {
     "name": "Brahmastra: Part One",
-    "youtubeIDs": ["P7yRYiBiV3g"],
+    "youtubeIDs": [
+      "P7yRYiBiV3g"
+    ],
     "type": "Movie",
     "language": "Hindi"
   },
   "2qyn4gz94ZYuEZUPWxPupI": {
     "name": "Laapataa Ladies",
-    "youtubeIDs": ["gYHVddokkd0"],
+    "youtubeIDs": [
+      "gYHVddokkd0"
+    ],
     "type": "Movie",
     "language": "Hindi"
   },
   "4M6H9NC9zXi7LIf675W5Uo": {
     "name": "Amar Prem Ki Prem Kahani",
-    "youtubeIDs": ["reySvnsz-tk"],
+    "youtubeIDs": [
+      "reySvnsz-tk"
+    ],
     "type": "Movie",
     "language": "Hindi"
   },
   "0EZC8T3t7qsoiqV5sPsyFS": {
     "name": "Roy",
-    "youtubeIDs": ["nJZcbidTutE", "2aXIfrt7ye0"],
+    "youtubeIDs": [
+      "nJZcbidTutE",
+      "2aXIfrt7ye0"
+    ],
     "type": "Movie",
     "language": "Hindi"
   },
@@ -149,212 +190,359 @@
   },
   "1Bn5aZ2lQTnbYjkjnsOZo1": {
     "name": "Sukoon",
-    "youtubeIDs": ["lX3vT_Gm_HE,mn8ywyrgPwQ"],
+    "youtubeIDs": [
+      "lX3vT_Gm_HE,mn8ywyrgPwQ"
+    ],
     "type": "Movie",
     "language": "Hindi"
   },
   "2iVmFaIo6Da89Zk2HwcHMt": {
     "name": "Ponniyin Selvan",
-    "youtubeIDs": ["0aavCtXiiX4"],
+    "youtubeIDs": [
+      "0aavCtXiiX4"
+    ],
     "type": "Movie",
     "language": "Tamil"
   },
   "5iyWHUVq2euW032bRBMzmU": {
     "name": "Radhe Shyam",
-    "youtubeIDs": ["BxFMF2LaKu0", "YWL-iH2jLno", "e_PhAbB0rkQ"],
+    "youtubeIDs": [
+      "BxFMF2LaKu0",
+      "YWL-iH2jLno",
+      "e_PhAbB0rkQ"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "5fJowCQvh2clkfXinhKmmK": {
     "name": "Kick 2",
-    "youtubeIDs": ["4IA_sptpYtY"],
+    "youtubeIDs": [
+      "4IA_sptpYtY"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "4GygK5cNrv23bEBeg85oPt": {
     "name": "Champion",
-    "youtubeIDs": ["7Z5abg_C2dU"],
+    "youtubeIDs": [
+      "7Z5abg_C2dU"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "2PnWeohb0Gq4GH70xm8QbW": {
     "name": "KGF 2",
-    "youtubeIDs": ["_C1D77ogkGY", "5QDiKZA-wdI", "ebMMTDFKBIg", "PikKs62zE-A"],
+    "youtubeIDs": [
+      "_C1D77ogkGY",
+      "5QDiKZA-wdI",
+      "ebMMTDFKBIg",
+      "PikKs62zE-A"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "5Byv34zdV5YbQFYUiQ9w7b": {
     "name": "Mana ShankaraVaraPrasad Garu",
-    "youtubeIDs": ["F-KfKbCDBIk", "1_JNUlsEQEE"],
+    "youtubeIDs": [
+      "F-KfKbCDBIk",
+      "1_JNUlsEQEE"
+    ],
     "personID": "N/A",
     "language": "Telugu",
     "type": "Movie"
   },
   "5umLRBB1iYRFC73vX1OVmj": {
     "name": "Thiru",
-    "youtubeIDs": ["cEWwJxEq9Lg"],
+    "youtubeIDs": [
+      "cEWwJxEq9Lg"
+    ],
     "type": "Movie",
     "language": "Tamil"
   },
   "58yg6CueoE1HIT9xKt3Lh1": {
     "name": "Return of The Dragon",
-    "youtubeIDs": ["m-RiOAOfCGs"],
+    "youtubeIDs": [
+      "m-RiOAOfCGs"
+    ],
     "type": "Movie",
     "language": "Tamil"
   },
   "7vgkF7DqSeS9zfxMCQlMH0": {
     "name": "Dude",
-    "youtubeIDs": ["4Bsc2uI_LsM"],
+    "youtubeIDs": [
+      "4Bsc2uI_LsM"
+    ],
     "type": "Movie",
     "language": "Tamil"
   },
   "38SUvcNAxuETLWbKmT4G9W": {
     "name": "Love Insurance Kompany",
-    "youtubeIDs": ["H1frBzuWqqM"],
+    "youtubeIDs": [
+      "H1frBzuWqqM"
+    ],
     "type": "Movie",
     "language": "Tamil"
   },
   "3OII5hoPhljHRm5V2xr50I": {
     "name": "Love Today",
-    "youtubeIDs": ["TYpEpuP3-E8"],
+    "youtubeIDs": [
+      "TYpEpuP3-E8"
+    ],
     "type": "Movie",
     "language": "Tamil"
   },
   "0reyMF4rcaMjoLJF2CmnjQ": {
     "name": "Sarkaru Vaari Paata",
-    "youtubeIDs": ["lcfcTbEppQM", "Aopz1VusvRU", "EqyKcZibh-Y", "VtQZEFOP1Cs"],
+    "youtubeIDs": [
+      "lcfcTbEppQM",
+      "Aopz1VusvRU",
+      "EqyKcZibh-Y",
+      "VtQZEFOP1Cs"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "3wbzRBcgqsiG99uOkxFs6B": {
     "name": "Bhartha Mahasayulaku Wignyapthi",
-    "youtubeIDs": ["LHCbyu_gs2I"],
+    "youtubeIDs": [
+      "LHCbyu_gs2I"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "6t7F0nkzqx1Q24a6u8L0jc": {
     "name": "Power",
-    "youtubeIDs": ["KvqGVzobpxI", "7X3lMc7WUy4"],
+    "youtubeIDs": [
+      "KvqGVzobpxI",
+      "7X3lMc7WUy4"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "58QPvCiy9PjyJeIoqEvHlD": {
     "name": "Nannaku Prematho",
-    "youtubeIDs": ["JOAJoe38rXo", "P0twhKgZXnI"],
+    "youtubeIDs": [
+      "JOAJoe38rXo",
+      "P0twhKgZXnI"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "0wwpFVAkBtzX43TUYNkpWu": {
     "name": "Bengal Tiger",
-    "youtubeIDs": ["ozYHoMDRoXQ", "WKhx4g2kdCs", "vP8cFd2BTfY"],
+    "youtubeIDs": [
+      "ozYHoMDRoXQ",
+      "WKhx4g2kdCs",
+      "vP8cFd2BTfY"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "0WIiyaQOvWSUKqem81zybE": {
     "name": "Anaganaga Oka Raju",
-    "youtubeIDs": ["45h_xXANqtQ"],
+    "youtubeIDs": [
+      "45h_xXANqtQ"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "125mQD8QUfaLhpn0MrmctK": {
     "name": "Bhojpuri Hits",
-    "youtubeIDs": ["iqp-qq8h8uc"],
+    "youtubeIDs": [
+      "iqp-qq8h8uc"
+    ],
     "type": "Movie",
     "language": "Bhojpuri"
   },
   "6XOeIIdAT2YLzumZ35D31W": {
     "name": "Dhamaka",
-    "youtubeIDs": ["KlJoT-kv-Ww", "EgnaDC_xrRM"],
+    "youtubeIDs": [
+      "KlJoT-kv-Ww",
+      "EgnaDC_xrRM"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "3fMlPXqaCRLMZALB9diA7u": {
     "name": "Khaidi No 150",
-    "youtubeIDs": ["fbi6OGUW5qM", "bwW_qTwXEIs", "pSH5Ar8t9PQ", "I-mjQ9J1R4g"],
+    "youtubeIDs": [
+      "fbi6OGUW5qM",
+      "bwW_qTwXEIs",
+      "pSH5Ar8t9PQ",
+      "I-mjQ9J1R4g"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "1Ezkr8BeR5zQr6WcmjoJ1R": {
     "name": "Krack",
-    "youtubeIDs": ["emVUFz_KSI8", "t-UXozzpGRg"],
+    "youtubeIDs": [
+      "emVUFz_KSI8",
+      "t-UXozzpGRg"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "4dmJG26vjaKI4kiabquYnw": {
     "name": "Aagadu",
-    "youtubeIDs": ["X-qRK88m18I", "arZ2uTxmv2w"],
+    "youtubeIDs": [
+      "X-qRK88m18I",
+      "arZ2uTxmv2w"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "7oaEarzQC9RP1Ss10aCmPg": {
     "name": "Das Ka Dhamki",
-    "youtubeIDs": ["B3UcypzegHc"],
+    "youtubeIDs": [
+      "B3UcypzegHc"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "01n667h95m8mMboxl8aoK7": {
     "name": "Laila",
-    "youtubeIDs": ["JmZN6_gvm5g"],
+    "youtubeIDs": [
+      "JmZN6_gvm5g"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "3G9bLuiSyNmnO3kxNh2g1H": {
     "name": "Red",
-    "youtubeIDs": ["apfSvhnmJNk"],
+    "youtubeIDs": [
+      "apfSvhnmJNk"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "2i37EBXDgWeYuXchVP8xzQ": {
     "name": "Gangs of Godavari",
-    "youtubeIDs": ["KPufjoSP3sw", "VzvqVR0NqRY"],
+    "youtubeIDs": [
+      "KPufjoSP3sw",
+      "VzvqVR0NqRY"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "0FPA6bL8gRMVqptQl6pZwd": {
     "name": "iSmart Shankar",
-    "youtubeIDs": ["C-Cf0ZWdyEE", "V5c4BnmPTpU"],
+    "youtubeIDs": [
+      "C-Cf0ZWdyEE",
+      "V5c4BnmPTpU"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "4XCHyDvbmuMXlb6yigSQ6Z": {
     "name": "Daaku Maharaaj",
-    "youtubeIDs": ["UYcQn_W71vw"],
+    "youtubeIDs": [
+      "UYcQn_W71vw"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "7rRuYYmknNKeoystQ8UJwN": {
     "name": "Varudu Kaavalenu",
-    "youtubeIDs": ["XGNqfBUgog0"],
+    "youtubeIDs": [
+      "XGNqfBUgog0"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "3607KXYPoJFxtcA83HQJ9m": {
     "name": "Akhanda 2",
-    "youtubeIDs": ["UY8LtHLvOY8"],
+    "youtubeIDs": [
+      "UY8LtHLvOY8"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "19bAyyQEKkqq5mJViD78O8": {
     "name": "Akhanda",
-    "youtubeIDs": ["ENvdFUJz6cE"],
+    "youtubeIDs": [
+      "ENvdFUJz6cE"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "3h1cxJl7ZuGWGRK9c11hZw": {
     "name": "Veera Simha Reddy",
-    "youtubeIDs": ["wcC7_pkel5A"],
+    "youtubeIDs": [
+      "wcC7_pkel5A"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "60Xwc4jDV6NYGLt3LmoNeu": {
     "name": "Robinhood",
-    "youtubeIDs": ["rlMtaSs7wfs"],
+    "youtubeIDs": [
+      "rlMtaSs7wfs"
+    ],
     "type": "Movie",
     "language": "Telugu"
   },
   "6gAzMQcmpVdqSoazr1fxSQ": {
     "name": "Double ISmart",
-    "youtubeIDs": ["6poeERInxRE"],
+    "youtubeIDs": [
+      "6poeERInxRE"
+    ],
+    "type": "Movie",
+    "language": "Telugu"
+  },
+  "3alq3kIDFmt2HBth9fCAwA": {
+    "name": "Mirchi",
+    "youtubeIDs": [
+      "fS8BwujG-QY",
+      "YtGhGXLMHw0",
+      "N28E3F9ZW0k",
+      "mMKMJk8XdHc",
+      "ppWFbBjamCE"
+    ],
+    "type": "Movie",
+    "language": "Telugu"
+  },
+  "4l0ldCaCwAAhhdQyALjemd": {
+    "name": "Macherla Niyojakavargam",
+    "youtubeIDs": [
+      "by4USgMmICE"
+    ],
+    "type": "Movie",
+    "language": "Telugu"
+  },
+  "4JvWjSf289z35LsIMV8j02": {
+    "name": "Pushpa 2",
+    "youtubeIDs": [
+      "0XHfa80NKfA",
+      "LZXJUE9OH_0",
+      "gXNyyKDhIo8"
+    ],
+    "type": "Movie",
+    "language": "Telugu"
+  },
+  "5VApBAFMnmemoZ4e1Fb5hf": {
+    "name": "Pushpa 1",
+    "youtubeIDs": [
+      "u_wB6byrl5k",
+      "txHO7PLGE3o"
+    ],
+    "type": "Movie",
+    "language": "Telugu"
+  },
+  "0w5qzADEBVW1Q0cTLOnyNR": {
+    "name": "Acharya",
+    "youtubeIDs": [
+      "6VTb1aiN2CE",
+      "wTxu9v9X1fA"
+    ],
+    "type": "Movie",
+    "language": "Telugu"
+  },
+  "5LjeccOA8Umj5pJn0rIpTQ": {
+    "name": "Mad Square",
+    "youtubeIDs": [
+      "-vr0Ir5PMww"
+    ],
     "type": "Movie",
     "language": "Telugu"
   }
