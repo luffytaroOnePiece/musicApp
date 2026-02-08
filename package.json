@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "update-live": "node scripts/updateLiveVideos.js"
+    "update-live": "node scripts/updateLiveVideos.js",
+    "extract-ids": "node scripts/extractYoutubeIds.js",
+    "enrich-mix": "node scripts/enrichYoutubeData.js"
   },
   "dependencies": {
     "react": "^19.2.0",

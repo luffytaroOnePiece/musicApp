@@ -15,6 +15,7 @@ const TopBar = ({
     onShowYoutube,
     onShowAlbums,
     onShowLive,
+    onShowMixes,
     onShowMovies,
     onShowZenMode,
 }) => {
@@ -84,7 +85,7 @@ const TopBar = ({
                 </button>
 
                 {/* YouTube Library Button */}
-                <button
+                {/* <button
                     onClick={onShowYoutube}
                     className="youtube-btn-top topbar-nav-btn"
                     title="YouTube Library"
@@ -103,7 +104,7 @@ const TopBar = ({
                         <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="white"></polygon>
                     </svg>
                     YouTube
-                </button>
+                </button> */}
 
                 {/* Albums Button */}
                 <button
@@ -148,6 +149,27 @@ const TopBar = ({
                         <circle cx="12" cy="12" r="4"></circle>
                     </svg>
                     Live
+                </button>
+                <button
+                    onClick={onShowMixes}
+                    className="mixes-btn-top topbar-nav-btn"
+                    title="Mixes"
+                >
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <path d="M9 18V5l12-2v13"></path>
+                        <circle cx="6" cy="18" r="3"></circle>
+                        <circle cx="18" cy="16" r="3"></circle>
+                    </svg>
+                    Mixes
                 </button>
                 <button
                     onClick={onShowMovies}

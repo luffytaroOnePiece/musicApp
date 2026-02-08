@@ -113,6 +113,8 @@ const ScriptsView = () => {
         }
     };
 
+
+
     return (
         <div className="scripts-view">
             <div className="scripts-header">
@@ -138,6 +140,19 @@ const ScriptsView = () => {
                         </button>
                     </div>
                 ))}
+
+                {/* New Script: Extract YouTube IDs */}
+                {/* New Script: Extract YouTube IDs */}
+                <div className="script-card">
+                    <h3>Extract YouTube IDs</h3>
+                    <p>
+                        Run the extraction script to save all YouTube IDs to <code>src/data/youtubeIdsByLanguage.json</code>.
+                    </p>
+                    <br />
+                    <code style={{ display: 'block', padding: '10px', background: '#1a1a1a', borderRadius: '4px', textAlign: 'center', fontFamily: 'monospace' }}>
+                        npm run extract-ids
+                    </code>
+                </div>
             </div>
 
             {logs.length > 0 && (

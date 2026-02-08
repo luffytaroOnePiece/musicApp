@@ -31,6 +31,7 @@ import ExploreView from "./ExploreView";
 import MoviesView from "./MoviesView";
 
 import LiveView from "./LiveView";
+import YoutubeMixView from "./YoutubeMixView";
 
 import FullPlayer from "./FullPlayer";
 import ZenMode from "./ZenMode";
@@ -66,6 +67,7 @@ const Dashboard = () => {
   const [showYoutube, setShowYoutube] = useState(false);
   const [showAlbums, setShowAlbums] = useState(false);
   const [showLive, setShowLive] = useState(false);
+  const [showMixes, setShowMixes] = useState(false);
   const [showArtists, setShowArtists] = useState(false);
   const [isZenModeOpen, setIsZenModeOpen] = useState(false);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
@@ -409,6 +411,7 @@ const Dashboard = () => {
     setShowYoutube(false);
     setShowAlbums(false);
     setShowLive(false);
+    setShowMixes(false);
     setShowArtists(false);
     setIsStatsOpen(false);
     setIsProfileOpen(false);
@@ -425,6 +428,7 @@ const Dashboard = () => {
     setShowYoutube(true);
     setShowAlbums(false);
     setShowLive(false);
+    setShowMixes(false);
     setShowArtists(false);
     setIsStatsOpen(false);
     setIsProfileOpen(false);
@@ -445,6 +449,7 @@ const Dashboard = () => {
     setShowYoutube(false);
     setShowAlbums(true);
     setShowLive(false);
+    setShowMixes(false);
     setShowArtists(false);
     setIsStatsOpen(false);
     setIsProfileOpen(false);
@@ -461,6 +466,7 @@ const Dashboard = () => {
     setShowYoutube(false);
     setShowAlbums(false);
     setShowLive(true);
+    setShowMixes(false);
     setShowArtists(false);
     setIsStatsOpen(false);
     setIsProfileOpen(false);
@@ -469,6 +475,23 @@ const Dashboard = () => {
     setShowScripts(false);
   };
 
+  const handleShowMixes = () => {
+    setSelectedPlaylist(null);
+    setSearchResults(null);
+    setIsSearching(false);
+    setShowYoutube(false);
+    setShowAlbums(false);
+    setShowLive(false);
+    setShowMixes(true);
+    setShowArtists(false);
+    setIsStatsOpen(false);
+    setIsProfileOpen(false);
+    setIsExploreOpen(false);
+    setShowMovies(false);
+    setShowScripts(false);
+  };
+
+
   const handleShowArtists = () => {
     setSelectedPlaylist(null);
     setSearchResults(null);
@@ -476,6 +499,7 @@ const Dashboard = () => {
     setShowYoutube(false);
     setShowAlbums(false);
     setShowLive(false);
+    setShowMixes(false);
     setShowArtists(true);
     setIsStatsOpen(false);
     setIsProfileOpen(false);
@@ -496,6 +520,7 @@ const Dashboard = () => {
     setShowYoutube(false);
     setShowAlbums(false);
     setShowLive(false);
+    setShowMixes(false);
     setShowArtists(false);
     setIsStatsOpen(true);
     setIsProfileOpen(false);
@@ -512,6 +537,7 @@ const Dashboard = () => {
     setShowYoutube(false);
     setShowAlbums(false);
     setShowLive(false);
+    setShowMixes(false);
     setShowArtists(false);
     setIsStatsOpen(false);
     setIsProfileOpen(true);
@@ -527,6 +553,7 @@ const Dashboard = () => {
     setShowYoutube(false);
     setShowAlbums(false);
     setShowLive(false);
+    setShowMixes(false);
     setShowArtists(false);
     setIsStatsOpen(false);
     setIsProfileOpen(false);
@@ -542,6 +569,7 @@ const Dashboard = () => {
     setShowYoutube(false);
     setShowAlbums(false);
     setShowLive(false);
+    setShowMixes(false);
     setShowArtists(false);
     setIsStatsOpen(false);
     setIsProfileOpen(false);
@@ -557,6 +585,7 @@ const Dashboard = () => {
     setShowYoutube(false);
     setShowAlbums(false);
     setShowLive(false);
+    setShowMixes(false);
     setShowArtists(false);
     setIsStatsOpen(false);
     setIsProfileOpen(false);
@@ -570,6 +599,7 @@ const Dashboard = () => {
     if (showYoutube) return "youtube";
     if (showAlbums) return "albums";
     if (showLive) return "live";
+    if (showMixes) return "mixes";
     if (showArtists) return "artists";
     if (isStatsOpen) return "stats";
     if (isProfileOpen) return "profile";
@@ -594,6 +624,9 @@ const Dashboard = () => {
       setIsZenModeOpen(false);
     } else if (moduleId === "live") {
       handleShowLive();
+      setIsZenModeOpen(false);
+    } else if (moduleId === "mixes") {
+      handleShowMixes();
       setIsZenModeOpen(false);
     } else if (moduleId === "artists") {
       handleShowArtists();
@@ -675,6 +708,7 @@ const Dashboard = () => {
           onShowYoutube={handleShowYoutube}
           onShowAlbums={handleShowAlbums}
           onShowLive={handleShowLive}
+          onShowMixes={handleShowMixes}
           onShowMovies={handleShowMovies}
           onShowZenMode={handleShowZenMode}
         />
@@ -688,6 +722,8 @@ const Dashboard = () => {
           <AlbumsView handlePlay={handlePlay} searchTerm={searchTerm} formatTime={formatTime} resetToken={albumsResetToken} />
         ) : showLive ? (
           <LiveView />
+        ) : showMixes ? (
+          <YoutubeMixView />
         ) : showScripts ? (
           <ScriptsView />
         ) : showArtists ? (
