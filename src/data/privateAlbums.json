@@ -390,5 +390,30 @@
     "youtubeIDs": ["ilNt2bikxDI", "gJLVTKhTnog"],
     "type": "Private",
     "language": "Hindi"
+  },
+  "49KKfVvo1O4jtyGEEmNwqT": {
+    "name": "Shreya Ghoshal",
+    "youtubeIDs": ["kgG-rPj2taE"],
+    "type": "Private",
+    "language": "Hindi"
+  },
+  "0IRCCW0DkEqVcewouqqAOz": {
+    "name": "Nora Fatehi",
+    "youtubeIDs": ["nVPFfbg2clk", "ge_UgErt4yo"],
+    "type": "Private",
+    "language": "Hindi"
+  },
+  "0hbj6nhknUZhGRiWQBZwXe": {
+    "name": "Badshah",
+    "youtubeIDs": ["t-C29iYLfak", "EYsYY_SfX0A", "gU3czqYTpVE", "QI3fEPhPMUM"],
+    "type": "Private",
+    "language": "Hindi"
+  },
+  "0FRFBvbXrkoiQ8wLDvjvMp": {
+    "name": "Dhvani Bhanushalia",
+    "youtubeIDs": ["I5EyIxpHdIA", "UKZe6TrbozM"],
+    "type": "Private",
+    "language": "Hindi",
+    "personID": "3006401"
   }
 }
