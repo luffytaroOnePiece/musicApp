@@ -1,17 +1,21 @@
 {
-    "playlistId": "2nIJBZsTgFbryteLWHtZC5",
-    "lwps": [
-        {
-            "name": "Purple Sakura River",
-            "url": "https://raw.githubusercontent.com/luffytaroOnePiece/lwp/main/one.mp4"
-        },
-        {
-            "name": "Temple Mount Fuji",
-            "url": "https://raw.githubusercontent.com/luffytaroOnePiece/lwp/main/two.mp4"
-        },
-        {
-            "name": "Winter Forest Snow",
-            "url": "https://raw.githubusercontent.com/luffytaroOnePiece/lwp/main/three.mp4"
-        }
-    ]
+  "playlistId": "2nIJBZsTgFbryteLWHtZC5",
+  "lwps": [
+    {
+      "name": "Purple Sakura River",
+      "url": "https://raw.githubusercontent.com/luffytaroOnePiece/lwp/main/one.mp4"
+    },
+    {
+      "name": "Temple Mount Fuji",
+      "url": "https://raw.githubusercontent.com/luffytaroOnePiece/lwp/main/two.mp4"
+    },
+    {
+      "name": "Winter Forest Snow",
+      "url": "https://raw.githubusercontent.com/luffytaroOnePiece/lwp/main/three.mp4"
+    },
+    {
+      "name": "Last Of Us: Part 1",
+      "url": "https://raw.githubusercontent.com/luffytaroOnePiece/lwp/main/four.mp4"
+    }
+  ]
 }
