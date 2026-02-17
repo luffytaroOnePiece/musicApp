@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getAccountDetails, getAccountLists, getListDetails, getDetails, getCredits, getImages, getAccountWatchlist } from '../services/tmdbApi';
+import { getAccountDetails, getAccountLists, getListDetails, getDetails, getCredits, getImages, getAccountWatchlist, searchMulti, getImageUrl } from '../services/tmdbApi';
 import '../styles/MoviesView.css';
 
 // Components
@@ -13,6 +13,11 @@ const MoviesView = () => {
     const [lists, setLists] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Search State
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
 
     // Level 2: List Detail
     const [selectedList, setSelectedList] = useState(null);
@@ -304,6 +309,27 @@ const MoviesView = () => {
         setListItems([]);
     }
 
+    const handleSearch = async (e) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+
+        if (query.trim().length > 0) {
+            setIsSearching(true);
+            try {
+                const results = await searchMulti(query);
+                if (results && results.results) {
+                    const filtered = results.results.filter(item => item.media_type === 'movie' || item.media_type === 'tv');
+                    setSearchResults(filtered);
+                }
+            } catch (error) {
+                console.error("Search failed:", error);
+            }
+        } else {
+            setIsSearching(false);
+            setSearchResults([]);
+        }
+    };
+
     if (error) return <div className="movies-view-error">{error}</div>;
 
     // VIEW: Movie Detail (Level 3)
@@ -334,12 +360,73 @@ const MoviesView = () => {
         );
     }
 
-    // VIEW: Lists Grid (Level 1)
+    // VIEW: Search Results or Lists Grid (Level 1)
     return (
-        <ListsGrid
-            lists={lists}
-            onListSelect={handleListSelect}
-        />
+        <div className="movies-view-container">
+            <div className="movies-header glass-header sticky-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: '20px' }}>
+                <h2 className="header-title-large">Movies & TV</h2>
+                <div className="movies-search-bar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="search-icon">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input
+                        type="text"
+                        placeholder="Search movies, TV shows..."
+                        value={searchQuery}
+                        onChange={handleSearch}
+                        className="search-input"
+                    />
+                </div>
+            </div>
+
+            {isSearching ? (
+                <div className="content-scroll-area">
+                    <div className="movies-grid animate-stagger-children" style={{ padding: '20px', paddingBottom: '100px' }}>
+                        {searchResults.map(item => (
+                            <div
+                                key={item.id}
+                                className={`movie-card glass-card`}
+                                onClick={() => handleMovieSelect(item)}
+                            >
+                                <div className="movie-poster-wrapper">
+                                    {item.poster_path ? (
+                                        <img
+                                            src={getImageUrl(item.poster_path, 'w500')}
+                                            alt={item.title || item.name}
+                                            className="movie-poster"
+                                            loading="lazy"
+                                        />
+                                    ) : (
+                                        <div className="no-poster"><span>No Image</span></div>
+                                    )}
+                                    <div className="rating-badge glass-badge">
+                                        ★ {item.vote_average?.toFixed(1)}
+                                    </div>
+                                </div>
+                                <div className="movie-info">
+                                    <h3 className="movie-title">{item.title || item.name}</h3>
+                                    <div className="movie-meta">
+                                        <span>{(item.release_date || item.first_air_date || '').split('-')[0]}</span>
+                                        {item.media_type && <span>• {item.media_type === 'tv' ? 'TV' : 'Movie'}</span>}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                        {searchResults.length === 0 && (
+                            <div className="no-items-found" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px' }}>
+                                No results found for "{searchQuery}"
+                            </div>
+                        )}
+                    </div>
+                </div>
+            ) : (
+                <ListsGrid
+                    lists={lists}
+                    onListSelect={handleListSelect}
+                />
+            )}
+        </div>
     );
 };
 
