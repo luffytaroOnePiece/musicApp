@@ -33,6 +33,7 @@ const VidKingModal = ({ tmdbId, type, season, episode, onClose }) => {
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                         allowFullScreen
+                        sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
                         className="live-player-iframe"
                     ></iframe>
                 </div>
