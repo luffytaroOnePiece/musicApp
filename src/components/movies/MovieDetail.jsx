@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { getImageUrl, getDetails, getImages, getVideos } from '../../services/tmdbApi';
 import VideoModal from '../common/VideoModal';
+import VidKingModal from '../common/VidKingModal';
 
 const MovieDetail = ({
     movie,
@@ -22,6 +23,10 @@ const MovieDetail = ({
     const [loadingSeason, setLoadingSeason] = useState(false);
     const [trailer, setTrailer] = useState(null);
     const [showTrailerModal, setShowTrailerModal] = useState(false);
+
+    // VidKing Player State
+    const [showPlayer, setShowPlayer] = useState(false);
+    const [playerConfig, setPlayerConfig] = useState({ type: 'movie', season: 1, episode: 1 });
 
     // Effect to fetch trailer
     React.useEffect(() => {
@@ -197,6 +202,18 @@ const MovieDetail = ({
                 document.body
             )}
 
+            {/* VidKing Player Modal */}
+            {showPlayer && ReactDOM.createPortal(
+                <VidKingModal
+                    tmdbId={details.id}
+                    type={playerConfig.type}
+                    season={playerConfig.season}
+                    episode={playerConfig.episode}
+                    onClose={() => setShowPlayer(false)}
+                />,
+                document.body
+            )}
+
             {/* Season Detail Modal */}
             {selectedSeason && ReactDOM.createPortal(
                 <div className="actor-modal-overlay" onClick={closeSeasonModal}>
@@ -238,6 +255,24 @@ const MovieDetail = ({
                                                 <div className="episode-header">
                                                     <span className="episode-number">{episode.episode_number}.</span>
                                                     <span className="episode-title">{episode.name}</span>
+                                                    <button
+                                                        className="episode-play-btn glass-btn icon-only-small"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setPlayerConfig({
+                                                                type: 'tv',
+                                                                season: selectedSeason.season_number,
+                                                                episode: episode.episode_number
+                                                            });
+                                                            setShowPlayer(true);
+                                                        }}
+                                                        style={{ marginLeft: '10px', padding: '4px 8px', minWidth: 'auto', height: 'auto' }}
+                                                        title="Play Episode"
+                                                    >
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                                                            <path d="M8 5v14l11-7z" />
+                                                        </svg>
+                                                    </button>
                                                 </div>
                                                 <span className="episode-date">
                                                     {episode.air_date ? new Date(episode.air_date).toLocaleDateString() : 'TBA'}
@@ -289,18 +324,40 @@ const MovieDetail = ({
                             )}
                         </div>
 
-                        {trailer && (
+                        <div className="detail-actions" style={{ display: 'flex', gap: '16px', marginTop: '15px', marginBottom: '32px' }}>
+                            {trailer && (
+                                <button
+                                    className="play-trailer-btn glass-btn"
+                                    onClick={() => setShowTrailerModal(true)}
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" style={{ marginRight: '8px' }}>
+                                        <path d="M8 5v14l11-7z" />
+                                    </svg>
+                                    Play Trailer
+                                </button>
+                            )}
+
                             <button
-                                className="play-trailer-btn glass-btn"
-                                onClick={() => setShowTrailerModal(true)}
-                                style={{ marginTop: '15px', marginBottom: '15px' }}
+                                className="play-trailer-btn glass-btn primary-action-btn"
+                                onClick={() => {
+                                    setPlayerConfig({
+                                        type: details.name ? 'tv' : 'movie',
+                                        season: 1,
+                                        episode: 1
+                                    });
+                                    setShowPlayer(true);
+                                }}
+                                style={{
+                                    backgroundColor: 'rgba(229, 9, 20, 0.8)', // Netflix Red-ish
+                                    border: 'none'
+                                }}
                             >
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" style={{ marginRight: '8px' }}>
                                     <path d="M8 5v14l11-7z" />
                                 </svg>
-                                Play Trailer
+                                {details.name ? 'Start Watching' : 'Watch Movie'}
                             </button>
-                        )}
+                        </div>
 
                         <div className="detail-stats-row">
                             <div className="stat-pill glass-pill">

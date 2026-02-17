@@ -469,3 +469,29 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+
+/* Primary Action Button (Watch) */
+.primary-action-btn {
+    transition: all 0.3s ease;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.primary-action-btn:hover {
+    transform: scale(1.05);
+    filter: brightness(1.2);
+    box-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
+}
+
+.episode-play-btn {
+    opacity: 0.7;
+    transition: all 0.2s ease;
+}
+
+.episode-play-btn:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
