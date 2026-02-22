@@ -19,7 +19,7 @@ const ListDetail = ({
     const [filteredItems, setFilteredItems] = useState([]);
 
     const filters = ['All', 'Movie', 'TV', 'Watched', 'Unwatched', 'Favorite', 'Rated'];
-    const sortOptions = ['Original Order', 'Top Rated', 'Release Date', 'Title (A-Z)'];
+    const sortOptions = ['Original Order', 'Top Rated', 'Release Date', 'Title (A-Z)', 'My Rating'];
 
     // Helper formats
     const formatMoney = (amount) => {
@@ -71,11 +71,18 @@ const ListDetail = ({
             processed.sort((a, b) => new Date(b.release_date || b.first_air_date) - new Date(a.release_date || a.first_air_date));
         } else if (sortOrder === 'Title (A-Z)') {
             processed.sort((a, b) => (a.title || a.name).localeCompare(b.title || b.name));
+        } else if (sortOrder === 'My Rating') {
+            // Helper to get rating from ratedItems array
+            const getRating = (id) => {
+                const ratedItem = ratedItems.find(r => r.id === id);
+                return ratedItem ? ratedItem.rating : 0;
+            };
+            processed.sort((a, b) => getRating(b.id) - getRating(a.id));
         }
         // 'Original Order' = no sort
 
         setFilteredItems(processed);
-    }, [items, activeFilter, sortOrder]);
+    }, [items, activeFilter, sortOrder, watchlistItems, favoriteItems, ratedItems]);
 
 
     return (
@@ -157,7 +164,16 @@ const ListDetail = ({
                                         <div className="no-poster"><span>No Image</span></div>
                                     )}
                                     <div className="rating-badge glass-badge">
-                                        ★ {item.vote_average?.toFixed(1)}
+                                        {sortOrder === 'My Rating' && ratedItems.find(r => r.id === item.id) ? (
+                                            <>
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="#f1c40f" stroke="#f1c40f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', verticalAlign: '-1px' }}>
+                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                                </svg>
+                                                {ratedItems.find(r => r.id === item.id).rating}/10
+                                            </>
+                                        ) : (
+                                            <>★ {item.vote_average?.toFixed(1)}</>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="movie-info">
