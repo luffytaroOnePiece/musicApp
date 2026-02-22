@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getAccountDetails, getAccountLists, getListDetails, getDetails, getCredits, getImages, getAccountWatchlist, searchMulti, getImageUrl } from '../services/tmdbApi';
+import { getAccountDetails, getAccountLists, getListDetails, getDetails, getCredits, getImages, getAccountWatchlist, getAccountFavorites, getAccountRated, searchMulti, getImageUrl } from '../services/tmdbApi';
 import '../styles/MoviesView.css';
 
 // Components
@@ -30,8 +30,10 @@ const MoviesView = () => {
         totalRevenue: 0,
         loaded: false
     });
-    // Store all watchlist items here to pass down for filtering
+    // Store all watchlist, favorite, and rated items here to pass down for filtering
     const [allWatchlistItems, setAllWatchlistItems] = useState([]);
+    const [allFavoriteItems, setAllFavoriteItems] = useState([]);
+    const [allRatedItems, setAllRatedItems] = useState([]);
 
     // Level 3: Movie Detail
     const [selectedMovie, setSelectedMovie] = useState(null);
@@ -76,7 +78,7 @@ const MoviesView = () => {
                         // 2. Fetch first item to get a movie backdrop (preferred for landscape card)
                         let firstItem = null;
                         if (list.id === 'watchlist') {
-                            const res = await getAccountWatchlist(accountData.id, 1);
+                            const res = await getAccountWatchlist(accountData.id, 1, 'movies');
                             if (res && res.results && res.results.length > 0) firstItem = res.results[0];
                         } else {
                             // Only fetch if we really need to (if we want to force backdrop over poster)
@@ -129,7 +131,7 @@ const MoviesView = () => {
                 let items = [];
                 let accountData = null;
 
-                const fetchAllPages = async (initialResponse, fetchFunction, ...args) => {
+                const fetchAllPages = async (initialResponse, fetchFunction, accountId, type) => {
                     if (!initialResponse || !initialResponse.results) return [];
                     let combinedResults = [...initialResponse.results];
                     const totalPages = initialResponse.total_pages;
@@ -137,26 +139,15 @@ const MoviesView = () => {
                     if (totalPages > 1) {
                         const promises = [];
                         for (let i = 2; i <= totalPages; i++) {
-                            // Watchlist and ListDetails take (id, page) usually
-                            // But arguments might differ.
-                            // Watchlist: (accountId, page)
-                            // ListDetails: (listId, page)
-                            promises.push(fetchFunction(...args, i));
+                            promises.push(fetchFunction(accountId, i, type));
                         }
 
                         const pageResponses = await Promise.all(promises);
                         pageResponses.forEach(response => {
                             if (response && response.results) {
                                 combinedResults = [...combinedResults, ...response.results];
-                            } else if (response && response.items) { // Handle ListDetails return structure check if standardized
-                                combinedResults = [...combinedResults, ...response.items];
                             }
                         });
-
-                        // Note: Depending on API, ListDetails might return { items: [] } or { results: [] }
-                        // Normalized in the loop above? 
-                        // Let's check: getListDetails uses /list/{id} which V3 returns { items: [], ... } often but V4 uses results.
-                        // Standardize below.
                     }
                     return combinedResults;
                 };
@@ -164,8 +155,11 @@ const MoviesView = () => {
                 if (selectedList.id === 'watchlist') {
                     accountData = await getAccountDetails();
                     if (accountData && accountData.id) {
-                        const firstPage = await getAccountWatchlist(accountData.id, 1);
-                        items = await fetchAllPages(firstPage, getAccountWatchlist, accountData.id);
+                        const firstPageMovies = await getAccountWatchlist(accountData.id, 1, 'movies');
+                        const movies = await fetchAllPages(firstPageMovies, getAccountWatchlist, accountData.id, 'movies');
+                        const firstPageTv = await getAccountWatchlist(accountData.id, 1, 'tv');
+                        const tvShows = await fetchAllPages(firstPageTv, getAccountWatchlist, accountData.id, 'tv');
+                        items = [...movies, ...tvShows];
                     }
                 } else {
                     const firstPage = await getListDetails(selectedList.id, 1);
@@ -198,13 +192,30 @@ const MoviesView = () => {
                         items = combinedItems;
                     }
 
-                    // Also fetch the full watchlist to allow filtering any list by "Watched/Unwatched" status
-                    // Optimization: We could cache this but since things change, fetching on list select is safe.
+                    // Also fetch the full watchlist, favorites, and rated items to allow filtering
                     accountData = await getAccountDetails();
                     if (accountData && accountData.id) {
-                        const firstWPage = await getAccountWatchlist(accountData.id, 1);
-                        const fullWatchlist = await fetchAllPages(firstWPage, getAccountWatchlist, accountData.id);
+                        const fetchData = async (fetchFunc) => {
+                            const [pageM, pageT] = await Promise.all([
+                                fetchFunc(accountData.id, 1, 'movies'),
+                                fetchFunc(accountData.id, 1, 'tv')
+                            ]);
+                            const [allM, allT] = await Promise.all([
+                                fetchAllPages(pageM, fetchFunc, accountData.id, 'movies'),
+                                fetchAllPages(pageT, fetchFunc, accountData.id, 'tv')
+                            ]);
+                            return [...allM, ...allT];
+                        };
+
+                        const [fullWatchlist, fullFavorites, fullRated] = await Promise.all([
+                            fetchData(getAccountWatchlist),
+                            fetchData(getAccountFavorites),
+                            fetchData(getAccountRated)
+                        ]);
+
                         setAllWatchlistItems(fullWatchlist || []);
+                        setAllFavoriteItems(fullFavorites || []);
+                        setAllRatedItems(fullRated || []);
                     }
                 }
 
@@ -368,6 +379,8 @@ const MoviesView = () => {
                 onBack={handleBackToGrid}
                 onMovieSelect={handleMovieSelect}
                 watchlistItems={selectedList.id === 'watchlist' ? listItems : allWatchlistItems}
+                favoriteItems={allFavoriteItems}
+                ratedItems={allRatedItems}
             />
         );
     }

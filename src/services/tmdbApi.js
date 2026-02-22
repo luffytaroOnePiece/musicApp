@@ -83,9 +83,9 @@ export const getImageUrl = (path, size = 'original') => {
     return `https://image.tmdb.org/t/p/${size}${path}`;
 };
 
-export const getAccountWatchlist = async (accountId, page = 1) => {
+export const getAccountWatchlist = async (accountId, page = 1, type = 'movies') => {
     if (!accountId) return null;
-    return fetchTmdb(`/account/${accountId}/watchlist/movies`, { page, sort_by: 'created_at.desc' });
+    return fetchTmdb(`/account/${accountId}/watchlist/${type}`, { page, sort_by: 'created_at.desc' });
 };
 
 export const getAccountDetails = async () => {
@@ -130,4 +130,49 @@ export const markAsFavorite = async (accountId, mediaType, mediaId, favorite) =>
         media_id: mediaId,
         favorite: favorite
     });
+};
+
+export const toggleWatchlist = async (accountId, mediaType, mediaId, watchlist) => {
+    if (!accountId || !mediaType || !mediaId) return null;
+    return postTmdb(`/account/${accountId}/watchlist`, {
+        media_type: mediaType,
+        media_id: mediaId,
+        watchlist: watchlist
+    });
+};
+
+export const rateMedia = async (mediaId, mediaType, rating) => {
+    if (!mediaId || !mediaType || !rating) return null;
+    return postTmdb(`/${mediaType}/${mediaId}/rating`, {
+        value: rating
+    });
+};
+
+export const deleteRating = async (mediaId, mediaType) => {
+    if (!mediaId || !mediaType) return null;
+    const url = new URL(`${BASE_URL}/${mediaType}/${mediaId}/rating`);
+    try {
+        const response = await fetch(url.toString(), {
+            method: 'DELETE',
+            headers: {
+                ...getHeaders(),
+                'Content-Type': 'application/json;charset=utf-8'
+            }
+        });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (error) {
+        console.error("TMDB Request Failed:", error);
+        return null;
+    }
+};
+
+export const getAccountFavorites = async (accountId, page = 1, type = 'movies') => {
+    if (!accountId) return null;
+    return fetchTmdb(`/account/${accountId}/favorite/${type}`, { page, sort_by: 'created_at.desc' });
+};
+
+export const getAccountRated = async (accountId, page = 1, type = 'movies') => {
+    if (!accountId) return null;
+    return fetchTmdb(`/account/${accountId}/rated/${type}`, { page, sort_by: 'created_at.desc' });
 };

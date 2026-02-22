@@ -9,14 +9,16 @@ const ListDetail = ({
     loading,
     onBack,
     onMovieSelect,
-    watchlistItems = [] // Pass watchlist down to enable filtering
+    watchlistItems = [], // Pass watchlist down to enable filtering
+    favoriteItems = [],
+    ratedItems = []
 }) => {
     // State for local filtering/sorting
     const [sortOrder, setSortOrder] = useState('Release Date'); // Matches options in Dropdown
     const [activeFilter, setActiveFilter] = useState('All');
     const [filteredItems, setFilteredItems] = useState([]);
 
-    const filters = ['All', 'Movie', 'TV', 'Watched', 'Unwatched'];
+    const filters = ['All', 'Movie', 'TV', 'Watched', 'Unwatched', 'Favorite', 'Rated'];
     const sortOptions = ['Original Order', 'Top Rated', 'Release Date', 'Title (A-Z)'];
 
     // Helper formats
@@ -53,6 +55,12 @@ const ListDetail = ({
             } else if (activeFilter === 'Unwatched') {
                 const watchedIds = new Set(watchlistItems.map(w => w.id));
                 processed = processed.filter(item => !watchedIds.has(item.id));
+            } else if (activeFilter === 'Favorite') {
+                const favIds = new Set(favoriteItems.map(f => f.id));
+                processed = processed.filter(item => favIds.has(item.id));
+            } else if (activeFilter === 'Rated') {
+                const ratedIds = new Set(ratedItems.map(r => r.id));
+                processed = processed.filter(item => ratedIds.has(item.id));
             }
         }
 

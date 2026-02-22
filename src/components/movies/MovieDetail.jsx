@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { getImageUrl, getDetails, getImages, getVideos, getAccountDetails, getAccountStates, markAsFavorite } from '../../services/tmdbApi';
+import { getImageUrl, getDetails, getImages, getVideos, getAccountDetails, getAccountStates, markAsFavorite, toggleWatchlist, rateMedia, deleteRating } from '../../services/tmdbApi';
 import VideoModal from '../common/VideoModal';
 import VidKingModal from '../common/VidKingModal';
 
@@ -24,10 +24,14 @@ const MovieDetail = ({
     const [trailer, setTrailer] = useState(null);
     const [showTrailerModal, setShowTrailerModal] = useState(false);
 
-    // Watched State
+    // Watched, Favorite, Rating State
     const [isWatched, setIsWatched] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [rating, setRating] = useState(0);
     const [accountId, setAccountId] = useState(null);
     const [updatingWatched, setUpdatingWatched] = useState(false);
+    const [updatingFavorite, setUpdatingFavorite] = useState(false);
+    const [updatingRating, setUpdatingRating] = useState(false);
 
     // VidKing Player State
     const [showPlayer, setShowPlayer] = useState(false);
@@ -60,7 +64,9 @@ const MovieDetail = ({
                         const mediaType = details.title ? 'movie' : 'tv';
                         const states = await getAccountStates(details.id, mediaType);
                         if (states) {
-                            setIsWatched(states.favorite);
+                            setIsWatched(states.watchlist);
+                            setIsFavorite(states.favorite);
+                            setRating(states.rated ? states.rated.value : 0);
                         }
                     }
                 } catch (error) {
@@ -79,14 +85,52 @@ const MovieDetail = ({
         const newWatchedState = !isWatched;
 
         try {
-            const result = await markAsFavorite(accountId, mediaType, details.id, newWatchedState);
+            const result = await toggleWatchlist(accountId, mediaType, details.id, newWatchedState);
             if (result && result.success) {
                 setIsWatched(newWatchedState);
             }
         } catch (error) {
-            console.error("Failed to toggle watched state:", error);
+            console.error("Failed to toggle watched (watchlist) state:", error);
         } finally {
             setUpdatingWatched(false);
+        }
+    };
+
+    const handleToggleFavorite = async () => {
+        if (!accountId || !details) return;
+        setUpdatingFavorite(true);
+        const mediaType = details.title ? 'movie' : 'tv';
+        const newFavState = !isFavorite;
+
+        try {
+            const result = await markAsFavorite(accountId, mediaType, details.id, newFavState);
+            if (result && result.success) {
+                setIsFavorite(newFavState);
+            }
+        } catch (error) {
+            console.error("Failed to toggle favorite state:", error);
+        } finally {
+            setUpdatingFavorite(false);
+        }
+    };
+
+    const handleRatingChange = async (e) => {
+        const newRating = parseFloat(e.target.value);
+        if (!details || !accountId) return;
+        setUpdatingRating(true);
+        const mediaType = details.title ? 'movie' : 'tv';
+        try {
+            if (newRating === 0 || isNaN(newRating)) {
+                await deleteRating(details.id, mediaType);
+                setRating(0);
+            } else {
+                await rateMedia(details.id, mediaType, newRating);
+                setRating(newRating);
+            }
+        } catch (error) {
+            console.error("Failed to update rating:", error);
+        } finally {
+            setUpdatingRating(false);
         }
     };
 
@@ -369,19 +413,7 @@ const MovieDetail = ({
                             )}
                         </div>
 
-                        <div className="detail-actions" style={{ display: 'flex', gap: '16px', marginTop: '15px', marginBottom: '32px' }}>
-                            {trailer && (
-                                <button
-                                    className="play-trailer-btn glass-btn"
-                                    onClick={() => setShowTrailerModal(true)}
-                                >
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" style={{ marginRight: '8px' }}>
-                                        <path d="M8 5v14l11-7z" />
-                                    </svg>
-                                    Play Trailer
-                                </button>
-                            )}
-
+                        <div className="detail-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '15px', marginBottom: '32px' }}>
                             <button
                                 className="play-trailer-btn glass-btn primary-action-btn"
                                 onClick={() => {
@@ -403,7 +435,7 @@ const MovieDetail = ({
                                 {details.name ? 'Start Watching' : 'Watch Movie'}
                             </button>
 
-                            {/* Mark as Watched / Favorite */}
+                            {/* Mark as Watched (Watchlist) */}
                             {accountId && (
                                 <button
                                     className={`play-trailer-btn glass-btn ${isWatched ? 'watched-active' : ''}`}
@@ -424,6 +456,69 @@ const MovieDetail = ({
                                     </svg>
                                     {updatingWatched ? 'Updating...' : (isWatched ? 'Watched' : 'Mark Watched')}
                                 </button>
+                            )}
+
+                            {/* Favorite */}
+                            {accountId && (
+                                <button
+                                    className={`play-trailer-btn glass-btn ${isFavorite ? 'favorite-active' : ''}`}
+                                    onClick={handleToggleFavorite}
+                                    disabled={updatingFavorite}
+                                    style={{
+                                        backgroundColor: isFavorite ? 'rgba(231, 76, 60, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                                        borderColor: isFavorite ? 'rgba(231, 76, 60, 0.5)' : 'rgba(255, 255, 255, 0.2)',
+                                        color: isFavorite ? '#e74c3c' : 'white',
+                                        minWidth: '140px',
+                                        opacity: updatingFavorite ? 0.7 : 1,
+                                        cursor: updatingFavorite ? 'not-allowed' : 'pointer'
+                                    }}
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorite ? "#e74c3c" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                    </svg>
+                                    {updatingFavorite ? 'Updating...' : (isFavorite ? 'Favorited' : 'Favorite')}
+                                </button>
+                            )}
+
+                            {/* Rating */}
+                            {accountId && (
+                                <div className="glass-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '0 16px', height: '40px', cursor: 'pointer', position: 'relative' }}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill={rating > 0 ? "#f1c40f" : "none"} stroke={rating > 0 ? "#f1c40f" : "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                    </svg>
+                                    {updatingRating ? (
+                                        <span style={{ color: 'white', fontSize: '14px', fontStyle: 'italic' }}>Saving...</span>
+                                    ) : (
+                                        <select
+                                            value={rating}
+                                            onChange={handleRatingChange}
+                                            className="rating-select-dropdown"
+                                            style={{
+                                                background: 'transparent',
+                                                border: 'none',
+                                                color: rating > 0 ? '#f1c40f' : 'white',
+                                                fontSize: '15px',
+                                                fontWeight: '500',
+                                                outline: 'none',
+                                                cursor: 'pointer',
+                                                appearance: 'none',
+                                                paddingRight: '4px',
+                                                fontFamily: 'inherit'
+                                            }}
+                                        >
+                                            <option value={0} style={{ backgroundColor: '#1a1a1a', color: 'white' }}>Rate</option>
+                                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                                                <option key={num} value={num} style={{ backgroundColor: '#1a1a1a', color: 'white' }}>{num} / 10</option>
+                                            ))}
+                                        </select>
+                                    )}
+                                    {/* Small dropdown arrow */}
+                                    {!updatingRating && (
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7, marginLeft: '-2px' }}>
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
+                                    )}
+                                </div>
                             )}
                         </div>
 
