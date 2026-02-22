@@ -24,6 +24,17 @@
     z-index: 1;
 }
 
+.games-image-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Fit to page, filling the entire background */
+    z-index: 1;
+}
+
 .zen-controls-container {
     position: absolute;
     bottom: 0;

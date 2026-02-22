@@ -35,6 +35,7 @@ import YoutubeMixView from "./YoutubeMixView";
 
 import FullPlayer from "./FullPlayer";
 import ZenMode from "./ZenMode";
+import GamesMode from "./GamesMode";
 import UserProfile from "./UserProfile";
 import ScriptsView from "./ScriptsView";
 import "../styles/Dashboard.css";
@@ -70,6 +71,7 @@ const Dashboard = () => {
   const [showMixes, setShowMixes] = useState(false);
   const [showArtists, setShowArtists] = useState(false);
   const [isZenModeOpen, setIsZenModeOpen] = useState(false);
+  const [isGamesModeOpen, setIsGamesModeOpen] = useState(false);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isExploreOpen, setIsExploreOpen] = useState(false);
@@ -511,6 +513,12 @@ const Dashboard = () => {
 
   const handleShowZenMode = () => {
     setIsZenModeOpen(true);
+    setIsGamesModeOpen(false);
+  };
+
+  const handleShowGamesMode = () => {
+    setIsGamesModeOpen(true);
+    setIsZenModeOpen(false);
   };
 
   const handleShowStats = () => {
@@ -596,6 +604,7 @@ const Dashboard = () => {
 
   const getActiveModule = () => {
     if (isZenModeOpen) return "zen";
+    if (isGamesModeOpen) return "games";
     if (showYoutube) return "youtube";
     if (showAlbums) return "albums";
     if (showLive) return "live";
@@ -613,38 +622,52 @@ const Dashboard = () => {
     if (moduleId === "home") {
       goHome();
       setIsZenModeOpen(false);
+      setIsGamesModeOpen(false);
     } else if (moduleId === "movies") {
       handleShowMovies();
       setIsZenModeOpen(false);
+      setIsGamesModeOpen(false);
     } else if (moduleId === "youtube") {
       handleShowYoutube();
       setIsZenModeOpen(false);
+      setIsGamesModeOpen(false);
     } else if (moduleId === "albums") {
       handleShowAlbums();
       setIsZenModeOpen(false);
+      setIsGamesModeOpen(false);
     } else if (moduleId === "live") {
       handleShowLive();
       setIsZenModeOpen(false);
+      setIsGamesModeOpen(false);
     } else if (moduleId === "mixes") {
       handleShowMixes();
       setIsZenModeOpen(false);
+      setIsGamesModeOpen(false);
     } else if (moduleId === "artists") {
       handleShowArtists();
       setIsZenModeOpen(false);
+      setIsGamesModeOpen(false);
+      setIsGamesModeOpen(false);
     } else if (moduleId === "zen") {
       handleShowZenMode();
+    } else if (moduleId === "games") {
+      handleShowGamesMode();
     } else if (moduleId === "stats") {
       handleShowStats();
       setIsZenModeOpen(false);
+      setIsGamesModeOpen(false);
     } else if (moduleId === "profile") {
       handleShowProfile();
       setIsZenModeOpen(false);
+      setIsGamesModeOpen(false);
     } else if (moduleId === "explore") {
       handleShowExplore();
       setIsZenModeOpen(false);
+      setIsGamesModeOpen(false);
     } else if (moduleId === "scripts") {
       handleShowScripts();
       setIsZenModeOpen(false);
+      setIsGamesModeOpen(false);
     }
   };
 
@@ -711,6 +734,7 @@ const Dashboard = () => {
           onShowMixes={handleShowMixes}
           onShowMovies={handleShowMovies}
           onShowZenMode={handleShowZenMode}
+          onShowGamesMode={handleShowGamesMode}
         />
 
         {/* Content Rendering Logic */}
@@ -859,6 +883,10 @@ const Dashboard = () => {
 
       {isZenModeOpen && (
         <ZenMode onClose={() => setIsZenModeOpen(false)} deviceId={deviceId} />
+      )}
+
+      {isGamesModeOpen && (
+        <GamesMode onClose={() => setIsGamesModeOpen(false)} deviceId={deviceId} />
       )}
     </div>
   );

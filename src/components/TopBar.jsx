@@ -18,14 +18,14 @@ const TopBar = ({
   onShowMixes,
   onShowMovies,
   onShowZenMode,
+  onShowGamesMode,
 }) => {
   const [themeMenuOpen, setThemeMenuOpen] = useState(false);
 
   return (
     <div
-      className={`top-bar-controls top-bar-container-flex ${
-        isSidebarOpen ? "sidebar-open" : "sidebar-closed"
-      }`}
+      className={`top-bar-controls top-bar-container-flex ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"
+        }`}
     >
       {/* Center - Search Bar (Expanded to Left) */}
       <div className="search-container search-container-flex">
@@ -81,6 +81,32 @@ const TopBar = ({
             <path d="M2 12h5l3 5 5-11 4 8 3-2" />
           </svg>
           Zen Mode
+        </button>
+
+        {/* Games Mode Button */}
+        <button
+          onClick={onShowGamesMode}
+          className="games-mode-btn-top topbar-nav-btn"
+          title="Enter Games Mode"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="accent-blue"
+          >
+            <rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect>
+            <circle cx="18" cy="10" r="1.5"></circle>
+            <circle cx="15" cy="14" r="1.5"></circle>
+            <line x1="6" y1="12" x2="10" y2="12"></line>
+            <line x1="8" y1="10" x2="8" y2="14"></line>
+          </svg>
+          Games Mode
         </button>
 
         {/* YouTube Library Button */}
@@ -252,9 +278,8 @@ const TopBar = ({
               {themes.map((t) => (
                 <div
                   key={t.id}
-                  className={`theme-dropdown-item ${
-                    currentTheme === t.id ? "active" : ""
-                  }`}
+                  className={`theme-dropdown-item ${currentTheme === t.id ? "active" : ""
+                    }`}
                   onClick={(e) => {
                     e.stopPropagation();
                     setCurrentTheme(t.id);

@@ -1,0 +1,14 @@
+{
+    "baseURL": "https://raw.githubusercontent.com/luffytaroOnePiece",
+    "games": [
+        {
+            "Forza Horizan 6": "fh6",
+            "playlist": "7wPzIaBPS25H3uT84gnI1u",
+            "images": [
+                {
+                    "1": "Toyota GR GT"
+                }
+            ]
+        }
+    ]
+}
