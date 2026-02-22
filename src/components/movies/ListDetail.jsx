@@ -8,14 +8,15 @@ const ListDetail = ({
     stats,
     loading,
     onBack,
-    onMovieSelect
+    onMovieSelect,
+    watchlistItems = [] // Pass watchlist down to enable filtering
 }) => {
     // State for local filtering/sorting
     const [sortOrder, setSortOrder] = useState('Release Date'); // Matches options in Dropdown
     const [activeFilter, setActiveFilter] = useState('All');
     const [filteredItems, setFilteredItems] = useState([]);
 
-    const filters = ['All', 'Movie', 'TV'];
+    const filters = ['All', 'Movie', 'TV', 'Watched', 'Unwatched'];
     const sortOptions = ['Original Order', 'Top Rated', 'Release Date', 'Title (A-Z)'];
 
     // Helper formats
@@ -42,8 +43,17 @@ const ListDetail = ({
 
         // 1. Filter
         if (activeFilter !== 'All') {
-            const lowerFilter = activeFilter.toLowerCase();
-            processed = processed.filter(item => item.media_type === lowerFilter);
+            if (activeFilter === 'Movie' || activeFilter === 'TV') {
+                const lowerFilter = activeFilter.toLowerCase();
+                processed = processed.filter(item => item.media_type === lowerFilter);
+            } else if (activeFilter === 'Watched') {
+                // If the item ID exists in the watchlist items, it's considered watched
+                const watchedIds = new Set(watchlistItems.map(w => w.id));
+                processed = processed.filter(item => watchedIds.has(item.id));
+            } else if (activeFilter === 'Unwatched') {
+                const watchedIds = new Set(watchlistItems.map(w => w.id));
+                processed = processed.filter(item => !watchedIds.has(item.id));
+            }
         }
 
         // 2. Sort

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { getImageUrl, getDetails, getImages, getVideos } from '../../services/tmdbApi';
+import { getImageUrl, getDetails, getImages, getVideos, getAccountDetails, getAccountStates, markAsFavorite } from '../../services/tmdbApi';
 import VideoModal from '../common/VideoModal';
 import VidKingModal from '../common/VidKingModal';
 
@@ -24,6 +24,11 @@ const MovieDetail = ({
     const [trailer, setTrailer] = useState(null);
     const [showTrailerModal, setShowTrailerModal] = useState(false);
 
+    // Watched State
+    const [isWatched, setIsWatched] = useState(false);
+    const [accountId, setAccountId] = useState(null);
+    const [updatingWatched, setUpdatingWatched] = useState(false);
+
     // VidKing Player State
     const [showPlayer, setShowPlayer] = useState(false);
     const [playerConfig, setPlayerConfig] = useState({ type: 'movie', season: 1, episode: 1 });
@@ -44,7 +49,47 @@ const MovieDetail = ({
         fetchTrailer();
     }, [details]);
 
+    // Effect to fetch account states (watched/favorite status)
+    React.useEffect(() => {
+        const fetchAccountStates = async () => {
+            if (details?.id) {
+                try {
+                    const accDetails = await getAccountDetails();
+                    if (accDetails?.id) {
+                        setAccountId(accDetails.id);
+                        const mediaType = details.title ? 'movie' : 'tv';
+                        const states = await getAccountStates(details.id, mediaType);
+                        if (states) {
+                            setIsWatched(states.favorite);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch account states:", error);
+                }
+            }
+        };
+        fetchAccountStates();
+    }, [details]);
+
     // Handlers
+    const handleToggleWatched = async () => {
+        if (!accountId || !details) return;
+        setUpdatingWatched(true);
+        const mediaType = details.title ? 'movie' : 'tv';
+        const newWatchedState = !isWatched;
+
+        try {
+            const result = await markAsFavorite(accountId, mediaType, details.id, newWatchedState);
+            if (result && result.success) {
+                setIsWatched(newWatchedState);
+            }
+        } catch (error) {
+            console.error("Failed to toggle watched state:", error);
+        } finally {
+            setUpdatingWatched(false);
+        }
+    };
+
     const openLightbox = (imgUrl) => setSelectedImage(imgUrl);
     const closeLightbox = () => setSelectedImage(null);
 
@@ -357,6 +402,29 @@ const MovieDetail = ({
                                 </svg>
                                 {details.name ? 'Start Watching' : 'Watch Movie'}
                             </button>
+
+                            {/* Mark as Watched / Favorite */}
+                            {accountId && (
+                                <button
+                                    className={`play-trailer-btn glass-btn ${isWatched ? 'watched-active' : ''}`}
+                                    onClick={handleToggleWatched}
+                                    disabled={updatingWatched}
+                                    style={{
+                                        backgroundColor: isWatched ? 'rgba(46, 204, 113, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                                        borderColor: isWatched ? 'rgba(46, 204, 113, 0.5)' : 'rgba(255, 255, 255, 0.2)',
+                                        color: isWatched ? '#2ecc71' : 'white',
+                                        minWidth: '160px',
+                                        opacity: updatingWatched ? 0.7 : 1,
+                                        cursor: updatingWatched ? 'not-allowed' : 'pointer'
+                                    }}
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill={isWatched ? "rgba(46, 204, 113, 0.2)" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    {updatingWatched ? 'Updating...' : (isWatched ? 'Watched' : 'Mark Watched')}
+                                </button>
+                            )}
                         </div>
 
                         <div className="detail-stats-row">

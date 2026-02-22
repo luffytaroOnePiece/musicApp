@@ -33,6 +33,30 @@ const fetchTmdb = async (endpoint, params = {}) => {
     }
 };
 
+const postTmdb = async (endpoint, body = {}) => {
+    const url = new URL(`${BASE_URL}${endpoint}`);
+    try {
+        const response = await fetch(url.toString(), {
+            method: 'POST',
+            headers: {
+                ...getHeaders(),
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (!response.ok) {
+            console.error("TMDB API Error:", response.status, response.statusText);
+            return null;
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("TMDB Request Failed:", error);
+        return null;
+    }
+};
+
 export const searchMulti = async (query) => {
     if (!query) return null;
     return fetchTmdb('/search/multi', {
@@ -92,4 +116,18 @@ export const getSeasonDetails = async (tvId, seasonNumber) => {
 export const getVideos = async (id, type) => {
     if (!id || !type) return null;
     return fetchTmdb(`/${type}/${id}/videos`, { language: 'en-US' });
+};
+
+export const getAccountStates = async (id, type) => {
+    if (!id || !type) return null;
+    return fetchTmdb(`/${type}/${id}/account_states`);
+};
+
+export const markAsFavorite = async (accountId, mediaType, mediaId, favorite) => {
+    if (!accountId || !mediaType || !mediaId) return null;
+    return postTmdb(`/account/${accountId}/favorite`, {
+        media_type: mediaType,
+        media_id: mediaId,
+        favorite: favorite
+    });
 };

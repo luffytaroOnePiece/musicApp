@@ -30,6 +30,8 @@ const MoviesView = () => {
         totalRevenue: 0,
         loaded: false
     });
+    // Store all watchlist items here to pass down for filtering
+    const [allWatchlistItems, setAllWatchlistItems] = useState([]);
 
     // Level 3: Movie Detail
     const [selectedMovie, setSelectedMovie] = useState(null);
@@ -195,6 +197,15 @@ const MoviesView = () => {
                         }
                         items = combinedItems;
                     }
+
+                    // Also fetch the full watchlist to allow filtering any list by "Watched/Unwatched" status
+                    // Optimization: We could cache this but since things change, fetching on list select is safe.
+                    accountData = await getAccountDetails();
+                    if (accountData && accountData.id) {
+                        const firstWPage = await getAccountWatchlist(accountData.id, 1);
+                        const fullWatchlist = await fetchAllPages(firstWPage, getAccountWatchlist, accountData.id);
+                        setAllWatchlistItems(fullWatchlist || []);
+                    }
                 }
 
                 if (items) {
@@ -356,6 +367,7 @@ const MoviesView = () => {
                 loading={listLoading}
                 onBack={handleBackToGrid}
                 onMovieSelect={handleMovieSelect}
+                watchlistItems={selectedList.id === 'watchlist' ? listItems : allWatchlistItems}
             />
         );
     }
