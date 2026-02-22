@@ -176,3 +176,41 @@ export const getAccountRated = async (accountId, page = 1, type = 'movies') => {
     if (!accountId) return null;
     return fetchTmdb(`/account/${accountId}/rated/${type}`, { page, sort_by: 'created_at.desc' });
 };
+
+// Batch Helper Functions
+export const batchToggleWatchlist = async (accountId, items, watchlistState) => {
+    if (!accountId || !items || !items.length) return { success: false, updated: 0 };
+
+    let successCount = 0;
+    for (const item of items) {
+        try {
+            const mediaType = item.media_type || (item.name ? 'tv' : 'movie'); // Infer type if missing
+            const res = await toggleWatchlist(accountId, mediaType, item.id, watchlistState);
+            if (res && res.success) successCount++;
+
+            // Tiny delay to be nice to the API rate limits (though TMDB allows 40 req/10sec usually)
+            await new Promise(resolve => setTimeout(resolve, 50));
+        } catch (e) {
+            console.error(`Failed to batch toggle watchlist for ${item.id}:`, e);
+        }
+    }
+    return { success: successCount > 0, updated: successCount };
+};
+
+export const batchToggleFavorite = async (accountId, items, favoriteState) => {
+    if (!accountId || !items || !items.length) return { success: false, updated: 0 };
+
+    let successCount = 0;
+    for (const item of items) {
+        try {
+            const mediaType = item.media_type || (item.name ? 'tv' : 'movie');
+            const res = await markAsFavorite(accountId, mediaType, item.id, favoriteState);
+            if (res && res.success) successCount++;
+
+            await new Promise(resolve => setTimeout(resolve, 50));
+        } catch (e) {
+            console.error(`Failed to batch toggle favorite for ${item.id}:`, e);
+        }
+    }
+    return { success: successCount > 0, updated: successCount };
+};

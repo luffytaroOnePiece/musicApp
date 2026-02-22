@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getAccountDetails, getAccountLists, getListDetails, getDetails, getCredits, getImages, getAccountWatchlist, getAccountFavorites, getAccountRated, searchMulti, getImageUrl } from '../services/tmdbApi';
+import { getAccountDetails, getAccountLists, getListDetails, getDetails, getCredits, getImages, getAccountWatchlist, getAccountFavorites, getAccountRated, searchMulti, getImageUrl, batchToggleWatchlist, batchToggleFavorite } from '../services/tmdbApi';
 import '../styles/MoviesView.css';
 
 // Components
@@ -331,6 +331,59 @@ const MoviesView = () => {
         setListItems([]);
     }
 
+    const handleBatchWatchProps = async (selectedIds, actionType) => {
+        // Find the full items from listItems
+        const itemsToProcess = listItems.filter(item => selectedIds.includes(item.id));
+        if (!itemsToProcess.length) return;
+
+        const accountData = await getAccountDetails();
+        if (!accountData || !accountData.id) return;
+        const acctId = accountData.id;
+
+        try {
+            if (actionType === 'watch') {
+                // Determine state: if all selected are already watched, we unwatch. Else watch.
+                // We check against allWatchlistItems
+                const allWatched = itemsToProcess.every(item => allWatchlistItems.some(w => w.id === item.id));
+                const newState = !allWatched;
+
+                await batchToggleWatchlist(acctId, itemsToProcess, newState);
+
+                // Optimistically update local lists or refetch full watchlist
+                // Simplest is refetching just the modified list types
+                const [pageM, pageT] = await Promise.all([
+                    getAccountWatchlist(acctId, 1, 'movies'),
+                    getAccountWatchlist(acctId, 1, 'tv')
+                ]);
+                // This is a minimal refetch. A full fetchAllPages might be needed if they have >20 items.
+                // For a robust optimistic update, let's just update the local array
+                setAllWatchlistItems(prev => {
+                    if (newState) {
+                        return [...prev, ...itemsToProcess.filter(it => !prev.some(p => p.id === it.id))];
+                    } else {
+                        return prev.filter(p => !itemsToProcess.some(it => it.id === p.id));
+                    }
+                });
+
+            } else if (actionType === 'favorite') {
+                const allFav = itemsToProcess.every(item => allFavoriteItems.some(f => f.id === item.id));
+                const newState = !allFav;
+
+                await batchToggleFavorite(acctId, itemsToProcess, newState);
+
+                setAllFavoriteItems(prev => {
+                    if (newState) {
+                        return [...prev, ...itemsToProcess.filter(it => !prev.some(p => p.id === it.id))];
+                    } else {
+                        return prev.filter(p => !itemsToProcess.some(it => it.id === p.id));
+                    }
+                });
+            }
+        } catch (error) {
+            console.error("Batch operation failed:", error);
+        }
+    };
+
     const handleSearch = async (e) => {
         const query = e.target.value;
         setSearchQuery(query);
@@ -381,6 +434,7 @@ const MoviesView = () => {
                 watchlistItems={selectedList.id === 'watchlist' ? listItems : allWatchlistItems}
                 favoriteItems={allFavoriteItems}
                 ratedItems={allRatedItems}
+                onBatchWatchProps={handleBatchWatchProps}
             />
         );
     }

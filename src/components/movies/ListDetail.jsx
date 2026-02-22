@@ -11,12 +11,18 @@ const ListDetail = ({
     onMovieSelect,
     watchlistItems = [], // Pass watchlist down to enable filtering
     favoriteItems = [],
-    ratedItems = []
+    ratedItems = [],
+    onBatchWatchProps, // we'll need to pass these up, or handle it here if accountId is passed down
+    accountId
 }) => {
     // State for local filtering/sorting
     const [sortOrder, setSortOrder] = useState('Release Date'); // Matches options in Dropdown
     const [activeFilter, setActiveFilter] = useState('All');
     const [filteredItems, setFilteredItems] = useState([]);
+
+    // Multi-Select State
+    const [isSelectionMode, setIsSelectionMode] = useState(false);
+    const [selectedItemIds, setSelectedItemIds] = useState(new Set());
 
     const filters = ['All', 'Movie', 'TV', 'Watched', 'Unwatched', 'Favorite', 'Rated'];
     const sortOptions = ['Original Order', 'Top Rated', 'Release Date', 'Title (A-Z)', 'My Rating'];
@@ -82,8 +88,38 @@ const ListDetail = ({
         // 'Original Order' = no sort
 
         setFilteredItems(processed);
+        // Clear selection if filter/sort changes to prevent confusion
+        setSelectedItemIds(new Set());
     }, [items, activeFilter, sortOrder, watchlistItems, favoriteItems, ratedItems]);
 
+    // Selection Handlers
+    const handleToggleSelectionMode = () => {
+        setIsSelectionMode(!isSelectionMode);
+        setSelectedItemIds(new Set());
+    };
+
+    const handleSelectAll = () => {
+        if (selectedItemIds.size === filteredItems.length) {
+            setSelectedItemIds(new Set());
+        } else {
+            setSelectedItemIds(new Set(filteredItems.map(item => item.id)));
+        }
+    };
+
+    const toggleItemSelection = (id) => {
+        const newSelected = new Set(selectedItemIds);
+        if (newSelected.has(id)) {
+            newSelected.delete(id);
+        } else {
+            newSelected.add(id);
+        }
+        setSelectedItemIds(newSelected);
+    };
+
+    // Batch Actions (We emit these up to MoviesView where API exists, or handle here if we pass down API helpers)
+    // To keep it clean, we'll emit to a prop if provided, else we handle it if we import the API.
+    // Let's import the API helpers directly in ListDetail, but we need accountId.
+    // If accountId isn't passed, we can't do batch.
 
     return (
         <div className="movies-view-container animate-fade-in">
@@ -98,26 +134,42 @@ const ListDetail = ({
                     </div>
                 </div>
 
-                <div className="movies-controls-right" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                    {/* Enhanced Dropdown */}
-                    <Dropdown
-                        label="Sort"
-                        selected={sortOrder}
-                        onSelect={setSortOrder}
-                        options={sortOptions}
-                    />
-
-                    <div className="movies-filters">
-                        {filters.map(filter => (
-                            <button
-                                key={filter}
-                                className={`filter-btn glass-btn ${activeFilter === filter ? 'active' : ''}`}
-                                onClick={() => setActiveFilter(filter)}
-                            >
-                                {filter}
+                <div className="movies-controls-right" style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                    {isSelectionMode ? (
+                        <>
+                            <span style={{ color: 'white', fontWeight: 'bold' }}>{selectedItemIds.size} Selected</span>
+                            <button className="glass-btn primary-action-btn" onClick={() => onBatchWatchProps?.(Array.from(selectedItemIds), 'watch')} disabled={selectedItemIds.size === 0} style={{ padding: '6px 12px', fontSize: '13px' }}>Mark Watched</button>
+                            <button className="glass-btn primary-action-btn" onClick={() => onBatchWatchProps?.(Array.from(selectedItemIds), 'favorite')} disabled={selectedItemIds.size === 0} style={{ padding: '6px 12px', fontSize: '13px', backgroundColor: 'rgba(231, 76, 60, 0.2)', borderColor: 'rgba(231, 76, 60, 0.5)', color: '#e74c3c' }}>Favorite</button>
+                            <button className="filter-btn glass-btn" onClick={handleSelectAll} style={{ padding: '6px 12px', fontSize: '13px' }}>
+                                {selectedItemIds.size === filteredItems.length ? 'Deselect All' : 'Select All'}
                             </button>
-                        ))}
-                    </div>
+                            <button className="filter-btn glass-btn" onClick={handleToggleSelectionMode} style={{ padding: '6px 12px', fontSize: '13px', backgroundColor: 'rgba(255,255,255,0.2)' }}>Cancel</button>
+                        </>
+                    ) : (
+                        <>
+                            <button className="glass-btn primary-action-btn" onClick={handleToggleSelectionMode} style={{ padding: '6px 12px', fontSize: '13px' }}>
+                                Select Items
+                            </button>
+                            <Dropdown
+                                label="Sort"
+                                selected={sortOrder}
+                                onSelect={setSortOrder}
+                                options={sortOptions}
+                            />
+
+                            <div className="movies-filters">
+                                {filters.map(filter => (
+                                    <button
+                                        key={filter}
+                                        className={`filter-btn glass-btn ${activeFilter === filter ? 'active' : ''}`}
+                                        onClick={() => setActiveFilter(filter)}
+                                    >
+                                        {filter}
+                                    </button>
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -146,45 +198,59 @@ const ListDetail = ({
                     <div className="movies-view-loading apple-loader">Loading...</div>
                 ) : (
                     <div className="movies-grid animate-stagger-children">
-                        {filteredItems.map(item => (
-                            <div
-                                key={item.id}
-                                className={`movie-card glass-card`}
-                                onClick={() => onMovieSelect(item)}
-                            >
-                                <div className="movie-poster-wrapper">
-                                    {item.poster_path ? (
-                                        <img
-                                            src={getImageUrl(item.poster_path, 'w500')}
-                                            alt={item.title || item.name}
-                                            className="movie-poster"
-                                            loading="lazy"
-                                        />
-                                    ) : (
-                                        <div className="no-poster"><span>No Image</span></div>
+                        {filteredItems.map(item => {
+                            const isSelected = selectedItemIds.has(item.id);
+                            return (
+                                <div
+                                    key={item.id}
+                                    className={`movie-card glass-card ${isSelectionMode && isSelected ? 'selected-card' : ''}`}
+                                    onClick={() => isSelectionMode ? toggleItemSelection(item.id) : onMovieSelect(item)}
+                                    style={{
+                                        opacity: isSelectionMode && !isSelected ? 0.6 : 1,
+                                        transition: 'all 0.2s ease',
+                                        transform: isSelectionMode && isSelected ? 'scale(0.98)' : 'none',
+                                        border: isSelectionMode && isSelected ? '2px solid #2ecc71' : ''
+                                    }}
+                                >
+                                    {isSelectionMode && (
+                                        <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10, background: isSelected ? '#2ecc71' : 'rgba(0,0,0,0.5)', border: '2px solid white', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            {isSelected && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                                        </div>
                                     )}
-                                    <div className="rating-badge glass-badge">
-                                        {sortOrder === 'My Rating' && ratedItems.find(r => r.id === item.id) ? (
-                                            <>
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="#f1c40f" stroke="#f1c40f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', verticalAlign: '-1px' }}>
-                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                                                </svg>
-                                                {ratedItems.find(r => r.id === item.id).rating}/10
-                                            </>
+                                    <div className="movie-poster-wrapper">
+                                        {item.poster_path ? (
+                                            <img
+                                                src={getImageUrl(item.poster_path, 'w500')}
+                                                alt={item.title || item.name}
+                                                className="movie-poster"
+                                                loading="lazy"
+                                            />
                                         ) : (
-                                            <>★ {item.vote_average?.toFixed(1)}</>
+                                            <div className="no-poster"><span>No Image</span></div>
                                         )}
+                                        <div className="rating-badge glass-badge">
+                                            {sortOrder === 'My Rating' && ratedItems.find(r => r.id === item.id) ? (
+                                                <>
+                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="#f1c40f" stroke="#f1c40f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', verticalAlign: '-1px' }}>
+                                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                                    </svg>
+                                                    {ratedItems.find(r => r.id === item.id).rating}/10
+                                                </>
+                                            ) : (
+                                                <>★ {item.vote_average?.toFixed(1)}</>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="movie-info">
+                                        <h3 className="movie-title">{item.title || item.name}</h3>
+                                        <div className="movie-meta">
+                                            <span>{(item.release_date || item.first_air_date || '').split('-')[0]}</span>
+                                            {item.media_type && <span>• {item.media_type === 'tv' ? 'TV' : 'Movie'}</span>}
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="movie-info">
-                                    <h3 className="movie-title">{item.title || item.name}</h3>
-                                    <div className="movie-meta">
-                                        <span>{(item.release_date || item.first_air_date || '').split('-')[0]}</span>
-                                        {item.media_type && <span>• {item.media_type === 'tv' ? 'TV' : 'Movie'}</span>}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                         {filteredItems.length === 0 && (
                             <div className="no-items-found">No items found.</div>
                         )}
