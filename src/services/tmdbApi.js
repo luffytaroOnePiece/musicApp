@@ -1,7 +1,30 @@
+import { CACHE_TTL_MS } from './cacheConfig';
+
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const TMDB_READ_ACCESS_TOKEN = import.meta.env.VITE_TMDB_READ_ACCESS_TOKEN;
 
 const BASE_URL = "https://api.themoviedb.org/3";
+
+// ─── Cache ───────────────────────────────────────────────────────────────────
+const tmdbCache = new Map(); // key → { data, timestamp }
+
+const getCached = (key) => {
+    const entry = tmdbCache.get(key);
+    if (!entry) return null;
+    if (Date.now() - entry.timestamp > CACHE_TTL_MS) {
+        tmdbCache.delete(key);
+        return null;
+    }
+    return entry.data;
+};
+
+const setCache = (key, data) => {
+    tmdbCache.set(key, { data, timestamp: Date.now() });
+};
+
+/** Manually clear the entire TMDB cache (e.g. after the user logs out). */
+export const clearTmdbCache = () => tmdbCache.clear();
+// ─────────────────────────────────────────────────────────────────────────────
 
 const getHeaders = () => ({
     accept: 'application/json',
@@ -10,10 +33,14 @@ const getHeaders = () => ({
 
 const fetchTmdb = async (endpoint, params = {}) => {
     const url = new URL(`${BASE_URL}${endpoint}`);
-    // Check if params has api_key, if not add it or rely on Bearer token (Bearer usually preferred for v3/v4 mixed but v3 uses key often)
-    // TMDB usually accepts Bearer token for authentication.
-
     Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+
+    const cacheKey = url.toString();
+    const cached = getCached(cacheKey);
+    if (cached) {
+        console.debug(`[TMDB Cache HIT] ${cacheKey}`);
+        return cached;
+    }
 
     try {
         const response = await fetch(url.toString(), {
@@ -26,7 +53,10 @@ const fetchTmdb = async (endpoint, params = {}) => {
             return null;
         }
 
-        return await response.json();
+        const data = await response.json();
+        setCache(cacheKey, data);
+        console.debug(`[TMDB Cache SET] ${cacheKey}`);
+        return data;
     } catch (error) {
         console.error("TMDB Request Failed:", error);
         return null;

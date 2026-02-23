@@ -3,11 +3,20 @@ import '../styles/ScriptsView.css';
 import spotifyData from '../data/spotify.json';
 import movieAlbums from '../data/movieAlbums.json';
 import privateAlbums from '../data/privateAlbums.json';
-import { getPlaylistTracks, getAlbum, addTracksToPlaylist, getAllPlaylistTracks } from '../services/spotifyApi';
+import { getPlaylistTracks, getAlbum, addTracksToPlaylist, getAllPlaylistTracks, invalidateSpotifyCache } from '../services/spotifyApi';
+import { clearTmdbCache } from '../services/tmdbApi';
 
 const ScriptsView = () => {
     const [logs, setLogs] = useState([]);
     const [isSyncing, setIsSyncing] = useState(false);
+    const [cacheCleared, setCacheCleared] = useState(false);
+
+    const handleClearCache = () => {
+        invalidateSpotifyCache();
+        clearTmdbCache();
+        setCacheCleared(true);
+        setTimeout(() => setCacheCleared(false), 3000);
+    };
 
     const addLog = (message, type = 'info') => {
         setLogs(prev => [...prev, { message, type, timestamp: new Date().toLocaleTimeString() }]);
@@ -152,6 +161,23 @@ const ScriptsView = () => {
                     <code style={{ display: 'block', padding: '10px', background: '#1a1a1a', borderRadius: '4px', textAlign: 'center', fontFamily: 'monospace' }}>
                         npm run extract-ids
                     </code>
+                </div>
+
+                {/* Force Clear Cache */}
+                <div className="script-card">
+                    <h3>🗑️ Force Clear Cache</h3>
+                    <p>
+                        Clears all in-memory cached responses for both
+                        <strong> Spotify</strong> and <strong> TMDB</strong> APIs.
+                        Next requests will fetch fresh data from the network.
+                    </p>
+                    <br />
+                    <button
+                        className={`sync-btn ${cacheCleared ? 'cache-cleared' : ''}`}
+                        onClick={handleClearCache}
+                    >
+                        {cacheCleared ? '✔ Cache Cleared!' : 'Clear All Cache'}
+                    </button>
                 </div>
             </div>
 

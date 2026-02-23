@@ -1,8 +1,63 @@
 import { getValidToken, refreshToken } from './auth';
+import { CACHE_TTL_MS } from './cacheConfig';
 
 const BASE_URL = 'https://api.spotify.com/v1';
 
+// ─── Cache ───────────────────────────────────────────────────────────────────
+const spotifyCache = new Map(); // key → { data, timestamp }
+
+// Endpoints that reflect live/mutable player state — never cache these.
+const NO_CACHE_PREFIXES = [
+    '/me/player',   // current playback, devices, queue
+    '/me/tracks/contains', // like-status changes frequently
+    '/me/following/contains',
+];
+
+const isCacheable = (endpoint) =>
+    !NO_CACHE_PREFIXES.some(prefix => endpoint.startsWith(prefix));
+
+const getCached = (key) => {
+    const entry = spotifyCache.get(key);
+    if (!entry) return null;
+    if (Date.now() - entry.timestamp > CACHE_TTL_MS) {
+        spotifyCache.delete(key);
+        return null;
+    }
+    return entry.data;
+};
+
+const setCache = (key, data) => {
+    spotifyCache.set(key, { data, timestamp: Date.now() });
+};
+
+/**
+ * Manually invalidate cached Spotify responses.
+ * @param {string} [prefix] - If provided, only entries whose key starts with
+ *   BASE_URL + prefix are removed. Otherwise the entire cache is cleared.
+ */
+export const invalidateSpotifyCache = (prefix) => {
+    if (!prefix) {
+        spotifyCache.clear();
+        return;
+    }
+    const fullPrefix = `${BASE_URL}${prefix}`;
+    for (const key of spotifyCache.keys()) {
+        if (key.startsWith(fullPrefix)) spotifyCache.delete(key);
+    }
+};
+// ─────────────────────────────────────────────────────────────────────────────
+
 const apiCall = async (endpoint, method = 'GET', body = null) => {
+    // ── Cache check (GET-only, non-player endpoints) ───────────────────────
+    if (method === 'GET' && isCacheable(endpoint)) {
+        const cached = getCached(`${BASE_URL}${endpoint}`);
+        if (cached) {
+            console.debug(`[Spotify Cache HIT] ${endpoint}`);
+            return cached;
+        }
+    }
+    // ──────────────────────────────────────────────────────────────────────
+
     let token = await getValidToken();
     if (!token) throw new Error("No token");
 
@@ -60,12 +115,22 @@ const apiCall = async (endpoint, method = 'GET', body = null) => {
     const contentLength = response.headers.get("content-length");
     if (contentLength && parseInt(contentLength) === 0) return null;
 
+    let data;
     try {
-        return await response.json();
+        data = await response.json();
     } catch (e) {
         // If json parsing fails although status is ok and not 204, return null or handle gracefully
         return null;
     }
+
+    // ── Store in cache (GET-only, non-player endpoints) ───────────────────
+    if (method === 'GET' && isCacheable(endpoint) && data !== null) {
+        setCache(`${BASE_URL}${endpoint}`, data);
+        console.debug(`[Spotify Cache SET] ${endpoint}`);
+    }
+    // ──────────────────────────────────────────────────────────────────────
+
+    return data;
 }
 
 export const getClassUserProfile = () => apiCall('/me');
