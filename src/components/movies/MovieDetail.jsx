@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { getImageUrl, getDetails, getImages, getVideos, getAccountDetails, getAccountStates, markAsFavorite, toggleWatchlist, rateMedia, deleteRating } from '../../services/tmdbApi';
 import VideoModal from '../common/VideoModal';
 import VidKingModal from '../common/VidKingModal';
+import ActorPage from './ActorPage';
 
 const MovieDetail = ({
     movie,
@@ -15,9 +16,7 @@ const MovieDetail = ({
     // State
     const [selectedImage, setSelectedImage] = useState(null);
     const [selectedActor, setSelectedActor] = useState(null);
-    const [actorDetails, setActorDetails] = useState(null);
-    const [actorImages, setActorImages] = useState([]);
-    const [loadingActor, setLoadingActor] = useState(false);
+    const [showActorPage, setShowActorPage] = useState(false);
     const [selectedSeason, setSelectedSeason] = useState(null);
     const [seasonDetails, setSeasonDetails] = useState(null);
     const [loadingSeason, setLoadingSeason] = useState(false);
@@ -137,23 +136,9 @@ const MovieDetail = ({
     const openLightbox = (imgUrl) => setSelectedImage(imgUrl);
     const closeLightbox = () => setSelectedImage(null);
 
-    const handleActorClick = async (actor) => {
+    const handleActorClick = (actor) => {
         setSelectedActor(actor);
-        setLoadingActor(true);
-        setActorDetails(null); // Reset previous details
-        setActorImages([]); // Reset previous images
-        try {
-            const [detailsData, imagesData] = await Promise.all([
-                getDetails(actor.id, 'person'),
-                getImages(actor.id, 'person')
-            ]);
-            setActorDetails(detailsData);
-            setActorImages(imagesData?.profiles || []);
-        } catch (error) {
-            console.error("Failed to fetch person details:", error);
-        } finally {
-            setLoadingActor(false);
-        }
+        setShowActorPage(true);
     };
 
     const handleSeasonClick = async (season) => {
@@ -175,10 +160,9 @@ const MovieDetail = ({
         setSeasonDetails(null);
     };
 
-    const closeActorModal = () => {
+    const closeActorPage = () => {
+        setShowActorPage(false);
         setSelectedActor(null);
-        setActorDetails(null);
-        setActorImages([]);
     };
     // Helper formats
     const formatMoney = (amount) => {
@@ -224,61 +208,16 @@ const MovieDetail = ({
                 document.body
             )}
 
-            {/* Actor Profile Modal */}
-            {selectedActor && ReactDOM.createPortal(
-                <div className="actor-modal-overlay" onClick={closeActorModal}>
-                    <div className="actor-modal-content glass-panel" onClick={e => e.stopPropagation()}>
-                        <button className="actor-modal-close-btn" onClick={closeActorModal}>×</button>
-
-                        <div className="actor-modal-header">
-                            <img
-                                src={selectedActor.profile_path ? getImageUrl(selectedActor.profile_path, 'w185') : 'https://via.placeholder.com/150'}
-                                alt={selectedActor.name}
-                                className="actor-modal-avatar"
-                            />
-                            <div className="actor-modal-title">
-                                <h2>{selectedActor.name}</h2>
-                                <p className="actor-modal-role">as {selectedActor.character}</p>
-                                {actorDetails && actorDetails.birthday && (
-                                    <p className="actor-modal-birth">
-                                        Born: {new Date(actorDetails.birthday).toLocaleDateString()}
-                                        {actorDetails.place_of_birth && ` in ${actorDetails.place_of_birth}`}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="actor-modal-body custom-scrollbar">
-                            {loadingActor ? (
-                                <div className="loading-spinner">Loading Profile...</div>
-                            ) : actorDetails ? (
-                                <>
-                                    <p className="actor-biography">{actorDetails.biography || "No biography available."}</p>
-
-                                    {/* Actor Images Gallery */}
-                                    {actorImages && actorImages.length > 0 && (
-                                        <div className="actor-modal-gallery-section">
-                                            <h3>Photos</h3>
-                                            <div className="actor-images-scroll">
-                                                {actorImages.map((img, idx) => (
-                                                    <img
-                                                        key={idx}
-                                                        src={getImageUrl(img.file_path, 'w185')}
-                                                        alt="Actor Profile"
-                                                        className="actor-gallery-image clickable"
-                                                        onClick={() => openLightbox(getImageUrl(img.file_path, 'original'))}
-                                                    />
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </>
-                            ) : (
-                                <div className="loading-spinner">Loading...</div>
-                            )}
-                        </div>
-                    </div>
-                </div>,
+            {/* Full-Screen Actor Page */}
+            {showActorPage && selectedActor && ReactDOM.createPortal(
+                <ActorPage
+                    actor={selectedActor}
+                    onBack={closeActorPage}
+                    onMovieClick={(item) => {
+                        closeActorPage();
+                        // navigate back to movie list — caller can handle this
+                    }}
+                />,
                 document.body
             )}
 
