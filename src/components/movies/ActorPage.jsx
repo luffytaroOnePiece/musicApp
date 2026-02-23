@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { getImageUrl, getDetails, getImages, getPersonCredits } from '../../services/tmdbApi';
 import '../../styles/movies/ActorPage.css';
+
+const EXTERNAL_IMAGES_GIST = 'https://gist.githubusercontent.com/luffytaroOnePiece/88364f756d48eeb36a21e6542dc32c61/raw/info.json';
 
 const ActorPage = ({ actor, onBack, onMovieClick }) => {
     const [details, setDetails] = useState(null);
@@ -9,6 +11,30 @@ const ActorPage = ({ actor, onBack, onMovieClick }) => {
     const [credits, setCredits] = useState([]);
     const [loading, setLoading] = useState(true);
     const [lightboxImg, setLightboxImg] = useState(null);
+    const [lightboxIdx, setLightboxIdx] = useState(null);
+
+    // Close lightbox on Escape key
+    useEffect(() => {
+        if (!lightboxImg) return;
+        const handler = (e) => { if (e.key === 'Escape') setLightboxImg(null); };
+        window.addEventListener('keydown', handler);
+        return () => window.removeEventListener('keydown', handler);
+    }, [lightboxImg]);
+
+    const openLightbox = useCallback((src, idx) => {
+        setLightboxImg(src);
+        setLightboxIdx(idx);
+    }, []);
+
+    const navigateLightbox = useCallback((dir) => {
+        setLightboxIdx(prev => {
+            const next = prev + dir;
+            if (next < 0 || next >= photos.length) return prev;
+            const img = photos[next];
+            setLightboxImg(img.url || getImageUrl(img.file_path, 'original'));
+            return next;
+        });
+    }, [photos]);
 
     useEffect(() => {
         const fetchAll = async () => {
@@ -21,8 +47,29 @@ const ActorPage = ({ actor, onBack, onMovieClick }) => {
                     getPersonCredits(actor.id)
                 ]);
                 setDetails(detailsData);
-                setPhotos(imagesData?.profiles || []);
-                // Combine cast + crew, deduplicate by id, sort by popularity desc, take top 30
+
+                // ── Merge TMDB profiles + external (Reddit) images ──────────────
+                let finalPhotos = imagesData?.profiles || [];
+                try {
+                    const extResp = await fetch(EXTERNAL_IMAGES_GIST);
+                    if (extResp.ok) {
+                        const extData = await extResp.json();
+                        const personKey = String(actor.id);
+                        if (extData[personKey]) {
+                            finalPhotos = [...finalPhotos, ...extData[personKey]];
+                        }
+                    }
+                } catch (extErr) {
+                    console.warn('Failed to fetch external actor images:', extErr);
+                }
+                // Shuffle combined list
+                for (let i = finalPhotos.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [finalPhotos[i], finalPhotos[j]] = [finalPhotos[j], finalPhotos[i]];
+                }
+                setPhotos(finalPhotos);
+                // ────────────────────────────────────────────────────────────────
+
                 const allCredits = [
                     ...(creditsData?.cast || []),
                     ...(creditsData?.crew || [])
@@ -75,35 +122,56 @@ const ActorPage = ({ actor, onBack, onMovieClick }) => {
                 Back
             </button>
 
-            {/* Lightbox */}
+            {/* Enhanced Lightbox with prev/next navigation */}
             {lightboxImg && ReactDOM.createPortal(
                 <div
                     style={{
                         position: 'fixed', inset: 0, zIndex: 9999,
-                        background: 'rgba(0,0,0,0.92)',
-                        backdropFilter: 'blur(20px)',
+                        background: 'rgba(0,0,0,0.95)',
+                        backdropFilter: 'blur(24px)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        cursor: 'zoom-out', animation: 'fadeIn 0.2s ease'
+                        animation: 'fadeIn 0.2s ease'
                     }}
                     onClick={() => setLightboxImg(null)}
                 >
+                    {/* Prev arrow */}
+                    {lightboxIdx > 0 && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); navigateLightbox(-1); }}
+                            className="lightbox-nav-btn lightbox-prev"
+                        >‹</button>
+                    )}
                     <img
                         src={lightboxImg}
                         alt="Full view"
                         style={{
-                            maxWidth: '90vw', maxHeight: '92vh',
-                            borderRadius: '12px',
-                            boxShadow: '0 40px 80px rgba(0,0,0,0.8)'
+                            maxWidth: '88vw', maxHeight: '90vh',
+                            borderRadius: '14px',
+                            boxShadow: '0 40px 80px rgba(0,0,0,0.9)',
+                            objectFit: 'contain'
                         }}
+                        onClick={(e) => e.stopPropagation()}
                     />
+                    {/* Next arrow */}
+                    {lightboxIdx < photos.length - 1 && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); navigateLightbox(1); }}
+                            className="lightbox-nav-btn lightbox-next"
+                        >›</button>
+                    )}
+                    {/* Counter */}
+                    <div className="lightbox-counter">
+                        {lightboxIdx + 1} / {photos.length}
+                    </div>
                     <button
                         onClick={() => setLightboxImg(null)}
                         style={{
                             position: 'absolute', top: 24, right: 24,
                             background: 'rgba(255,255,255,0.1)', border: 'none',
-                            color: '#fff', width: 40, height: 40, borderRadius: '50%',
-                            fontSize: 22, cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            color: '#fff', width: 44, height: 44, borderRadius: '50%',
+                            fontSize: 24, cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            backdropFilter: 'blur(10px)'
                         }}
                     >×</button>
                 </div>,
@@ -238,19 +306,28 @@ const ActorPage = ({ actor, onBack, onMovieClick }) => {
                                     </span>
                                 </h2>
                                 <div className="actor-page-photos-grid">
-                                    {photos.map((photo, idx) => (
-                                        <div
-                                            key={idx}
-                                            className="actor-page-photo-item"
-                                            onClick={() => setLightboxImg(getImageUrl(photo.file_path, 'original'))}
-                                        >
-                                            <img
-                                                src={getImageUrl(photo.file_path, 'w342')}
-                                                alt={`${actor.name} photo ${idx + 1}`}
-                                                loading="lazy"
-                                            />
-                                        </div>
-                                    ))}
+                                    {photos.map((photo, idx) => {
+                                        const thumbSrc = photo.url || getImageUrl(photo.file_path, 'w780');
+                                        const fullSrc = photo.url || getImageUrl(photo.file_path, 'original');
+                                        return (
+                                            <div
+                                                key={idx}
+                                                className="actor-page-photo-item"
+                                                onClick={() => openLightbox(fullSrc, idx)}
+                                            >
+                                                <img
+                                                    src={thumbSrc}
+                                                    alt={`${actor.name} photo ${idx + 1}`}
+                                                    loading="lazy"
+                                                />
+                                                <div className="actor-photo-overlay">
+                                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                                        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}
