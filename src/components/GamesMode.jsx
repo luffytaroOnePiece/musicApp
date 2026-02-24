@@ -8,6 +8,7 @@ const GamesMode = ({ onClose, deviceId }) => {
     const [selectedGameIndex, setSelectedGameIndex] = useState(0);
     const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     const [selectedSongIndex, setSelectedSongIndex] = useState(0);
+    const [fadeIn, setFadeIn] = useState(true);
 
     const [isPlaying, setIsPlaying] = useState(false);
     const [songs, setSongs] = useState([]);
@@ -18,16 +19,17 @@ const GamesMode = ({ onClose, deviceId }) => {
 
     const currentGameObj = gamesConfig[selectedGameIndex];
     // Object structure: {"Forza Horizan 6": "fh6", "playlist": "...", "images": [...]}
-    const gameName = Object.keys(currentGameObj).find(k => k !== 'playlist' && k !== 'images');
+    const gameName = Object.keys(currentGameObj).find(k => k !== 'playlist' && k !== 'startNum' && k !== 'endNum');
     const gameFolder = currentGameObj[gameName];
     const playlistId = currentGameObj.playlist;
-    const imagesList = currentGameObj.images;
+    const startNum = currentGameObj.startNum ?? 1;
+    const endNum = currentGameObj.endNum ?? 1;
 
-    // Flatten images array into usable format
-    const currentImages = imagesList.map(img => {
-        const id = Object.keys(img)[0];
-        return { id, name: img[id] };
-    });
+    // Generate images dynamically from startNum to endNum
+    const currentImages = Array.from(
+        { length: endNum - startNum + 1 },
+        (_, i) => ({ id: startNum + i })
+    );
 
     // Handle game change - Fetch new songs from playlist
     useEffect(() => {
@@ -57,6 +59,19 @@ const GamesMode = ({ onClose, deviceId }) => {
         setSelectedImageIndex(0);
         setSelectedSongIndex(0);
     }, [playlistId]);
+
+    // Auto-cycle images every 5 seconds
+    useEffect(() => {
+        if (currentImages.length <= 1) return;
+        const interval = setInterval(() => {
+            setFadeIn(false);
+            setTimeout(() => {
+                setSelectedImageIndex(prev => (prev + 1) % currentImages.length);
+                setFadeIn(true);
+            }, 400);
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [currentImages.length, selectedGameIndex]);
 
     // Setup to play once loaded
     useEffect(() => {
@@ -104,22 +119,19 @@ const GamesMode = ({ onClose, deviceId }) => {
         playSelectedSong(newIndex);
     };
 
-    const handleImageChange = (e) => {
-        setSelectedImageIndex(parseInt(e.target.value));
-    };
-
     const activeImageObj = currentImages[selectedImageIndex] || currentImages[0];
     const imageDbUrl = activeImageObj ? `${baseURL}/${gameFolder}/main/${activeImageObj.id}.jpg` : '';
 
     return (
         <div className="zen-mode-overlay">
-            {/* Background Image */}
+            {/* Background Image - auto-cycling slideshow */}
             {imageDbUrl && (
                 <img
                     key={imageDbUrl}
                     className="games-image-background"
                     src={imageDbUrl}
                     alt={activeImageObj?.name || 'Game Background'}
+                    style={{ opacity: fadeIn ? 1 : 0, transition: 'opacity 0.4s ease-in-out' }}
                 />
             )}
 
@@ -148,18 +160,6 @@ const GamesMode = ({ onClose, deviceId }) => {
                                 const gName = Object.keys(g).find(k => k !== 'playlist' && k !== 'images');
                                 return { value: idx, label: gName };
                             })}
-                        />
-                    </div>
-
-                    <div className="zen-select-group">
-                        <GlossySelect
-                            label="Wallpaper"
-                            value={selectedImageIndex}
-                            onChange={handleImageChange}
-                            options={currentImages.map((img, idx) => ({
-                                value: idx,
-                                label: img.name
-                            }))}
                         />
                     </div>
 

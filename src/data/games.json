@@ -4,29 +4,14 @@
         {
             "Forza Horizan 6": "fh6",
             "playlist": "7wPzIaBPS25H3uT84gnI1u",
-            "images": [
-                {
-                    "1": "Toyota GR GT"
-                },
-                {
-                    "2": "Porsche 911 Carrera"
-                },
-                {
-                    "3": "Toyota GR GT - Mount Fuji"
-                }
-            ]
+            "startNum": 1,
+            "endNum": 3
         },
         {
             "Elden Ring": "ER",
             "playlist": "5wJX70CENsCJHQxFJmwcYn",
-            "images": [
-                {
-                    "1": "Elden Ring"
-                },
-                {
-                    "2": "General Radhan Fight"
-                }
-            ]
+            "startNum": 1,
+            "endNum": 2
         }
     ]
 }
