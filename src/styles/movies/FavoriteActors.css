@@ -1,0 +1,348 @@
+/* src/styles/movies/FavoriteActors.css */
+
+/* ===== FAVORITE ACTORS PAGE ===== */
+.fav-actors-page {
+    padding: 0 0 80px;
+    animation: favPageIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes favPageIn {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---- Header ---- */
+.fav-actors-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.fav-actors-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.fav-actors-title h2 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.fav-actors-count-badge {
+    background: rgba(231, 76, 60, 0.2);
+    border: 1px solid rgba(231, 76, 60, 0.3);
+    color: #e74c3c;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.fav-actors-clear-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #a1a1aa;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    font-family: inherit;
+}
+
+.fav-actors-clear-btn:hover {
+    background: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+    border-color: rgba(231, 76, 60, 0.3);
+}
+
+/* ---- Grid ---- */
+.fav-actors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 22px;
+    padding: 24px 28px 0;
+}
+
+/* ---- Actor Card ---- */
+.fav-actor-card {
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    cursor: pointer;
+    transition: transform 0.28s cubic-bezier(0.25, 0.8, 0.25, 1),
+        box-shadow 0.28s cubic-bezier(0.25, 0.8, 0.25, 1),
+        background 0.2s;
+    position: relative;
+}
+
+.fav-actor-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.55);
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.fav-actor-poster-wrap {
+    width: 100%;
+    aspect-ratio: 2/3;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(135deg, #1c1c1e, #2c2c2e);
+}
+
+.fav-actor-poster-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+    display: block;
+}
+
+.fav-actor-card:hover .fav-actor-poster-wrap img {
+    transform: scale(1.07);
+}
+
+.fav-actor-no-photo {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 52px;
+}
+
+/* Remove button (top-right on hover) */
+.fav-actor-remove-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(231, 76, 60, 0.75);
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s, transform 0.2s;
+    backdrop-filter: blur(8px);
+    z-index: 2;
+    line-height: 1;
+}
+
+.fav-actor-card:hover .fav-actor-remove-btn {
+    opacity: 1;
+}
+
+.fav-actor-remove-btn:hover {
+    background: rgba(231, 76, 60, 1);
+    transform: scale(1.15);
+}
+
+/* Actor info below poster */
+.fav-actor-info {
+    padding: 12px 12px 14px;
+}
+
+.fav-actor-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+}
+
+.fav-actor-dept {
+    font-size: 11px;
+    color: #71717a;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ---- Empty State ---- */
+.fav-actors-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+    gap: 16px;
+    color: #3f3f46;
+    text-align: center;
+}
+
+.fav-actors-empty-icon {
+    font-size: 64px;
+    opacity: 0.6;
+}
+
+.fav-actors-empty h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #52525b;
+    margin: 0;
+}
+
+.fav-actors-empty p {
+    font-size: 14px;
+    color: #3f3f46;
+    margin: 0;
+    max-width: 320px;
+    line-height: 1.6;
+}
+
+/* ===== FAV BUTTON (in cast cards & actor page) ===== */
+.actor-fav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s, border-color 0.2s;
+    backdrop-filter: blur(8px);
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.actor-fav-btn:hover {
+    transform: scale(1.18);
+}
+
+.actor-fav-btn.is-fav {
+    background: rgba(231, 76, 60, 0.25);
+    border-color: rgba(231, 76, 60, 0.5);
+}
+
+/* In cast-card layout */
+.cast-card-minimal {
+    position: relative;
+}
+
+.cast-fav-overlay {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    z-index: 3;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.cast-card-minimal:hover .cast-fav-overlay {
+    opacity: 1;
+}
+
+/* Actor page hero fav button */
+.actor-page-fav-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 40px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #d1d1d6;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+    font-family: inherit;
+}
+
+.actor-page-fav-btn:hover {
+    transform: scale(1.05);
+}
+
+.actor-page-fav-btn.is-fav {
+    background: rgba(231, 76, 60, 0.2);
+    border-color: rgba(231, 76, 60, 0.45);
+    color: #e74c3c;
+}
+
+/* ===== FAV ACTORS TAB (in MoviesView header) ===== */
+.movies-tab-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.movies-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #71717a;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+    font-family: inherit;
+    position: relative;
+    bottom: -1px;
+    white-space: nowrap;
+}
+
+.movies-tab-btn:hover {
+    color: #d1d1d6;
+}
+
+.movies-tab-btn.active {
+    color: #fff;
+    border-bottom-color: #e74c3c;
+}
+
+.movies-tab-fav-count {
+    background: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+    .fav-actors-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 14px;
+        padding: 16px 16px 0;
+    }
+
+    .fav-actors-header {
+        padding: 16px 16px 12px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .movies-tab-btn {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+}

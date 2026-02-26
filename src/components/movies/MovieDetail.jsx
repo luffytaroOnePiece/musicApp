@@ -4,6 +4,9 @@ import { getImageUrl, getDetails, getImages, getVideos, getAccountDetails, getAc
 import VideoModal from '../common/VideoModal';
 import VidKingModal from '../common/VidKingModal';
 import ActorPage from './ActorPage';
+import useFavoriteActors from '../../hooks/useFavoriteActors';
+import { SHOW_FAVORITE_ACTORS_PAGE } from '../../config';
+import '../../styles/movies/FavoriteActors.css';
 
 const MovieDetail = ({
     movie,
@@ -17,6 +20,9 @@ const MovieDetail = ({
     const [selectedImage, setSelectedImage] = useState(null);
     const [selectedActor, setSelectedActor] = useState(null);
     const [showActorPage, setShowActorPage] = useState(false);
+
+    // Favourite actors (shared hook)
+    const { isFavorite: isActorFav, toggleFavorite: toggleActorFav } = useFavoriteActors();
     const [selectedSeason, setSelectedSeason] = useState(null);
     const [seasonDetails, setSeasonDetails] = useState(null);
     const [loadingSeason, setLoadingSeason] = useState(false);
@@ -503,6 +509,26 @@ const MovieDetail = ({
                                             <span className="cast-name">{actor.name}</span>
                                             <span className="cast-role">{actor.character}</span>
                                         </div>
+                                        {/* Fav button — only shown when feature flag is ON */}
+                                        {SHOW_FAVORITE_ACTORS_PAGE === 1 && (
+                                            <div className="cast-fav-overlay">
+                                                <button
+                                                    className={`actor-fav-btn${isActorFav(actor.id) ? ' is-fav' : ''}`}
+                                                    title={isActorFav(actor.id) ? 'Remove from favourites' : 'Add to favourites'}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleActorFav(actor);
+                                                    }}
+                                                >
+                                                    <svg width="14" height="14" viewBox="0 0 24 24"
+                                                        fill={isActorFav(actor.id) ? '#e74c3c' : 'none'}
+                                                        stroke={isActorFav(actor.id) ? '#e74c3c' : 'currentColor'}
+                                                        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>

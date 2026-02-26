@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { getImageUrl, getDetails, getImages, getPersonCredits } from '../../services/tmdbApi';
 import '../../styles/movies/ActorPage.css';
+import '../../styles/movies/FavoriteActors.css';
+import useFavoriteActors from '../../hooks/useFavoriteActors';
+import { SHOW_FAVORITE_ACTORS_PAGE } from '../../config';
 
 const EXTERNAL_IMAGES_GIST = 'https://gist.githubusercontent.com/luffytaroOnePiece/88364f756d48eeb36a21e6542dc32c61/raw/info.json';
 
@@ -12,6 +15,8 @@ const ActorPage = ({ actor, onBack, onMovieClick }) => {
     const [loading, setLoading] = useState(true);
     const [lightboxImg, setLightboxImg] = useState(null);
     const [lightboxIdx, setLightboxIdx] = useState(null);
+
+    const { isFavorite: isActorFav, toggleFavorite: toggleActorFav } = useFavoriteActors();
 
     // Close lightbox on Escape key
     useEffect(() => {
@@ -279,6 +284,23 @@ const ActorPage = ({ actor, onBack, onMovieClick }) => {
                                         </div>
                                     )}
                                 </div>
+
+                                {/* Favourite button — feature-flagged */}
+                                {SHOW_FAVORITE_ACTORS_PAGE === 1 && (
+                                    <button
+                                        className={`actor-page-fav-btn${isActorFav(actor.id) ? ' is-fav' : ''}`}
+                                        onClick={() => toggleActorFav({ ...actor, known_for_department: details?.known_for_department })}
+                                        title={isActorFav(actor.id) ? 'Remove from favourites' : 'Add to favourites'}
+                                    >
+                                        <svg width="16" height="16" viewBox="0 0 24 24"
+                                            fill={isActorFav(actor.id) ? '#e74c3c' : 'none'}
+                                            stroke={isActorFav(actor.id) ? '#e74c3c' : 'currentColor'}
+                                            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                        </svg>
+                                        {isActorFav(actor.id) ? 'Favourited' : 'Add to Favourites'}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

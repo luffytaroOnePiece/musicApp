@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { getAccountDetails, getAccountLists, getListDetails, getDetails, getCredits, getImages, getAccountWatchlist, getAccountFavorites, getAccountRated, searchMulti, getImageUrl, batchToggleWatchlist, batchToggleFavorite } from '../services/tmdbApi';
 import '../styles/MoviesView.css';
+import '../styles/movies/FavoriteActors.css';
 
 // Components
 import ListsGrid from './movies/ListsGrid';
 import ListDetail from './movies/ListDetail';
 import MovieDetail from './movies/MovieDetail';
+import FavoriteActorsPage from './movies/FavoriteActorsPage';
+import ActorPage from './movies/ActorPage';
+import ReactDOM from 'react-dom';
+import useFavoriteActors from '../hooks/useFavoriteActors';
+import { SHOW_FAVORITE_ACTORS_PAGE } from '../config';
 
 const MoviesView = () => {
     // --- STATE ---
@@ -13,6 +19,16 @@ const MoviesView = () => {
     const [lists, setLists] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Active tab: 'movies' | 'favorites'
+    const [activeTab, setActiveTab] = useState('movies');
+
+    // Favourite actors
+    const { favoriteActors, isFavorite: isActorFav, toggleFavorite: toggleActorFav, removeFavorite, clearAll } = useFavoriteActors();
+
+    // Actor page from Fav actors grid
+    const [favSelectedActor, setFavSelectedActor] = useState(null);
+    const [showFavActorPage, setShowFavActorPage] = useState(false);
 
     // Search State
     const [searchQuery, setSearchQuery] = useState('');
@@ -442,24 +458,74 @@ const MoviesView = () => {
     // VIEW: Search Results or Lists Grid (Level 1)
     return (
         <div className="movies-view-container">
-            <div className="movies-header glass-header sticky-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: '20px' }}>
-                <h2 className="header-title-large">Movies & TV</h2>
-                <div className="movies-search-bar">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="search-icon">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <input
-                        type="text"
-                        placeholder="Search movies, TV shows..."
-                        value={searchQuery}
-                        onChange={handleSearch}
-                        className="search-input"
-                    />
+            <div className="movies-header glass-header sticky-header" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 20px 0 20px' }}>
+                    <h2 className="header-title-large" style={{ margin: 0 }}>Movies &amp; TV</h2>
+                    <div className="movies-search-bar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="search-icon">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input
+                            type="text"
+                            placeholder="Search movies, TV shows..."
+                            value={searchQuery}
+                            onChange={handleSearch}
+                            className="search-input"
+                        />
+                    </div>
                 </div>
+
+                {/* Tab Bar — only shown when feature flag is ON */}
+                {SHOW_FAVORITE_ACTORS_PAGE === 1 && (
+                    <div className="movies-tab-bar" style={{ padding: '0 20px' }}>
+                        <button
+                            className={`movies-tab-btn${activeTab === 'movies' ? ' active' : ''}`}
+                            onClick={() => setActiveTab('movies')}
+                        >
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
+                                <polyline points="17 2 12 7 7 2" />
+                            </svg>
+                            Movies &amp; TV
+                        </button>
+                        <button
+                            className={`movies-tab-btn${activeTab === 'favorites' ? ' active' : ''}`}
+                            onClick={() => setActiveTab('favorites')}
+                        >
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill={activeTab === 'favorites' ? '#e74c3c' : 'none'} stroke={activeTab === 'favorites' ? '#e74c3c' : 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                            </svg>
+                            Fav Actors
+                            {favoriteActors.length > 0 && (
+                                <span className="movies-tab-fav-count">{favoriteActors.length}</span>
+                            )}
+                        </button>
+                    </div>
+                )}
             </div>
 
-            {isSearching ? (
+            {/* Full-screen ActorPage from Fav grid */}
+            {showFavActorPage && favSelectedActor && ReactDOM.createPortal(
+                <ActorPage
+                    actor={favSelectedActor}
+                    onBack={() => { setShowFavActorPage(false); setFavSelectedActor(null); }}
+                    onMovieClick={() => { setShowFavActorPage(false); setFavSelectedActor(null); }}
+                />,
+                document.body
+            )}
+
+            {/* Favourite Actors Tab */}
+            {SHOW_FAVORITE_ACTORS_PAGE === 1 && activeTab === 'favorites' ? (
+                <div className="content-scroll-area">
+                    <FavoriteActorsPage
+                        favoriteActors={favoriteActors}
+                        onActorClick={(actor) => { setFavSelectedActor(actor); setShowFavActorPage(true); }}
+                        onRemove={removeFavorite}
+                        onClearAll={clearAll}
+                    />
+                </div>
+            ) : isSearching ? (
                 <div className="content-scroll-area">
                     <div className="movies-grid animate-stagger-children" style={{ padding: '20px', paddingBottom: '100px' }}>
                         {searchResults.map(item => (

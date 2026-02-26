@@ -1,4 +1,10 @@
 export const clientId = import.meta.env.VITE_CLIENT_ID;
+
+// ─── Feature Flags ──────────────────────────────────────────────────────────
+// SHOW_FAVORITE_ACTORS_PAGE: 1 = show the Favorite Actors section in Movies view
+//                            0 = hide it entirely
+export const SHOW_FAVORITE_ACTORS_PAGE = 1;
+// ────────────────────────────────────────────────────────────────────────────
 // For GitHub Pages, we redirect to the main app URL (root) to avoid 404s on subpaths.
 const getBaseUrl = () => {
     return window.location.href.split('?')[0].split('#')[0].replace(/\/$/, "");
