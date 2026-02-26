@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { getImageUrl, getDetails } from '../../services/tmdbApi';
 import GlossySelect from '../GlossySelect';
+import ActorAnalyticsDashboard from './ActorAnalyticsDashboard';
 import '../../styles/movies/FavoriteActors.css';
+import '../../styles/movies/ActorAnalytics.css';
 
 /**
  * Enriches actors that only have an id by fetching full details from TMDB.
@@ -63,6 +65,9 @@ const calcAge = (birthday) => {
 
 const FavoriteActorsPage = ({ favoriteActors, onActorClick }) => {
     const { enriched: actors, loading } = useEnrichedActors(favoriteActors);
+
+    // Analytics toggle
+    const [showAnalytics, setShowAnalytics] = useState(false);
 
     // Filter + sort state
     const [categoryFilter, setCategoryFilter] = useState('all');
@@ -174,6 +179,19 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick }) => {
                     {actors.length > 0 && (
                         <span className="fav-actors-count-badge">{filteredActors.length}{hasActiveFilters ? ` / ${actors.length}` : ''}</span>
                     )}
+                    {actors.length > 0 && (
+                        <button
+                            className={`analytics-toggle-btn${showAnalytics ? ' active' : ''}`}
+                            onClick={() => setShowAnalytics(prev => !prev)}
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10" />
+                                <line x1="12" y1="20" x2="12" y2="4" />
+                                <line x1="6" y1="20" x2="6" y2="14" />
+                            </svg>
+                            Analytics
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -224,6 +242,11 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick }) => {
                     )}
                 </div>
             )}
+
+            {/* Analytics Dashboard */}
+            <div className={`analytics-dashboard${showAnalytics ? ' open' : ''}`}>
+                {showAnalytics && <ActorAnalyticsDashboard actors={filteredActors} />}
+            </div>
 
             {/* Loading */}
             {loading && actors.length === 0 && (
