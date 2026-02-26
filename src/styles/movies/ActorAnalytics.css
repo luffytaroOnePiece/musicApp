@@ -428,6 +428,40 @@
     color: #d97706;
 }
 
+/* ===== TOP 5 TABS ===== */
+.top5-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.top5-tab-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #71717a;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.12s;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.top5-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #d4d4d8;
+    transform: scale(1.04);
+}
+
+.top5-tab-btn.active {
+    background: rgba(231, 76, 60, 0.18);
+    border-color: rgba(231, 76, 60, 0.4);
+    color: #e74c3c;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 700px) {
     .analytics-stat-row {

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { getImageUrl } from '../../services/tmdbApi';
 import '../../styles/movies/ActorAnalytics.css';
 
@@ -100,15 +100,35 @@ const ActorAnalyticsDashboard = ({ actors }) => {
 
     const maxAgeBucket = useMemo(() => Math.max(...ageHistogram.map(b => b.count), 1), [ageHistogram]);
 
-    // ── Top 5 Popularity ────────────────────────────────────────────────
-    const top5 = useMemo(() => {
+    // ── Top 5 Popularity (multi-tab) ─────────────────────────────────
+    const TOP5_TABS = useMemo(() => [
+        { key: 'overall', label: 'Overall', filter: () => true },
+        { key: 'male', label: 'Male', filter: a => a.gender === 2 },
+        { key: 'female', label: 'Female', filter: a => a.gender === 1 },
+        { key: 'indian', label: 'Indian', filter: a => a.category === 'Indian' },
+        { key: 'non-indian', label: 'Non-Indian', filter: a => a.category === 'Non-Indian' },
+        { key: 'indian-female', label: 'Indian Female', filter: a => a.category === 'Indian' && a.gender === 1 },
+        { key: 'indian-male', label: 'Indian Male', filter: a => a.category === 'Indian' && a.gender === 2 },
+        { key: 'ni-female', label: 'Non-Indian Female', filter: a => a.category === 'Non-Indian' && a.gender === 1 },
+        { key: 'ni-male', label: 'Non-Indian Male', filter: a => a.category === 'Non-Indian' && a.gender === 2 },
+    ], []);
+
+    const [selectedTop5Tab, setSelectedTop5Tab] = useState('overall');
+
+    // Only show tabs that have at least 1 actor
+    const visibleTabs = useMemo(() =>
+        TOP5_TABS.filter(tab => actors.some(a => a.popularity > 0 && tab.filter(a)))
+        , [actors, TOP5_TABS]);
+
+    const top5Filtered = useMemo(() => {
+        const tab = TOP5_TABS.find(t => t.key === selectedTop5Tab) || TOP5_TABS[0];
         return [...actors]
-            .filter(a => a.popularity > 0)
+            .filter(a => a.popularity > 0 && tab.filter(a))
             .sort((a, b) => b.popularity - a.popularity)
             .slice(0, 5);
-    }, [actors]);
+    }, [actors, selectedTop5Tab, TOP5_TABS]);
 
-    const maxPop = useMemo(() => (top5.length ? top5[0].popularity : 1), [top5]);
+    const maxPop = useMemo(() => (top5Filtered.length ? top5Filtered[0].popularity : 1), [top5Filtered]);
 
     if (!actors.length) return null;
 
@@ -302,8 +322,8 @@ const ActorAnalyticsDashboard = ({ actors }) => {
                 </div>
             </div>
 
-            {/* Top 5 by Popularity (full-width) */}
-            {top5.length > 0 && (
+            {/* Top 5 by Popularity — Tabbed (full-width) */}
+            {visibleTabs.length > 0 && (
                 <div className="analytics-chart-card" style={{ marginBottom: 8 }}>
                     <div className="chart-title">
                         <svg className="chart-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -311,8 +331,23 @@ const ActorAnalyticsDashboard = ({ actors }) => {
                         </svg>
                         Top 5 by Popularity
                     </div>
+
+                    {/* Tab pills */}
+                    <div className="top5-tabs">
+                        {visibleTabs.map(tab => (
+                            <button
+                                key={tab.key}
+                                className={`top5-tab-btn${selectedTop5Tab === tab.key ? ' active' : ''}`}
+                                onClick={() => setSelectedTop5Tab(tab.key)}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* List */}
                     <div className="top5-list">
-                        {top5.map((actor, i) => (
+                        {top5Filtered.length > 0 ? top5Filtered.map((actor, i) => (
                             <div key={actor.id} className="top5-item">
                                 <span className="top5-rank">{i + 1}</span>
                                 {actor.profile_path ? (
@@ -335,7 +370,9 @@ const ActorAnalyticsDashboard = ({ actors }) => {
                                 </div>
                                 <span className="top5-score">★ {actor.popularity.toFixed(1)}</span>
                             </div>
-                        ))}
+                        )) : (
+                            <div style={{ color: '#52525b', fontSize: 13, padding: '8px 0' }}>No actors in this category</div>
+                        )}
                     </div>
                 </div>
             )}
