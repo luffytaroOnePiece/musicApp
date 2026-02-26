@@ -1,48 +1,154 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { getImageUrl, getDetails } from '../../services/tmdbApi';
+import GlossySelect from '../GlossySelect';
 import '../../styles/movies/FavoriteActors.css';
 
 /**
- * Enriches actors that only have an id by fetching their details from TMDB.
+ * Enriches actors that only have an id by fetching full details from TMDB.
  */
 const useEnrichedActors = (actors) => {
-    const [enriched, setEnriched] = useState(actors);
+    const [enriched, setEnriched] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         let cancelled = false;
+        setLoading(true);
         const enrich = async () => {
             const results = await Promise.all(
                 actors.map(async (actor) => {
-                    if (actor.profile_path && actor.name) return actor;
                     try {
                         const details = await getDetails(actor.id, 'person');
-                        if (!details) return actor;
+                        if (!details) return { ...actor, popularity: 0, gender: 0 };
                         return {
                             ...actor,
                             name: actor.name || details.name,
                             profile_path: actor.profile_path || details.profile_path,
                             known_for_department: actor.known_for_department || details.known_for_department,
+                            popularity: details.popularity || 0,
+                            gender: details.gender || 0,
+                            birthday: details.birthday || null,
                         };
                     } catch {
-                        return actor;
+                        return { ...actor, popularity: 0, gender: 0 };
                     }
                 })
             );
-            if (!cancelled) setEnriched(results);
+            if (!cancelled) {
+                setEnriched(results);
+                setLoading(false);
+            }
         };
         enrich();
         return () => { cancelled = true; };
     }, [actors]);
 
-    return enriched;
+    return { enriched, loading };
+};
+
+const SORT_OPTIONS = [
+    { value: 'name-asc', label: 'Name A → Z' },
+    { value: 'name-desc', label: 'Name Z → A' },
+    { value: 'popularity', label: 'Popularity' },
+    { value: 'age-young', label: 'Age (Youngest)' },
+    { value: 'age-old', label: 'Age (Oldest)' },
+];
+
+const GENDER_LABELS = { 1: 'Female', 2: 'Male', 3: 'Non-Binary' };
+
+const calcAge = (birthday) => {
+    if (!birthday) return null;
+    const diff = Date.now() - new Date(birthday).getTime();
+    return Math.floor(diff / (365.25 * 24 * 60 * 60 * 1000));
 };
 
 const FavoriteActorsPage = ({ favoriteActors, onActorClick }) => {
-    const actors = useEnrichedActors(favoriteActors);
+    const { enriched: actors, loading } = useEnrichedActors(favoriteActors);
+
+    // Filter + sort state
+    const [deptFilter, setDeptFilter] = useState('all');
+    const [genderFilter, setGenderFilter] = useState('all');
+    const [sortBy, setSortBy] = useState('name-asc');
+
+    // Derive unique departments
+    const departments = useMemo(() => {
+        const set = new Set();
+        actors.forEach((a) => { if (a.known_for_department) set.add(a.known_for_department); });
+        return Array.from(set).sort();
+    }, [actors]);
+
+    // Derive unique genders
+    const genders = useMemo(() => {
+        const set = new Set();
+        actors.forEach((a) => { if (a.gender && GENDER_LABELS[a.gender]) set.add(a.gender); });
+        return Array.from(set).sort();
+    }, [actors]);
+
+    // Build GlossySelect options arrays
+    const deptOptions = useMemo(() => [
+        { value: 'all', label: 'All' },
+        ...departments.map((d) => ({ value: d, label: d }))
+    ], [departments]);
+
+    const genderOptions = useMemo(() => [
+        { value: 'all', label: 'All' },
+        ...genders.map((g) => ({ value: String(g), label: GENDER_LABELS[g] }))
+    ], [genders]);
+
+    const sortOptions = useMemo(() =>
+        SORT_OPTIONS.map((o) => ({ value: o.value, label: o.label }))
+        , []);
+
+    // Apply filter + sort
+    const filteredActors = useMemo(() => {
+        let list = [...actors];
+
+        if (deptFilter !== 'all') {
+            list = list.filter((a) => a.known_for_department === deptFilter);
+        }
+        if (genderFilter !== 'all') {
+            list = list.filter((a) => a.gender === Number(genderFilter));
+        }
+
+        switch (sortBy) {
+            case 'name-asc':
+                list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                break;
+            case 'name-desc':
+                list.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
+                break;
+            case 'popularity':
+                list.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+                break;
+            case 'age-young':
+                list.sort((a, b) => {
+                    const ageA = calcAge(a.birthday);
+                    const ageB = calcAge(b.birthday);
+                    if (ageA === null) return 1;
+                    if (ageB === null) return -1;
+                    return ageA - ageB;
+                });
+                break;
+            case 'age-old':
+                list.sort((a, b) => {
+                    const ageA = calcAge(a.birthday);
+                    const ageB = calcAge(b.birthday);
+                    if (ageA === null) return 1;
+                    if (ageB === null) return -1;
+                    return ageB - ageA;
+                });
+                break;
+            default:
+                break;
+        }
+
+        return list;
+    }, [actors, deptFilter, genderFilter, sortBy]);
+
+    const hasActiveFilters = deptFilter !== 'all' || genderFilter !== 'all';
 
     return (
         <div className="fav-actors-page">
-            {/* Header — title + count only, no action buttons */}
+            {/* Header */}
             <div className="fav-actors-header">
                 <div className="fav-actors-title">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="#e74c3c" stroke="#e74c3c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -50,23 +156,74 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick }) => {
                     </svg>
                     <h2>Favourite Actors</h2>
                     {actors.length > 0 && (
-                        <span className="fav-actors-count-badge">{actors.length}</span>
+                        <span className="fav-actors-count-badge">{filteredActors.length}{hasActiveFilters ? ` / ${actors.length}` : ''}</span>
                     )}
                 </div>
             </div>
 
+            {/* Filter & Sort Bar — using GlossySelect */}
+            {actors.length > 0 && (
+                <div className="fav-actors-controls">
+                    {departments.length > 1 && (
+                        <GlossySelect
+                            label="Department"
+                            value={deptFilter}
+                            onChange={(e) => setDeptFilter(e.target.value)}
+                            options={deptOptions}
+                        />
+                    )}
+
+                    {genders.length > 1 && (
+                        <GlossySelect
+                            label="Gender"
+                            value={genderFilter}
+                            onChange={(e) => setGenderFilter(e.target.value)}
+                            options={genderOptions}
+                        />
+                    )}
+
+                    <GlossySelect
+                        label="Sort By"
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        options={sortOptions}
+                    />
+
+                    {hasActiveFilters && (
+                        <button
+                            className="fav-reset-filters-btn"
+                            onClick={() => { setDeptFilter('all'); setGenderFilter('all'); }}
+                        >
+                            Reset
+                        </button>
+                    )}
+                </div>
+            )}
+
+            {/* Loading */}
+            {loading && actors.length === 0 && (
+                <div className="fav-actors-empty">
+                    <div className="fav-actors-empty-icon">⏳</div>
+                    <h3>Loading actors...</h3>
+                </div>
+            )}
+
             {/* Empty State */}
-            {actors.length === 0 ? (
+            {!loading && actors.length === 0 ? (
                 <div className="fav-actors-empty">
                     <div className="fav-actors-empty-icon">🎬</div>
                     <h3>No favourite actors yet</h3>
-                    <p>
-                        Add actor TMDB IDs to <code>favoriteActors.json</code> to display them here.
-                    </p>
+                    <p>Add actor TMDB IDs to <code>favoriteActors.json</code> to display them here.</p>
+                </div>
+            ) : !loading && filteredActors.length === 0 ? (
+                <div className="fav-actors-empty">
+                    <div className="fav-actors-empty-icon">🔍</div>
+                    <h3>No actors match filters</h3>
+                    <p>Try adjusting the department or gender filter.</p>
                 </div>
             ) : (
                 <div className="fav-actors-grid">
-                    {actors.map((actor) => (
+                    {filteredActors.map((actor) => (
                         <div
                             key={actor.id}
                             className="fav-actor-card"
@@ -87,6 +244,16 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick }) => {
                                 <div className="fav-actor-name">{actor.name || `Actor #${actor.id}`}</div>
                                 {actor.known_for_department && (
                                     <div className="fav-actor-dept">{actor.known_for_department}</div>
+                                )}
+                                {sortBy === 'popularity' && actor.popularity > 0 && (
+                                    <div className="fav-actor-popularity">
+                                        ★ {actor.popularity.toFixed(1)}
+                                    </div>
+                                )}
+                                {(sortBy === 'age-young' || sortBy === 'age-old') && calcAge(actor.birthday) !== null && (
+                                    <div className="fav-actor-age">
+                                        {calcAge(actor.birthday)} years old
+                                    </div>
                                 )}
                             </div>
                         </div>

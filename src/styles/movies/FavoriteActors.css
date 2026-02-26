@@ -51,23 +51,89 @@
     font-weight: 600;
 }
 
-.fav-actors-clear-btn {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #a1a1aa;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-    font-family: inherit;
+/* ---- Filter & Sort Controls ---- */
+.fav-actors-controls {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    padding: 14px 0;
+    flex-wrap: wrap;
 }
 
-.fav-actors-clear-btn:hover {
-    background: rgba(231, 76, 60, 0.15);
+/* Override GlossySelect sizing for this context */
+.fav-actors-controls .glossy-select-container {
+    width: 170px;
+    z-index: 20;
+}
+
+.fav-actors-controls .glossy-select-trigger {
+    padding: 8px 16px;
+    font-size: 0.82rem;
+    border-radius: 24px;
+}
+
+.fav-actors-controls .glossy-select-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+/* Drop down instead of up for this page */
+.fav-actors-controls .glossy-select-dropdown {
+    top: calc(100% + 6px);
+    bottom: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    animation: fadeInDropDown 0.2s ease-out;
+    max-height: 220px;
+}
+
+@keyframes fadeInDropDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fav-reset-filters-btn {
+    background: rgba(231, 76, 60, 0.12);
+    border: 1px solid rgba(231, 76, 60, 0.25);
     color: #e74c3c;
-    border-color: rgba(231, 76, 60, 0.3);
+    border-radius: 24px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 1px;
+}
+
+.fav-reset-filters-btn:hover {
+    background: rgba(231, 76, 60, 0.22);
+    transform: scale(1.04);
+}
+
+/* Popularity badge on card */
+.fav-actor-popularity {
+    font-size: 11px;
+    color: #f59e0b;
+    font-weight: 600;
+    margin-top: 3px;
+}
+
+/* Age badge on card */
+.fav-actor-age {
+    font-size: 11px;
+    color: #60a5fa;
+    font-weight: 600;
+    margin-top: 3px;
 }
 
 /* ---- Grid ---- */
@@ -332,13 +398,23 @@
     .fav-actors-grid {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         gap: 14px;
-        padding: 16px 16px 0;
+        padding: 16px 0 0;
     }
 
     .fav-actors-header {
         padding: 16px 16px 12px;
         flex-wrap: wrap;
         gap: 10px;
+    }
+
+    .fav-actors-controls {
+        gap: 10px;
+        padding: 10px 0;
+    }
+
+    .fav-control-group select {
+        padding: 6px 24px 6px 8px;
+        font-size: 12px;
     }
 
     .movies-tab-btn {
