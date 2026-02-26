@@ -1,8 +1,47 @@
-import React from 'react';
-import { getImageUrl } from '../../services/tmdbApi';
+import React, { useEffect, useState } from 'react';
+import { getImageUrl, getDetails } from '../../services/tmdbApi';
 import '../../styles/movies/FavoriteActors.css';
 
+/**
+ * Enriches actors that only have an id (no profile_path / name) by fetching
+ * their details from the TMDB people endpoint.
+ */
+const useEnrichedActors = (actors) => {
+    const [enriched, setEnriched] = useState(actors);
+
+    useEffect(() => {
+        let cancelled = false;
+        const enrich = async () => {
+            const results = await Promise.all(
+                actors.map(async (actor) => {
+                    // Already has enough data
+                    if (actor.profile_path && actor.name) return actor;
+                    try {
+                        const details = await getDetails(actor.id, 'person');
+                        if (!details) return actor;
+                        return {
+                            ...actor,
+                            name: actor.name || details.name,
+                            profile_path: actor.profile_path || details.profile_path,
+                            known_for_department: actor.known_for_department || details.known_for_department,
+                        };
+                    } catch {
+                        return actor;
+                    }
+                })
+            );
+            if (!cancelled) setEnriched(results);
+        };
+        enrich();
+        return () => { cancelled = true; };
+    }, [actors]);
+
+    return enriched;
+};
+
 const FavoriteActorsPage = ({ favoriteActors, onActorClick, onRemove, onClearAll }) => {
+    const actors = useEnrichedActors(favoriteActors);
+
     return (
         <div className="fav-actors-page">
             {/* Header */}
@@ -12,11 +51,11 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick, onRemove, onClearAll
                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                     </svg>
                     <h2>Favourite Actors</h2>
-                    {favoriteActors.length > 0 && (
-                        <span className="fav-actors-count-badge">{favoriteActors.length}</span>
+                    {actors.length > 0 && (
+                        <span className="fav-actors-count-badge">{actors.length}</span>
                     )}
                 </div>
-                {favoriteActors.length > 0 && (
+                {actors.length > 0 && (
                     <button className="fav-actors-clear-btn" onClick={onClearAll}>
                         Clear All
                     </button>
@@ -24,18 +63,18 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick, onRemove, onClearAll
             </div>
 
             {/* Empty State */}
-            {favoriteActors.length === 0 ? (
+            {actors.length === 0 ? (
                 <div className="fav-actors-empty">
                     <div className="fav-actors-empty-icon">🎬</div>
                     <h3>No favourite actors yet</h3>
                     <p>
-                        Tap the ❤️ button on any actor card or their profile page to add them here.
+                        Tap the ❤️ button on any actor card or profile page to add them here,
+                        or add their TMDB ID to <code>favoriteActors.json</code>.
                     </p>
                 </div>
             ) : (
-                /* Grid */
                 <div className="fav-actors-grid">
-                    {favoriteActors.map((actor) => (
+                    {actors.map((actor) => (
                         <div
                             key={actor.id}
                             className="fav-actor-card"
@@ -45,7 +84,7 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick, onRemove, onClearAll
                                 {actor.profile_path ? (
                                     <img
                                         src={getImageUrl(actor.profile_path, 'w342')}
-                                        alt={actor.name}
+                                        alt={actor.name || `Actor ${actor.id}`}
                                         loading="lazy"
                                     />
                                 ) : (
@@ -64,7 +103,7 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick, onRemove, onClearAll
                                 </button>
                             </div>
                             <div className="fav-actor-info">
-                                <div className="fav-actor-name">{actor.name}</div>
+                                <div className="fav-actor-name">{actor.name || `Actor #${actor.id}`}</div>
                                 {actor.known_for_department && (
                                     <div className="fav-actor-dept">{actor.known_for_department}</div>
                                 )}

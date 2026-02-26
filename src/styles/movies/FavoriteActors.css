@@ -2,7 +2,7 @@
 
 /* ===== FAVORITE ACTORS PAGE ===== */
 .fav-actors-page {
-    padding: 0 0 80px;
+    padding: 20px 0 80px;
     animation: favPageIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
@@ -23,7 +23,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 24px 28px 16px;
+    padding: 20px 28px 18px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -75,7 +75,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 22px;
-    padding: 24px 28px 0;
+    padding: 24px 28px 20px;
 }
 
 /* ---- Actor Card ---- */
