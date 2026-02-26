@@ -5,7 +5,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 0 24px 0;
+    padding: 0;
     /* Align with content, bottom padding */
     position: relative;
     /* Not fixed/absolute anymore */
@@ -14,8 +14,8 @@
 
     /* Keep glass style just for aesthetics if desired, but remove opaque bg if no overlap */
     background: transparent;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    margin-bottom: 32px;
+    border-bottom: none;
+    margin-bottom: 4px;
 }
 
 /* If we want sticky headers in the future, we can add:

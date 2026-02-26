@@ -458,7 +458,7 @@ const MoviesView = () => {
     // VIEW: Search Results or Lists Grid (Level 1)
     return (
         <div className="movies-view-container">
-            <div className="movies-header glass-header sticky-header" style={{ display: 'flex', flexDirection: 'column', padding: 0, paddingBottom: '12px' }}>
+            <div className="movies-header glass-header sticky-header" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 20px 0 20px', gap: '24px' }}>
                     <h2 className="header-title-large" style={{ margin: 0, flexShrink: 0 }}>Movies &amp; TV</h2>
                     <div className="movies-search-bar">

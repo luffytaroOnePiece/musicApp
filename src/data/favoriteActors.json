@@ -1,6 +1,11 @@
 {
     "_comment": "Add actor IDs here to permanently include them as favourites. These are merged with any session additions the user makes via the UI.",
     "actors": [
-        1974970
+        1974970,
+        1830991,
+        1289455,
+        1725208,
+        1210037,
+        545159
     ]
 }
