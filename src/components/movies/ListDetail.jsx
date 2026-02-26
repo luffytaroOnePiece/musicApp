@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { getImageUrl } from '../../services/tmdbApi';
 import Dropdown from './Dropdown';
+import PlaylistAnalyticsDashboard from './PlaylistAnalyticsDashboard';
+import '../../styles/movies/PlaylistAnalytics.css';
+import '../../styles/movies/ActorAnalytics.css';
 
 const ListDetail = ({
     list,
@@ -26,6 +29,9 @@ const ListDetail = ({
 
     const filters = ['All', 'Movie', 'TV', 'Watched', 'Unwatched', 'Favorite', 'Rated'];
     const sortOptions = ['Original Order', 'Top Rated', 'Release Date', 'Title (A-Z)', 'My Rating'];
+
+    // Analytics toggle
+    const [showPlaylistAnalytics, setShowPlaylistAnalytics] = useState(false);
 
     // Helper formats
     const formatMoney = (amount) => {
@@ -132,6 +138,20 @@ const ListDetail = ({
                         <h2 className="header-title">{list.name}</h2>
                         <p className="header-subtitle">{stats.itemCount} items</p>
                     </div>
+                    {items.length > 0 && (
+                        <button
+                            className={`analytics-toggle-btn${showPlaylistAnalytics ? ' active' : ''}`}
+                            onClick={() => setShowPlaylistAnalytics(prev => !prev)}
+                            style={{ marginLeft: 12 }}
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10" />
+                                <line x1="12" y1="20" x2="12" y2="4" />
+                                <line x1="6" y1="20" x2="6" y2="14" />
+                            </svg>
+                            Analytics
+                        </button>
+                    )}
                 </div>
 
                 <div className="movies-controls-right" style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
@@ -174,24 +194,10 @@ const ListDetail = ({
             </div>
 
             <div className="content-scroll-area">
-                {/* Stats Bar */}
-                <div className="list-stats-bar glass-panel animate-slide-down">
-                    <div className="stat-item">
-                        <span className="stat-label">Items</span>
-                        <span className="stat-value">{stats.itemCount}</span>
-                    </div>
-                    <div className="stat-item">
-                        <span className="stat-label">Rating</span>
-                        <span className="stat-value rating-text">{(stats.averageRating * 10).toFixed(0)}%</span>
-                    </div>
-                    <div className="stat-item">
-                        <span className="stat-label">Total Time</span>
-                        <span className="stat-value">{stats.loaded ? formatRuntime(stats.totalRuntime) : '...'}</span>
-                    </div>
-                    <div className="stat-item">
-                        <span className="stat-label">Revenue</span>
-                        <span className="stat-value revenue-text">{stats.loaded ? formatMoney(stats.totalRevenue) : '...'}</span>
-                    </div>
+
+                {/* Analytics Dashboard */}
+                <div className={`playlist-analytics-dashboard${showPlaylistAnalytics ? ' open' : ''}`}>
+                    {showPlaylistAnalytics && <PlaylistAnalyticsDashboard items={items} stats={stats} />}
                 </div>
 
                 {loading ? (
