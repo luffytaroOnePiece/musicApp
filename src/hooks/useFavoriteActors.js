@@ -1,31 +1,31 @@
 import { useState, useCallback } from 'react';
-// ─── IMPORTANT ──────────────────────────────────────────────────────────────
-// This is the ONLY storage layer for favourite actors.
-// Add/remove actor entries in src/data/favoriteActors.json to persist changes.
-// Actors added via the UI ❤️ button are kept in memory for the current session
-// only — they will NOT survive a page refresh unless you also add them to the
-// JSON file.
-// ────────────────────────────────────────────────────────────────────────────
 import favActorsConfig from '../data/favoriteActors.json';
 
-const normaliseEntry = (entry) => {
-    if (typeof entry === 'number' || typeof entry === 'string') {
-        return { id: Number(entry), name: null, profile_path: null, character: null, known_for_department: null };
-    }
+const normaliseEntry = (entry, category) => {
+    const id = typeof entry === 'object' ? Number(entry.id) : Number(entry);
     return {
-        id: Number(entry.id),
-        name: entry.name || null,
-        profile_path: entry.profile_path || null,
-        character: entry.character || null,
-        known_for_department: entry.known_for_department || null,
+        id,
+        name: (typeof entry === 'object' && entry.name) || null,
+        profile_path: (typeof entry === 'object' && entry.profile_path) || null,
+        character: null,
+        known_for_department: (typeof entry === 'object' && entry.known_for_department) || null,
+        category,
     };
 };
 
+const buildInitial = () => {
+    // Support both old flat format and new categories format
+    if (favActorsConfig.categories) {
+        return favActorsConfig.categories.flatMap((cat) =>
+            (cat.actors || []).map((entry) => normaliseEntry(entry, cat.name))
+        );
+    }
+    // Fallback: old flat format
+    return (favActorsConfig.actors || []).map((entry) => normaliseEntry(entry, 'All'));
+};
+
 const useFavoriteActors = () => {
-    // Initialise purely from the JSON file — no localStorage involved
-    const [favoriteActors, setFavoriteActors] = useState(() =>
-        (favActorsConfig.actors || []).map(normaliseEntry)
-    );
+    const [favoriteActors, setFavoriteActors] = useState(buildInitial);
 
     const isFavorite = useCallback(
         (actorId) => favoriteActors.some((a) => a.id === actorId),
@@ -45,6 +45,7 @@ const useFavoriteActors = () => {
                     profile_path: actor.profile_path || null,
                     character: actor.character || null,
                     known_for_department: actor.known_for_department || null,
+                    category: actor.category || 'Other',
                 },
             ];
         });
@@ -57,7 +58,10 @@ const useFavoriteActors = () => {
 
     const clearAll = useCallback(() => setFavoriteActors([]), []);
 
-    return { favoriteActors, isFavorite, toggleFavorite, removeFavorite, clearAll };
+    // Extract unique categories
+    const categories = [...new Set(favoriteActors.map((a) => a.category).filter(Boolean))];
+
+    return { favoriteActors, isFavorite, toggleFavorite, removeFavorite, clearAll, categories };
 };
 
 export default useFavoriteActors;

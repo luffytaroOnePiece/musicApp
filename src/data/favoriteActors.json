@@ -1,16 +1,19 @@
 {
-    "_comment": "Add actor IDs here to permanently include them as favourites. These are merged with any session additions the user makes via the UI.",
-    "actors": [
-        1974970,
-        1830991,
-        1289455,
-        1725208,
-        1210037,
-        545159,
-        113809,
-        85721,
-        225312,
-        1752056,
-        4103536
-    ]
+  "_comment": "Favourite actors grouped by category. Add TMDB actor IDs to each list.",
+  "categories": [
+    {
+      "name": "Indian",
+      "actors": [
+        1974970, 1830991, 1289455, 1725208, 1210037, 545159, 113809, 85721,
+        225312, 1752056, 4103536, 116924, 237045, 108215, 147079, 147023,
+        148037, 149958, 237052, 2994460, 1508809, 146935, 225387, 88167, 544986,
+        1407562, 88166, 1473119, 1608576, 1295762, 587753, 1201819, 1142829,
+        1559686, 1135119, 1166967, 1587857, 2476557, 1470724
+      ]
+    },
+    {
+      "name": "Non-Indian",
+      "actors": []
+    }
+  ]
 }

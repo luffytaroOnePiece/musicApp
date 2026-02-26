@@ -65,6 +65,7 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick }) => {
     const { enriched: actors, loading } = useEnrichedActors(favoriteActors);
 
     // Filter + sort state
+    const [categoryFilter, setCategoryFilter] = useState('all');
     const [deptFilter, setDeptFilter] = useState('all');
     const [genderFilter, setGenderFilter] = useState('all');
     const [sortBy, setSortBy] = useState('name-asc');
@@ -83,7 +84,19 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick }) => {
         return Array.from(set).sort();
     }, [actors]);
 
+    // Derive unique categories
+    const actorCategories = useMemo(() => {
+        const set = new Set();
+        actors.forEach((a) => { if (a.category) set.add(a.category); });
+        return Array.from(set);
+    }, [actors]);
+
     // Build GlossySelect options arrays
+    const categoryOptions = useMemo(() => [
+        { value: 'all', label: 'All' },
+        ...actorCategories.map((c) => ({ value: c, label: c }))
+    ], [actorCategories]);
+
     const deptOptions = useMemo(() => [
         { value: 'all', label: 'All' },
         ...departments.map((d) => ({ value: d, label: d }))
@@ -102,6 +115,9 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick }) => {
     const filteredActors = useMemo(() => {
         let list = [...actors];
 
+        if (categoryFilter !== 'all') {
+            list = list.filter((a) => a.category === categoryFilter);
+        }
         if (deptFilter !== 'all') {
             list = list.filter((a) => a.known_for_department === deptFilter);
         }
@@ -142,9 +158,9 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick }) => {
         }
 
         return list;
-    }, [actors, deptFilter, genderFilter, sortBy]);
+    }, [actors, categoryFilter, deptFilter, genderFilter, sortBy]);
 
-    const hasActiveFilters = deptFilter !== 'all' || genderFilter !== 'all';
+    const hasActiveFilters = categoryFilter !== 'all' || deptFilter !== 'all' || genderFilter !== 'all';
 
     return (
         <div className="fav-actors-page">
@@ -164,6 +180,15 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick }) => {
             {/* Filter & Sort Bar — using GlossySelect */}
             {actors.length > 0 && (
                 <div className="fav-actors-controls">
+                    {actorCategories.length > 1 && (
+                        <GlossySelect
+                            label="Category"
+                            value={categoryFilter}
+                            onChange={(e) => setCategoryFilter(e.target.value)}
+                            options={categoryOptions}
+                        />
+                    )}
+
                     {departments.length > 1 && (
                         <GlossySelect
                             label="Department"
@@ -192,7 +217,7 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick }) => {
                     {hasActiveFilters && (
                         <button
                             className="fav-reset-filters-btn"
-                            onClick={() => { setDeptFilter('all'); setGenderFilter('all'); }}
+                            onClick={() => { setCategoryFilter('all'); setDeptFilter('all'); setGenderFilter('all'); }}
                         >
                             Reset
                         </button>
