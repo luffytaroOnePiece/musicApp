@@ -3,8 +3,7 @@ import { getImageUrl, getDetails } from '../../services/tmdbApi';
 import '../../styles/movies/FavoriteActors.css';
 
 /**
- * Enriches actors that only have an id (no profile_path / name) by fetching
- * their details from the TMDB people endpoint.
+ * Enriches actors that only have an id by fetching their details from TMDB.
  */
 const useEnrichedActors = (actors) => {
     const [enriched, setEnriched] = useState(actors);
@@ -14,7 +13,6 @@ const useEnrichedActors = (actors) => {
         const enrich = async () => {
             const results = await Promise.all(
                 actors.map(async (actor) => {
-                    // Already has enough data
                     if (actor.profile_path && actor.name) return actor;
                     try {
                         const details = await getDetails(actor.id, 'person');
@@ -39,12 +37,12 @@ const useEnrichedActors = (actors) => {
     return enriched;
 };
 
-const FavoriteActorsPage = ({ favoriteActors, onActorClick, onRemove, onClearAll }) => {
+const FavoriteActorsPage = ({ favoriteActors, onActorClick }) => {
     const actors = useEnrichedActors(favoriteActors);
 
     return (
         <div className="fav-actors-page">
-            {/* Header */}
+            {/* Header — title + count only, no action buttons */}
             <div className="fav-actors-header">
                 <div className="fav-actors-title">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="#e74c3c" stroke="#e74c3c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -55,11 +53,6 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick, onRemove, onClearAll
                         <span className="fav-actors-count-badge">{actors.length}</span>
                     )}
                 </div>
-                {actors.length > 0 && (
-                    <button className="fav-actors-clear-btn" onClick={onClearAll}>
-                        Clear All
-                    </button>
-                )}
             </div>
 
             {/* Empty State */}
@@ -68,8 +61,7 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick, onRemove, onClearAll
                     <div className="fav-actors-empty-icon">🎬</div>
                     <h3>No favourite actors yet</h3>
                     <p>
-                        Tap the ❤️ button on any actor card or profile page to add them here,
-                        or add their TMDB ID to <code>favoriteActors.json</code>.
+                        Add actor TMDB IDs to <code>favoriteActors.json</code> to display them here.
                     </p>
                 </div>
             ) : (
@@ -90,17 +82,6 @@ const FavoriteActorsPage = ({ favoriteActors, onActorClick, onRemove, onClearAll
                                 ) : (
                                     <div className="fav-actor-no-photo">🧑‍🎤</div>
                                 )}
-                                {/* Remove button */}
-                                <button
-                                    className="fav-actor-remove-btn"
-                                    title="Remove from favourites"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onRemove && onRemove(actor.id);
-                                    }}
-                                >
-                                    ×
-                                </button>
                             </div>
                             <div className="fav-actor-info">
                                 <div className="fav-actor-name">{actor.name || `Actor #${actor.id}`}</div>

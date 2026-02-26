@@ -459,8 +459,8 @@ const MoviesView = () => {
     return (
         <div className="movies-view-container">
             <div className="movies-header glass-header sticky-header" style={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 20px 0 20px' }}>
-                    <h2 className="header-title-large" style={{ margin: 0 }}>Movies &amp; TV</h2>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 20px 0 20px', gap: '24px' }}>
+                    <h2 className="header-title-large" style={{ margin: 0, flexShrink: 0 }}>Movies &amp; TV</h2>
                     <div className="movies-search-bar">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="search-icon">
                             <circle cx="11" cy="11" r="8"></circle>
@@ -521,8 +521,6 @@ const MoviesView = () => {
                     <FavoriteActorsPage
                         favoriteActors={favoriteActors}
                         onActorClick={(actor) => { setFavSelectedActor(actor); setShowFavActorPage(true); }}
-                        onRemove={removeFavorite}
-                        onClearAll={clearAll}
                     />
                 </div>
             ) : isSearching ? (
