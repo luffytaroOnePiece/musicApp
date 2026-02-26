@@ -510,7 +510,7 @@ const MoviesView = () => {
                 <ActorPage
                     actor={favSelectedActor}
                     onBack={() => { setShowFavActorPage(false); setFavSelectedActor(null); }}
-                    onMovieClick={() => { setShowFavActorPage(false); setFavSelectedActor(null); }}
+                    onMovieClick={(movie) => { setShowFavActorPage(false); setFavSelectedActor(null); handleMovieSelect(movie); }}
                 />,
                 document.body
             )}
