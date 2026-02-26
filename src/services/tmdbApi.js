@@ -143,6 +143,11 @@ export const getPersonCredits = async (personId) => {
     return fetchTmdb(`/person/${personId}/combined_credits`, { language: 'en-US' });
 };
 
+export const getExternalIds = async (personId) => {
+    if (!personId) return null;
+    return fetchTmdb(`/person/${personId}/external_ids`);
+};
+
 export const getSeasonDetails = async (tvId, seasonNumber) => {
     if (!tvId || seasonNumber === undefined) return null;
     return fetchTmdb(`/tv/${tvId}/season/${seasonNumber}`);

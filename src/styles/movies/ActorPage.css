@@ -154,6 +154,103 @@
     flex-shrink: 0;
 }
 
+/* ===== SOCIAL MEDIA LINKS ===== */
+.actor-social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.actor-social-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #a1a1aa;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+}
+
+.actor-social-pill:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.actor-social-pill svg {
+    flex-shrink: 0;
+    opacity: 0.8;
+}
+
+.actor-social-pill:hover svg {
+    opacity: 1;
+}
+
+/* Instagram hover — gradient */
+.actor-social-pill[title="Instagram"]:hover {
+    border-color: rgba(225, 48, 108, 0.5);
+    color: #e1306c;
+}
+
+.actor-social-pill[title="Instagram"]:hover svg {
+    fill: #e1306c;
+}
+
+/* X / Twitter hover */
+.actor-social-pill[title="X (Twitter)"]:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+/* Facebook hover */
+.actor-social-pill[title="Facebook"]:hover {
+    border-color: rgba(24, 119, 242, 0.5);
+    color: #1877f2;
+}
+
+.actor-social-pill[title="Facebook"]:hover svg {
+    fill: #1877f2;
+}
+
+/* TikTok hover */
+.actor-social-pill[title="TikTok"]:hover {
+    border-color: rgba(255, 0, 80, 0.4);
+    color: #ff0050;
+}
+
+.actor-social-pill[title="TikTok"]:hover svg {
+    fill: #ff0050;
+}
+
+/* YouTube hover */
+.actor-social-pill[title="YouTube"]:hover {
+    border-color: rgba(255, 0, 0, 0.4);
+    color: #ff0000;
+}
+
+.actor-social-pill[title="YouTube"]:hover svg {
+    fill: #ff0000;
+}
+
+/* IMDb hover */
+.actor-social-pill.imdb:hover {
+    border-color: rgba(245, 197, 24, 0.5);
+    color: #f5c518;
+}
+
+.actor-social-pill.imdb:hover svg {
+    fill: #f5c518;
+}
+
 /* ===== BACK BUTTON ===== */
 .actor-page-back-btn {
     position: fixed;
