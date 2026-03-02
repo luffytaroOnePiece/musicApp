@@ -1,465 +1,719 @@
 /**
  * YouTubeMusicView.jsx
  *
- * An EXACT clone of AlbumsView.jsx — same components, same FullPlayer, same
- * Spotify audio playback — but the data comes from movieYoutubeMapper.json
- * (keyed by TMDB ID) and album covers are fetched from TMDB Instead of Spotify.
- *
- * movieYoutubeMapper.json shape:
- *  {
- *    "<tmdbId>": {
- *      "name": "...",
- *      "language": "...",
- *      "spotifyID": "...",
- *      "youtubeIDs": [...]
- *    }
- *  }
+ * A fully self-contained YouTube Music page.
+ * - NO Spotify SDK / API calls
+ * - Data: movieYoutubeMapper.json (keyed by TMDB movie ID)
+ * - Covers / info: TMDB API
+ * - Playback: YouTube IFrame embed (audio + video modes)
+ * - Layout: mirrors the Albums page visually (grid → detail → player)
  */
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { getPlaylist } from "../services/spotifyApi";
-import { getDetails, getImageUrl } from "../services/tmdbApi";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { getDetails, getImages, getImageUrl } from "../services/tmdbApi";
 import movieYoutubeMapper from "../data/movieYoutubeMapper.json";
+import youtubeMixData from "../data/youtubeMixData.json";
+import "../styles/YouTubeMusicView.css";
 
-import AlbumsList from "./albums/AlbumsList";
-import AlbumDetail from "./albums/AlbumDetail";
-import AlbumsHeader from "./albums/AlbumsHeader";
-import AggregatedGrid from "./albums/AggregatedGrid";
-import VideoModal from "./common/VideoModal";
-import "../styles/AlbumsView.css";           // reuse Albums styles 100%
+// ─── Fast video-ID → title lookup ────────────────────────────────────────────
+const videoTitleMap = Object.fromEntries(
+    (youtubeMixData.videos || []).map((v) => [v.youtubeLinkID, v.title])
+);
 
-// ─── Build spotifyID-keyed data (matching movieAlbums.json format) ────────────
-// This is what AlbumDetail's `localData` and all internal helpers expect.
-const ytMusicData = {};
-const tmdbIdBySpotifyId = {};   // reverse-lookup: spotifyId → tmdbId
+// ─── Shared Language / Type pill bar (mirrors AlbumsHeader style) ────────────
+const FilterBar = ({ languages, selectedLang, onLang, searchTerm, onSearch }) => (
+    <div className="ytm-filter-bar">
+        <div className="ytm-search-wrap">
+            <svg className="ytm-search-icon" width="16" height="16" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+                className="ytm-search-input"
+                placeholder="Search movies…"
+                value={searchTerm}
+                onChange={(e) => onSearch(e.target.value)}
+            />
+        </div>
+        <div className="ytm-lang-filters">
+            {languages.map((lang) => (
+                <button
+                    key={lang}
+                    className={`ytm-lang-pill ${selectedLang === lang ? "active" : ""}`}
+                    onClick={() => onLang(lang)}
+                >
+                    {lang}
+                </button>
+            ))}
+        </div>
+    </div>
+);
 
-Object.entries(movieYoutubeMapper).forEach(([tmdbId, data]) => {
-    if (!data.spotifyID) return;
-    const sid = data.spotifyID;
-    ytMusicData[sid] = {
-        name: data.name,
-        language: data.language,
-        youtubeIDs: data.youtubeIDs || [],
-        type: "Movie",
-        tmdbID: tmdbId,       // AlbumDetail uses this to fetch TMDB backdrop/images
-        format: "HD",
-    };
-    tmdbIdBySpotifyId[sid] = tmdbId;
+// ─── Album Card (mirrors AlbumCard.jsx look) ──────────────────────────────────
+const YTAlbumCard = React.memo(({ album, onClick }) => {
+    const { name, language, youtubeIDs, posterUrl, loading } = album;
+    const count = youtubeIDs?.length || 0;
+
+    return (
+        <div className="ytm-album-card" onClick={onClick}>
+            <div className="ytm-album-cover-wrap">
+                {loading ? (
+                    <div className="ytm-album-cover-skeleton" />
+                ) : posterUrl ? (
+                    <img src={posterUrl} alt={name} className="ytm-album-cover" loading="lazy" />
+                ) : (
+                    <div className="ytm-album-cover-fallback">
+                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" strokeWidth="1.5">
+                            <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" />
+                            <circle cx="18" cy="16" r="3" />
+                        </svg>
+                    </div>
+                )}
+                <div className="ytm-song-count-badge">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" />
+                    </svg>
+                    {count} {count === 1 ? "song" : "songs"}
+                </div>
+            </div>
+            <div className="ytm-album-info">
+                <h3 className="ytm-album-name">{name}</h3>
+                {language && <span className="ytm-album-lang">{language}</span>}
+            </div>
+        </div>
+    );
 });
 
-// ─── Component ────────────────────────────────────────────────────────────────
-const YouTubeMusicView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
-    // ── Selection ──
-    const [selectedId, setSelectedId] = useState(null);
-    const [itemsMetadata, setItemsMetadata] = useState({});
-    const [fullItemData, setFullItemData] = useState(null);
-
-    // ── UI ──
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [viewMode, setViewMode] = useState("albums");
-
-    // ── Filters ──
-    const [selectedType, setSelectedType] = useState("All");
-    const [selectedLanguage, setSelectedLanguage] = useState("All");
-    const [selectedSort, setSelectedSort] = useState("Default");
-
-    // ── Songs (aggregated grid – live / all-songs / others) ──
-    const [songsList, setSongsList] = useState([]);
-    const [loadingSongs, setLoadingSongs] = useState(false);
-
-    // ── Video modal ──
-    const [playingVideo, setPlayingVideo] = useState(null);
-
-    // ── Filter options ──────────────────────────────────────────────────────────
-    const { types, languages } = useMemo(() => {
-        const t = new Set(["All"]);
-        const l = new Set(["All"]);
-        Object.values(ytMusicData).forEach((album) => {
-            if (album.type) t.add(album.type);
-            if (album.language) l.add(album.language);
-        });
-        return { types: Array.from(t).sort(), languages: Array.from(l).sort() };
-    }, []);
-
-    // ── 1. Initial load — metadata (Spotify + TMDB poster) ─────────────────────
+// ─── Full-screen YouTube Player (expands from mini bar) ──────────────────────
+const YTFullPlayer = ({ track, tracks, albumName, posterUrl, onClose, onSelectTrack }) => {
     useEffect(() => {
-        let isMounted = true;
+        const fn = (e) => { if (e.key === "Escape") onClose(); };
+        window.addEventListener("keydown", fn);
+        return () => window.removeEventListener("keydown", fn);
+    }, [onClose]);
 
-        const fetchMetadata = async () => {
-            if (Object.keys(itemsMetadata).length > 0) {
-                if (isMounted) setLoading(false);
-                return;
-            }
+    if (!track) return null;
 
-            try {
-                const entries = Object.entries(ytMusicData);
-                if (entries.length === 0) { setLoading(false); return; }
+    return (
+        <div className="ytm-full-player">
+            {/* Blurred poster backdrop */}
+            {posterUrl && (
+                <div
+                    className="ytm-fp-backdrop"
+                    style={{ backgroundImage: `url(${posterUrl})` }}
+                />
+            )}
 
-                if (isMounted) setLoading(true);
+            <div className="ytm-fp-inner">
+                {/* Header */}
+                <div className="ytm-fp-header">
+                    <button className="ytm-fp-close" onClick={onClose} title="Collapse">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+                            strokeLinejoin="round">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </button>
+                    <div className="ytm-fp-header-meta">
+                        <span className="ytm-fp-album-name">{albumName}</span>
+                    </div>
+                    <div style={{ width: 40 }} />
+                </div>
 
-                // Shuffle for random display order
-                for (let i = entries.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [entries[i], entries[j]] = [entries[j], entries[i]];
-                }
+                {/* Main layout: big player + sidebar track list */}
+                <div className="ytm-fp-body">
+                    {/* Big video embed */}
+                    <div className="ytm-fp-video-wrap">
+                        <iframe
+                            key={track.id}
+                            src={`https://www.youtube.com/embed/${track.id}?autoplay=1&rel=0&controls=1`}
+                            title={track.title}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="ytm-fp-iframe"
+                        />
+                    </div>
 
-                const BATCH_SIZE = 5;
-                const DELAY_MS = 400;
-                const chunk = (arr, size) =>
-                    Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
-                        arr.slice(i * size, i * size + size)
-                    );
+                    {/* Right panel: track info + track list */}
+                    <div className="ytm-fp-sidebar">
+                        <div className="ytm-fp-now-info">
+                            {posterUrl && (
+                                <img src={posterUrl} alt={albumName} className="ytm-fp-poster" />
+                            )}
+                            <h2 className="ytm-fp-track-title">{track.title}</h2>
+                            <p className="ytm-fp-track-album">{albumName}</p>
+                        </div>
 
-                for (const batch of chunk(entries, BATCH_SIZE)) {
-                    if (!isMounted) break;
+                        <h4 className="ytm-fp-queue-heading">Up Next</h4>
+                        <div className="ytm-fp-queue">
+                            {tracks.map((t, i) => (
+                                <div
+                                    key={t.id}
+                                    className={`ytm-fp-queue-row${t.id === track.id ? " active" : ""}`}
+                                    onClick={() => onSelectTrack(t)}
+                                >
+                                    <img
+                                        src={`https://img.youtube.com/vi/${t.id}/default.jpg`}
+                                        alt={t.title}
+                                        className="ytm-fp-queue-thumb"
+                                    />
+                                    <span className="ytm-fp-queue-title" title={t.title}>{t.title}</span>
+                                    {t.id === track.id && (
+                                        <div className="ytm-fp-queue-bars">
+                                            <span /><span /><span />
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
-                    const batchResults = await Promise.all(
-                        batch.map(async ([spotifyId, localData]) => {
-                            try {
-                                // Fetch Spotify playlist (for tracks & fallback name)
-                                const playlist = await getPlaylist(spotifyId);
-                                if (!playlist) throw new Error("Playlist not found");
+// ─── Mini Embedded Player Bar ─────────────────────────────────────────────────
+const YTEmbedPlayer = ({ track, onClose, onExpand }) => {
+    if (!track) return null;
+    return (
+        <div className="ytm-embed-player">
+            {/* Clickable area → opens full player */}
+            <div className="ytm-ep-click-area" onClick={onExpand} title="Open full player">
+                <div className="ytm-ep-art">
+                    <img
+                        src={`https://img.youtube.com/vi/${track.id}/default.jpg`}
+                        alt={track.title}
+                        className="ytm-ep-art-img"
+                    />
+                    <div className="ytm-ep-expand-hint">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                            <polyline points="18 15 12 9 6 15" />
+                        </svg>
+                    </div>
+                </div>
+                <div className="ytm-ep-meta">
+                    <span className="ytm-ep-title" title={track.title}>{track.title}</span>
+                    <span className="ytm-ep-album">{track.albumName}</span>
+                </div>
+            </div>
+            <div className="ytm-ep-frame-wrap">
+                <iframe
+                    key={track.id}
+                    src={`https://www.youtube.com/embed/${track.id}?autoplay=1&rel=0&controls=1`}
+                    title={track.title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="ytm-ep-iframe"
+                />
+            </div>
+            <button className="ytm-ep-close" onClick={onClose} title="Close player">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+    );
+};
 
-                                // Fetch TMDB poster to override Spotify cover art
-                                let tmdbPoster = null;
-                                if (localData.tmdbID) {
-                                    try {
-                                        const tmdbData = await getDetails(localData.tmdbID, "movie");
-                                        if (tmdbData?.poster_path) {
-                                            tmdbPoster = getImageUrl(tmdbData.poster_path, "w500");
-                                        }
-                                    } catch { /* fallback to Spotify image */ }
-                                }
-
-                                return [
-                                    spotifyId,
-                                    {
-                                        ...localData,
-                                        spotifyName: playlist.name,
-                                        // Inject TMDB poster as primary image — AlbumCard reads images[0].url
-                                        images: tmdbPoster
-                                            ? [{ url: tmdbPoster }, ...(playlist.images || [])]
-                                            : playlist.images,
-                                        owner: playlist.owner?.display_name,
-                                        release_date:
-                                            playlist.release_date ||
-                                            playlist.tracks?.items?.[0]?.track?.album?.release_date,
-                                        description: playlist.description,
-                                    },
-                                ];
-                            } catch (err) {
-                                console.error(`Failed to fetch playlist ${spotifyId}`, err);
-                                return [
-                                    spotifyId,
-                                    { ...localData, error: true, name: localData.name || "Unknown" },
-                                ];
-                            }
-                        })
-                    );
-
-                    if (isMounted) {
-                        setItemsMetadata((prev) => ({
-                            ...prev,
-                            ...Object.fromEntries(batchResults),
-                        }));
-                        setLoading(false);
-                    }
-
-                    await new Promise((r) => setTimeout(r, DELAY_MS));
-                }
-            } catch (err) {
-                console.error("Critical error in YouTubeMusicView", err);
-                if (isMounted) { setError(err.message); setLoading(false); }
-            }
-        };
-
-        fetchMetadata();
-        return () => { isMounted = false; };
-    }, []);
-
-    // ── 2. Detail load ──────────────────────────────────────────────────────────
+// ─── Full-screen Video Modal ──────────────────────────────────────────────────
+const YTVideoModal = ({ track, onClose }) => {
     useEffect(() => {
-        const fetchFull = async () => {
-            if (!selectedId) return;
-            setLoading(true);
-            try {
-                const data = await getPlaylist(selectedId);
-                setFullItemData(data);
-            } catch (err) {
-                console.error("Failed to load full playlist", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchFull();
-    }, [selectedId]);
+        const fn = (e) => { if (e.key === "Escape") onClose(); };
+        window.addEventListener("keydown", fn);
+        return () => window.removeEventListener("keydown", fn);
+    }, [onClose]);
 
-    // ── 3. Reset on token change ────────────────────────────────────────────────
-    useEffect(() => {
-        if (resetToken > 0) {
-            setSelectedId(null);
-            setFullItemData(null);
-            setViewMode("albums");
-        }
-    }, [resetToken]);
+    if (!track) return null;
+    return (
+        <div className="ytm-modal-overlay" onClick={onClose}>
+            <div className="ytm-modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="ytm-modal-header">
+                    <span className="ytm-modal-title" title={track.title}>{track.title}</span>
+                    <button className="ytm-modal-close" onClick={onClose}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" strokeWidth="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+                </div>
+                <div className="ytm-modal-player-wrap">
+                    <iframe
+                        src={`https://www.youtube.com/embed/${track.id}?autoplay=1&rel=0&controls=1`}
+                        title={track.title}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="ytm-modal-iframe"
+                    />
+                </div>
+            </div>
+        </div>
+    );
+};
 
-    // ── 4. Aggregated songs view (all-songs / live — no "others" in this data) ─
-    useEffect(() => {
-        if (viewMode === "albums") { setSongsList([]); return; }
+// ─── Track Row (mirrors AlbumTracks row style) ────────────────────────────────
+const TrackRow = React.memo(({ index, ytId, title, isCurrent, onAudio, onVideo }) => (
+    <div className={`ytm-track-row${isCurrent ? " ytm-track-row--active" : ""}`}>
+        <div className="ytm-track-num">
+            {isCurrent ? (
+                <div className="ytm-now-bars">
+                    <span /><span /><span />
+                </div>
+            ) : (
+                <span className="ytm-track-idx">{index + 1}</span>
+            )}
+        </div>
 
-        const fetchSongs = async () => {
-            setLoadingSongs(true);
-            const songs = [];
+        <div className="ytm-track-thumb-wrap">
+            <img
+                src={`https://img.youtube.com/vi/${ytId}/default.jpg`}
+                alt={title}
+                className="ytm-track-thumb"
+                loading="lazy"
+            />
+        </div>
 
-            const isMatch = (meta) => {
-                if (!meta) return false;
-                const matchType = selectedType === "All" || meta.type === selectedType;
-                const matchLang = selectedLanguage === "All" || meta.language === selectedLanguage;
-                return matchType && matchLang;
-            };
+        <span className="ytm-track-title" title={title}>{title}</span>
 
-            const relevantIds = Object.keys(itemsMetadata).filter((id) =>
-                isMatch(itemsMetadata[id])
-            );
+        <div className="ytm-track-btns">
+            <button
+                className={`ytm-tbtn ytm-tbtn--play${isCurrent ? " active" : ""}`}
+                onClick={() => onAudio({ id: ytId, title })}
+                title="Play audio"
+            >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                </svg>
+                Play
+            </button>
+            <button
+                className="ytm-tbtn ytm-tbtn--watch"
+                onClick={() => onVideo({ id: ytId, title })}
+                title="Watch video"
+            >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" />
+                </svg>
+                Video
+            </button>
+        </div>
+    </div>
+));
 
-            const promises = relevantIds.map(async (id) => {
-                const meta = itemsMetadata[id];
-                try {
-                    const playlist = await getPlaylist(id);
-                    if (!playlist?.tracks) return [];
+// ─── Album Detail (mirrors AlbumDetail layout) ────────────────────────────────
+const YTAlbumDetail = ({ album, onBack }) => {
+    const { tmdbId, name, language, youtubeIDs, posterUrl } = album;
 
-                    const rawTracks = playlist.tracks.items;
-                    const youtubeIDs = ytMusicData[id]?.youtubeIDs || [];
-                    const localFormat = ytMusicData[id]?.format || "HD";
+    const [activeTrack, setActiveTrack] = useState(null); // audio player
+    const [fullPlayerOpen, setFullPlayerOpen] = useState(false); // full-screen player
+    const [videoTrack, setVideoTrack] = useState(null); // video modal
+    const [localSearch, setLocalSearch] = useState("");
+    const [viewMode, setViewMode] = useState("tracks"); // "tracks" | "info"
+    const [tmdbInfo, setTmdbInfo] = useState(null);
+    const [tmdbImages, setTmdbImages] = useState([]);
+    const [loadingInfo, setLoadingInfo] = useState(false);
+    const [lightbox, setLightbox] = useState(null);
+    const [backdropUrl, setBackdropUrl] = useState(null);
 
-                    if (viewMode === "live") {
-                        const liveTracks = [];
-                        rawTracks.forEach((item, i) => {
-                            if (!item.track || !youtubeIDs[i]) return;
-                            const ytIds = youtubeIDs[i].split(",");
-                            if (ytIds.length > 1) {
-                                ytIds.slice(1).forEach((liveId, li) => {
-                                    liveTracks.push({
-                                        ...item.track,
-                                        name: `${item.track.name} (Live ${li + 1})`,
-                                        videoId: liveId.trim(),
-                                        type: "Live Performance",
-                                        format: localFormat,
-                                        keyId: `${item.track.id}-live-${li}`,
-                                        trackUri: item.track.uri,
-                                        linked_youtube_id: liveId.trim(),
-                                        linked_format: localFormat,
-                                    });
-                                });
-                            }
-                        });
-                        return liveTracks;
-                    } else {
-                        return rawTracks
-                            .map((item, i) => {
-                                if (!item.track || !youtubeIDs[i]) return null;
-                                return {
-                                    ...item.track,
-                                    videoId: youtubeIDs[i],
-                                    type: meta.type || "Song",
-                                    format: localFormat,
-                                    keyId: item.track.id,
-                                    trackUri: item.track.uri,
-                                    linked_youtube_id: youtubeIDs[i],
-                                    linked_format: localFormat,
-                                };
-                            })
-                            .filter(Boolean);
-                    }
-                } catch (e) {
-                    console.warn("Error fetching tracks for", id, e);
-                    return [];
-                }
-            });
-
-            const results = await Promise.all(promises);
-            results.forEach((s) => songs.push(...s));
-
-            // Shuffle
-            for (let i = songs.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [songs[i], songs[j]] = [songs[j], songs[i]];
-            }
-
-            setSongsList(songs);
-            setLoadingSongs(false);
-        };
-
-        fetchSongs();
-    }, [viewMode, itemsMetadata, selectedType, selectedLanguage]);
-
-    // ── Handlers ────────────────────────────────────────────────────────────────
-    const handleItemClick = (id) => { setFullItemData(null); setLoading(true); setSelectedId(id); };
-    const handleBack = () => { setSelectedId(null); setFullItemData(null); };
-    const handleResetFilters = () => { setSelectedType("All"); setSelectedLanguage("All"); setSelectedSort("Default"); };
-    const handleVideoClick = (id, title) => setPlayingVideo({ id, title });
-
-    // Aggregated grid play
-    const handleGridPlay = (item) => {
-        if (viewMode === "all-songs") {
-            if (item.trackUri) {
-                const uris = songsList.map((s) => s.trackUri).filter(Boolean);
-                handlePlay(item.trackUri, uris, 0, songsList);
-            }
-        } else {
-            handleVideoClick(item.videoId, item.name);
-        }
-    };
-
-    // Detail play (Spotify audio — same as AlbumsView)
-    const handlePlayTrack = useCallback(
-        (trackUri) => {
-            if (!fullItemData) return;
-            const rawTracks = fullItemData.tracks.items;
-            const youtubeIDs = ytMusicData[selectedId].youtubeIDs;
-            const clickedIndex = rawTracks.findIndex((item) => item.track.uri === trackUri);
-            if (clickedIndex === -1) return;
-
-            const queue = rawTracks
-                .map((item, i) => {
-                    if (!item.track || !youtubeIDs[i]) return null;
-                    return {
-                        ...item.track,
-                        linked_youtube_id: youtubeIDs[i],
-                        linked_format: ytMusicData[selectedId].format,
-                    };
-                })
-                .filter(Boolean);
-
-            handlePlay(trackUri, queue.map((t) => t.uri), 0, queue);
-        },
-        [fullItemData, selectedId, handlePlay]
+    // Build tracks list
+    const tracks = useMemo(() =>
+        (youtubeIDs || []).map((id, i) => ({
+            id,
+            title: videoTitleMap[id] || `Song ${i + 1}`,
+            index: i,
+        })), [youtubeIDs]
     );
 
-    const handlePlayContext = useCallback(() => {
-        if (!fullItemData || !ytMusicData[selectedId]) return;
-        const rawTracks = fullItemData.tracks.items;
-        const youtubeIDs = ytMusicData[selectedId].youtubeIDs;
-        const queue = rawTracks
-            .map((item, i) => {
-                if (!item.track || !youtubeIDs[i]) return null;
-                return {
-                    ...item.track,
-                    linked_youtube_id: youtubeIDs[i],
-                    linked_format: ytMusicData[selectedId].format,
-                };
-            })
-            .filter(Boolean);
-        if (queue.length > 0) handlePlay(queue[0].uri, queue.map((t) => t.uri), 0, queue);
-    }, [fullItemData, selectedId, handlePlay]);
+    const filteredTracks = useMemo(() => {
+        const q = localSearch.toLowerCase();
+        return q ? tracks.filter((t) => t.title.toLowerCase().includes(q)) : tracks;
+    }, [tracks, localSearch]);
 
-    const handleShuffleContext = useCallback(() => {
-        if (!fullItemData || !ytMusicData[selectedId]) return;
-        const rawTracks = fullItemData.tracks.items;
-        const youtubeIDs = ytMusicData[selectedId].youtubeIDs;
-        const queue = rawTracks
-            .map((item, i) => {
-                if (!item.track || !youtubeIDs[i]) return null;
-                return {
-                    ...item.track,
-                    linked_youtube_id: youtubeIDs[i],
-                    linked_format: ytMusicData[selectedId].format,
-                };
-            })
-            .filter(Boolean);
+    // Fetch TMDB backdrop on mount
+    useEffect(() => {
+        let mounted = true;
+        const fetchBackdrop = async () => {
+            const data = await getDetails(tmdbId, "movie").catch(() => null);
+            if (mounted && data?.backdrop_path) {
+                setBackdropUrl(getImageUrl(data.backdrop_path, "original"));
+            }
+        };
+        fetchBackdrop();
+        return () => { mounted = false; };
+    }, [tmdbId]);
 
-        const shuffled = [...queue];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        if (shuffled.length > 0) handlePlay(shuffled[0].uri, shuffled.map((t) => t.uri), 0, shuffled);
-    }, [fullItemData, selectedId, handlePlay]);
+    // Fetch TMDB info when switching to Info tab
+    useEffect(() => {
+        if (viewMode !== "info" || tmdbInfo) return;
+        let mounted = true;
+        const fetch = async () => {
+            setLoadingInfo(true);
+            const details = await getDetails(tmdbId, "movie").catch(() => null);
+            const imgs = await getImages(tmdbId, "movie").catch(() => null);
+            if (mounted) {
+                setTmdbInfo(details);
+                setTmdbImages([...(imgs?.backdrops || []), ...(imgs?.posters || [])]);
+                setLoadingInfo(false);
+            }
+        };
+        fetch();
+        return () => { mounted = false; };
+    }, [viewMode, tmdbId, tmdbInfo]);
 
-    // ── Filter + sort for list view ─────────────────────────────────────────────
-    const filteredItems = Object.entries(itemsMetadata).filter(([id, meta]) => {
-        const matchType = selectedType === "All" || meta.type === selectedType;
-        const matchLang = selectedLanguage === "All" || meta.language === selectedLanguage;
-        const matchSearch =
-            !searchTerm ||
-            (meta.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (meta.spotifyName || "").toLowerCase().includes(searchTerm.toLowerCase());
-        return matchType && matchLang && matchSearch;
-    });
+    const handleAudio = useCallback((t) =>
+        setActiveTrack({ ...t, albumName: name }), [name]);
+    const handleVideo = useCallback((t) =>
+        setVideoTrack(t), []);
 
-    const sortedItems = useMemo(() => {
-        if (selectedSort === "Default") return filteredItems;
-        return [...filteredItems].sort((a, b) => {
-            const dateA = new Date(a[1].release_date || 0);
-            const dateB = new Date(b[1].release_date || 0);
-            return selectedSort === "Date (Newest)" ? dateB - dateA : dateA - dateB;
-        });
-    }, [filteredItems, selectedSort]);
-
-    // ── Render ───────────────────────────────────────────────────────────────────
-    if (error) {
-        return (
-            <div className="albums-error">
-                <h2>Something went wrong</h2>
-                <p>{error}</p>
-                <button onClick={() => window.location.reload()}>Reload Page</button>
-            </div>
-        );
-    }
-
-    // Detail view — EXACT same as AlbumsView
-    if (selectedId && fullItemData) {
-        return (
-            <AlbumDetail
-                fullItemData={fullItemData}
-                localData={ytMusicData[selectedId]}
-                itemsMetadata={itemsMetadata}
-                onBack={handleBack}
-                onPlay={handlePlayTrack}
-                onPlayContext={handlePlayContext}
-                onShuffleContext={handleShuffleContext}
-                onAlbumClick={handleItemClick}
-                formatTime={formatTime}
-            />
-        );
-    }
-
-    // List view — EXACT same as AlbumsView
+    /* ── render ── */
     return (
-        <div className="albums-view-container">
-            <VideoModal video={playingVideo} onClose={() => setPlayingVideo(null)} />
+        <div className="ytm-detail-view">
+            {/* Blurred backdrop */}
+            {backdropUrl && (
+                <div className="ytm-detail-backdrop"
+                    style={{ backgroundImage: `url(${backdropUrl})` }} />
+            )}
 
-            <AlbumsHeader
-                viewMode={viewMode}
-                setViewMode={setViewMode}
-                selectedType={selectedType}
-                setSelectedType={setSelectedType}
-                selectedLanguage={selectedLanguage}
-                setSelectedLanguage={setSelectedLanguage}
-                selectedSort={selectedSort}
-                setSelectedSort={setSelectedSort}
-                types={types}
-                languages={languages}
-                onReset={handleResetFilters}
+            {/* Lightbox */}
+            {lightbox && (
+                <div className="ytm-lightbox-overlay" onClick={() => setLightbox(null)}>
+                    <div className="ytm-lightbox-content" onClick={(e) => e.stopPropagation()}>
+                        <button className="ytm-lightbox-close" onClick={() => setLightbox(null)}>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" strokeWidth="2.5">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
+                        <img src={lightbox} alt="full" className="ytm-lightbox-img" />
+                    </div>
+                </div>
+            )}
+
+            {/* Video modal */}
+            {videoTrack && (
+                <YTVideoModal track={videoTrack} onClose={() => setVideoTrack(null)} />
+            )}
+
+            <div className="ytm-detail-content">
+                {/* ── Album header (mirrors AlbumHeader) ── */}
+                <div className="ytm-detail-header">
+                    <button className="ytm-back-btn" onClick={onBack}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+                            strokeLinejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12" />
+                            <polyline points="12 19 5 12 12 5" />
+                        </svg>
+                        Back
+                    </button>
+
+                    <div className="ytm-detail-hero">
+                        {posterUrl ? (
+                            <img src={posterUrl} alt={name} className="ytm-detail-poster" />
+                        ) : (
+                            <div className="ytm-detail-poster-fallback">
+                                <svg width="56" height="56" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" strokeWidth="1.5">
+                                    <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" />
+                                    <circle cx="18" cy="16" r="3" />
+                                </svg>
+                            </div>
+                        )}
+
+                        <div className="ytm-detail-meta">
+                            <p className="ytm-detail-type">Movie Soundtrack</p>
+                            <h1 className="ytm-detail-title">{name}</h1>
+                            {language && <span className="ytm-detail-lang-badge">{language}</span>}
+                            <p className="ytm-detail-count">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"
+                                    style={{ color: "#ff0000", marginRight: 6, flexShrink: 0 }}>
+                                    <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" />
+                                </svg>
+                                {tracks.length} song{tracks.length !== 1 ? "s" : ""}
+                            </p>
+
+                            {/* Action buttons – mirrors AlbumHeader Play / Shuffle */}
+                            <div className="ytm-detail-actions">
+                                {tracks.length > 0 && (
+                                    <button className="ytm-action-btn ytm-action-btn--play"
+                                        onClick={() => handleAudio(tracks[0])}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M8 5v14l11-7z" />
+                                        </svg>
+                                        Play
+                                    </button>
+                                )}
+                                {tracks.length > 1 && (
+                                    <button className="ytm-action-btn ytm-action-btn--shuffle"
+                                        onClick={() => {
+                                            const r = tracks[Math.floor(Math.random() * tracks.length)];
+                                            handleAudio(r);
+                                        }}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" strokeWidth="2">
+                                            <polyline points="16 3 21 3 21 8" />
+                                            <line x1="4" y1="20" x2="21" y2="3" />
+                                            <polyline points="21 16 21 21 16 21" />
+                                            <line x1="15" y1="15" x2="21" y2="21" />
+                                        </svg>
+                                        Shuffle
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* View mode tabs — mirrors AlbumHeader tabs */}
+                    <div className="ytm-view-tabs">
+                        {["tracks", "info"].map((m) => (
+                            <button
+                                key={m}
+                                className={`ytm-tab${viewMode === m ? " active" : ""}`}
+                                onClick={() => setViewMode(m)}
+                            >
+                                {m === "tracks" ? "Songs" : "Movie Info"}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* ── Tracks view ── */}
+                {viewMode === "tracks" && (
+                    <div className="ytm-tracks-section">
+                        {/* Search within album – mirrors AlbumTracks search bar */}
+                        <div className="ytm-tracks-toolbar">
+                            <div className="ytm-track-search-wrap">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" strokeWidth="2">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                </svg>
+                                <input
+                                    className="ytm-track-search"
+                                    placeholder="Find in this album…"
+                                    value={localSearch}
+                                    onChange={(e) => setLocalSearch(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="ytm-tracks-list">
+                            {filteredTracks.length === 0 ? (
+                                <p className="ytm-empty-msg">No songs found</p>
+                            ) : filteredTracks.map((t) => (
+                                <TrackRow
+                                    key={t.id}
+                                    index={t.index}
+                                    ytId={t.id}
+                                    title={t.title}
+                                    isCurrent={activeTrack?.id === t.id}
+                                    onAudio={handleAudio}
+                                    onVideo={handleVideo}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* ── TMDB Info view (mirrors AlbumDetail Info tab) ── */}
+                {viewMode === "info" && (
+                    <div className="ytm-info-section">
+                        {loadingInfo ? (
+                            <div className="ytm-loading">Loading info…</div>
+                        ) : tmdbInfo ? (
+                            <div className="ytm-tmdb-content">
+                                {tmdbInfo.tagline && (
+                                    <p className="ytm-tmdb-tagline">{tmdbInfo.tagline}</p>
+                                )}
+                                {tmdbInfo.overview && (
+                                    <p className="ytm-tmdb-overview">{tmdbInfo.overview}</p>
+                                )}
+                                <div className="ytm-tmdb-meta">
+                                    {tmdbInfo.release_date && (
+                                        <span>Release: {tmdbInfo.release_date}</span>
+                                    )}
+                                    {tmdbInfo.vote_average && (
+                                        <span>Rating: {tmdbInfo.vote_average.toFixed(1)} / 10</span>
+                                    )}
+                                    {tmdbInfo.runtime && (
+                                        <span>Runtime: {tmdbInfo.runtime} min</span>
+                                    )}
+                                </div>
+                                {tmdbImages.length > 0 && (
+                                    <div className="ytm-tmdb-gallery-wrap">
+                                        <h4>Images</h4>
+                                        <div className="ytm-tmdb-gallery">
+                                            {tmdbImages.slice(0, 20).map((img, i) => {
+                                                const src = getImageUrl(img.file_path, "original");
+                                                return (
+                                                    <img key={i} src={src} alt="scene"
+                                                        className="ytm-tmdb-gallery-img"
+                                                        loading="lazy"
+                                                        onClick={() => setLightbox(src)}
+                                                    />
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <p className="ytm-empty-msg">No movie info found.</p>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            {/* Full-screen player – opens when clicking mini bar */}
+            {fullPlayerOpen && activeTrack && (
+                <YTFullPlayer
+                    track={activeTrack}
+                    tracks={tracks}
+                    albumName={name}
+                    posterUrl={posterUrl}
+                    onClose={() => setFullPlayerOpen(false)}
+                    onSelectTrack={(t) => {
+                        setActiveTrack({ ...t, albumName: name });
+                    }}
+                />
+            )}
+
+            {/* Mini embedded player bar */}
+            <YTEmbedPlayer
+                track={activeTrack}
+                onClose={() => { setActiveTrack(null); setFullPlayerOpen(false); }}
+                onExpand={() => setFullPlayerOpen(true)}
             />
+        </div>
+    );
+};
 
-            {loading ? (
-                <div className="albums-loading">Loading YT Music Collections...</div>
+// ─── Main Page ────────────────────────────────────────────────────────────────
+const YouTubeMusicView = () => {
+    const [albums, setAlbums] = useState([]);
+    const [selectedAlbum, setSelectedAlbum] = useState(null);
+    const [selLang, setSelLang] = useState("All");
+    const [searchTerm, setSearchTerm] = useState("");
+
+    // Build raw album list from mapper (no Spotify needed)
+    const rawAlbums = useMemo(() =>
+        Object.entries(movieYoutubeMapper).map(([tmdbId, data]) => ({
+            tmdbId,
+            name: data.name,
+            language: data.language,
+            youtubeIDs: data.youtubeIDs || [],
+            posterUrl: null,
+            loading: true,
+        })), []
+    );
+
+    // Progressively fetch TMDB posters
+    useEffect(() => {
+        let isMounted = true;
+        setAlbums(rawAlbums);
+
+        const run = async () => {
+            const BATCH = 4;
+            const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+
+            for (let i = 0; i < rawAlbums.length; i += BATCH) {
+                if (!isMounted) break;
+                const batch = rawAlbums.slice(i, i + BATCH);
+
+                const results = await Promise.all(batch.map(async (a) => {
+                    try {
+                        const d = await getDetails(a.tmdbId, "movie");
+                        return {
+                            tmdbId: a.tmdbId,
+                            posterUrl: d?.poster_path ? getImageUrl(d.poster_path, "w500") : null,
+                        };
+                    } catch {
+                        return { tmdbId: a.tmdbId, posterUrl: null };
+                    }
+                }));
+
+                if (!isMounted) break;
+                setAlbums((prev) => prev.map((a) => {
+                    const hit = results.find((r) => r.tmdbId === a.tmdbId);
+                    return hit ? { ...a, posterUrl: hit.posterUrl, loading: false } : a;
+                }));
+
+                if (i + BATCH < rawAlbums.length) await delay(300);
+            }
+        };
+
+        run();
+        return () => { isMounted = false; };
+    }, [rawAlbums]);
+
+    const languages = useMemo(() => {
+        const s = new Set(rawAlbums.map((a) => a.language).filter(Boolean));
+        return ["All", ...Array.from(s).sort()];
+    }, [rawAlbums]);
+
+    const filtered = useMemo(() => {
+        let r = albums;
+        if (selLang !== "All") r = r.filter((a) => a.language === selLang);
+        if (searchTerm.trim()) {
+            const q = searchTerm.toLowerCase();
+            r = r.filter((a) => a.name?.toLowerCase().includes(q));
+        }
+        return r;
+    }, [albums, selLang, searchTerm]);
+
+    if (selectedAlbum) {
+        return <YTAlbumDetail album={selectedAlbum} onBack={() => setSelectedAlbum(null)} />;
+    }
+
+    return (
+        <div className="ytm-view">
+            {/* Page header */}
+            <div className="ytm-page-header">
+                <div className="ytm-page-header-row">
+                    <div className="ytm-page-icon">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 className="ytm-page-title">YouTube Music</h1>
+                        <p className="ytm-page-sub">
+                            {rawAlbums.length} movie soundtracks · Spotify-free player
+                        </p>
+                    </div>
+                </div>
+
+                <FilterBar
+                    languages={languages}
+                    selectedLang={selLang}
+                    onLang={setSelLang}
+                    searchTerm={searchTerm}
+                    onSearch={setSearchTerm}
+                />
+            </div>
+
+            {/* Album grid */}
+            {filtered.length === 0 ? (
+                <div className="ytm-empty">No albums found</div>
             ) : (
-                <>
-                    {viewMode === "albums" ? (
-                        <AlbumsList items={sortedItems} onItemClick={handleItemClick} />
-                    ) : (
-                        <AggregatedGrid
-                            viewMode={viewMode}
-                            items={songsList}
-                            loading={loadingSongs}
-                            searchTerm={searchTerm}
-                            onPlay={handleGridPlay}
+                <div className="ytm-grid">
+                    {filtered.map((a) => (
+                        <YTAlbumCard
+                            key={a.tmdbId}
+                            album={a}
+                            onClick={() => setSelectedAlbum(a)}
                         />
-                    )}
-                </>
+                    ))}
+                </div>
             )}
         </div>
     );

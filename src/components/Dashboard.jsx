@@ -751,7 +751,7 @@ const Dashboard = () => {
         ) : showMixes ? (
           <YoutubeMixView />
         ) : showYtMusic ? (
-          <YouTubeMusicView handlePlay={handlePlay} searchTerm={searchTerm} formatTime={formatTime} resetToken={albumsResetToken} />
+          <YouTubeMusicView />
         ) : showScripts ? (
           <ScriptsView />
         ) : showArtists ? (
