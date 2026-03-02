@@ -32,6 +32,7 @@ import MoviesView from "./MoviesView";
 
 import LiveView from "./LiveView";
 import YoutubeMixView from "./YoutubeMixView";
+import YouTubeMusicView from "./YouTubeMusicView";
 
 import FullPlayer from "./FullPlayer";
 import ZenMode from "./ZenMode";
@@ -77,6 +78,7 @@ const Dashboard = () => {
   const [isExploreOpen, setIsExploreOpen] = useState(false);
   const [showMovies, setShowMovies] = useState(false);
   const [showScripts, setShowScripts] = useState(false);
+  const [showYtMusic, setShowYtMusic] = useState(false);
   const [albumsResetToken, setAlbumsResetToken] = useState(0);
 
   const themes = [
@@ -421,6 +423,7 @@ const Dashboard = () => {
     setIsExploreOpen(false);
     setShowMovies(false);
     setShowScripts(false);
+    setShowYtMusic(false);
   };
 
   const handleShowYoutube = () => {
@@ -491,8 +494,25 @@ const Dashboard = () => {
     setIsExploreOpen(false);
     setShowMovies(false);
     setShowScripts(false);
+    setShowYtMusic(false);
   };
 
+  const handleShowYtMusic = () => {
+    setSelectedPlaylist(null);
+    setSearchResults(null);
+    setIsSearching(false);
+    setShowYoutube(false);
+    setShowAlbums(false);
+    setShowLive(false);
+    setShowMixes(false);
+    setShowArtists(false);
+    setIsStatsOpen(false);
+    setIsProfileOpen(false);
+    setIsExploreOpen(false);
+    setShowMovies(false);
+    setShowScripts(false);
+    setShowYtMusic(true);
+  };
 
   const handleShowArtists = () => {
     setSelectedPlaylist(null);
@@ -602,6 +622,7 @@ const Dashboard = () => {
     if (showAlbums) return "albums";
     if (showLive) return "live";
     if (showMixes) return "mixes";
+    if (showYtMusic) return "ytmusic";
     if (showArtists) return "artists";
     if (isStatsOpen) return "stats";
     if (isProfileOpen) return "profile";
@@ -646,6 +667,9 @@ const Dashboard = () => {
       setIsZenModeOpen(false);
     } else if (moduleId === "scripts") {
       handleShowScripts();
+      setIsZenModeOpen(false);
+    } else if (moduleId === "ytmusic") {
+      handleShowYtMusic();
       setIsZenModeOpen(false);
     }
   };
@@ -726,6 +750,8 @@ const Dashboard = () => {
           <LiveView />
         ) : showMixes ? (
           <YoutubeMixView />
+        ) : showYtMusic ? (
+          <YouTubeMusicView />
         ) : showScripts ? (
           <ScriptsView />
         ) : showArtists ? (
