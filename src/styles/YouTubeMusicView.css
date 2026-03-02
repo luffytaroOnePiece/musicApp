@@ -534,10 +534,122 @@
     border-color: #ff4444;
 }
 
-.ytm-tracks-list {
+/* ── TRACKS GRID (replaces old flex list) ────────── */
+.ytm-tracks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+}
+
+/* ── Track card ──────────────────────────────────── */
+.ytm-track-card {
+    background: var(--card-bg, rgba(255, 255, 255, 0.05));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.ytm-track-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+.ytm-track-card--active {
+    border-color: rgba(255, 60, 60, 0.4);
+    box-shadow: 0 0 0 1px rgba(255, 60, 60, 0.25),
+        0 12px 32px rgba(255, 0, 0, 0.15);
+}
+
+/* Thumbnail wrapper – 16:9 */
+.ytm-tc-thumb-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #000;
+}
+
+.ytm-tc-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s;
+}
+
+.ytm-track-card:hover .ytm-tc-thumb {
+    transform: scale(1.04);
+}
+
+/* Track number badge – hidden */
+.ytm-tc-index-badge {
+    display: none;
+}
+
+/* Hover overlay with large play button */
+.ytm-tc-hover-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.ytm-track-card:hover .ytm-tc-hover-overlay {
+    opacity: 1;
+}
+
+.ytm-tc-play-icon {
+    width: 52px;
+    height: 52px;
+    background: rgba(255, 0, 0, 0.85);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(255, 0, 0, 0.5);
+    transition: transform 0.15s;
+}
+
+.ytm-tc-hover-overlay:hover .ytm-tc-play-icon {
+    transform: scale(1.08);
+}
+
+/* Card footer */
+.ytm-tc-footer {
+    padding: 10px 12px 12px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
+}
+
+.ytm-tc-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary, #fff);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-clamp: 2;
+    overflow: hidden;
+    line-height: 1.4;
+}
+
+.ytm-track-card--active .ytm-tc-title {
+    color: #ff7777;
+}
+
+.ytm-tc-btns {
+    display: flex;
+    gap: 6px;
 }
 
 /* Track row */
