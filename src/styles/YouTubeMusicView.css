@@ -56,7 +56,8 @@
 ══════════════════════════════════════════════════ */
 
 .ytm-view {
-    padding: 24px;
+    padding: 32px 24px 24px;
+    margin-top: 80px;
     min-height: 100%;
     animation: ytm-fade-in 0.3s ease;
 }
@@ -340,6 +341,7 @@
 /* Album hero */
 .ytm-detail-header {
     margin-bottom: 4px;
+    margin-top: 80px;
 }
 
 .ytm-detail-hero {
