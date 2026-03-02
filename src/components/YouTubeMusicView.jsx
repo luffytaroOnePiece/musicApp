@@ -176,7 +176,7 @@ const YTFullPlayer = ({ track, tracks, albumName, posterUrl, onClose, onSelectTr
 };
 
 // ─── Mini Embedded Player Bar ─────────────────────────────────────────────────
-const YTEmbedPlayer = ({ track, onClose, onExpand }) => {
+const YTEmbedPlayer = ({ track, onClose, onExpand, fullPlayerOpen }) => {
     if (!track) return null;
     return (
         <div className="ytm-embed-player">
@@ -200,17 +200,20 @@ const YTEmbedPlayer = ({ track, onClose, onExpand }) => {
                     <span className="ytm-ep-album">{track.albumName}</span>
                 </div>
             </div>
-            <div className="ytm-ep-frame-wrap">
-                <iframe
-                    key={track.id}
-                    src={`https://www.youtube.com/embed/${track.id}?autoplay=1&rel=0&controls=1`}
-                    title={track.title}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="ytm-ep-iframe"
-                />
-            </div>
+            {/* Only render iframe when full player is closed — prevents dual audio */}
+            {!fullPlayerOpen && (
+                <div className="ytm-ep-frame-wrap">
+                    <iframe
+                        key={track.id}
+                        src={`https://www.youtube.com/embed/${track.id}?autoplay=1&rel=0&controls=1`}
+                        title={track.title}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="ytm-ep-iframe"
+                    />
+                </div>
+            )}
             <button className="ytm-ep-close" onClick={onClose} title="Close player">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" strokeWidth="2.5">
@@ -612,6 +615,7 @@ const YTAlbumDetail = ({ album, onBack }) => {
                 track={activeTrack}
                 onClose={() => { setActiveTrack(null); setFullPlayerOpen(false); }}
                 onExpand={() => setFullPlayerOpen(true)}
+                fullPlayerOpen={fullPlayerOpen}
             />
         </div>
     );
