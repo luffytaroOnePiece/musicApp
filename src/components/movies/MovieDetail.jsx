@@ -4,6 +4,14 @@ import { getImageUrl, getDetails, getImages, getVideos, getAccountDetails, getAc
 import VideoModal from '../common/VideoModal';
 import VidKingModal from '../common/VidKingModal';
 import ActorPage from './ActorPage';
+import movieYoutubeMapper from '../../data/movieYoutubeMapper.json';
+import youtubeMixData from '../../data/youtubeMixData.json';
+import '../../styles/movies/Detail.css';
+
+// Build a fast id → title lookup from the mix data cache
+const videoTitleMap = Object.fromEntries(
+    (youtubeMixData.videos || []).map(v => [v.youtubeLinkID, v.title])
+);
 
 const MovieDetail = ({
     movie,
@@ -35,6 +43,9 @@ const MovieDetail = ({
     // VidKing Player State
     const [showPlayer, setShowPlayer] = useState(false);
     const [playerConfig, setPlayerConfig] = useState({ type: 'movie', season: 1, episode: 1 });
+
+    // YouTube backup songs state
+    const [ytVideoId, setYtVideoId] = useState(null);
 
     // Effect to fetch trailer
     React.useEffect(() => {
@@ -226,6 +237,15 @@ const MovieDetail = ({
                 <VideoModal
                     video={{ id: trailer.key, title: trailer.name || 'Trailer' }}
                     onClose={() => setShowTrailerModal(false)}
+                />,
+                document.body
+            )}
+
+            {/* YouTube Songs Modal */}
+            {ytVideoId && ReactDOM.createPortal(
+                <VideoModal
+                    video={{ id: ytVideoId, title: `${details.title || details.name} — Song` }}
+                    onClose={() => setYtVideoId(null)}
                 />,
                 document.body
             )}
@@ -509,6 +529,58 @@ const MovieDetail = ({
                         </div>
                     </div>
                 </div>
+
+                {/* YouTube Songs Backup Section */}
+                {(() => {
+                    const ytEntry = movieYoutubeMapper[String(details.id)];
+                    if (!ytEntry || !ytEntry.youtubeIDs || ytEntry.youtubeIDs.length === 0) return null;
+                    return (
+                        <div className="detail-section movie-youtube-section animate-slide-up delay-1">
+                            <h3>
+                                Songs on YouTube
+                                <span className="yt-section-badge">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" />
+                                    </svg>
+                                    Youtube
+                                </span>
+                            </h3>
+                            <p className="yt-section-subtitle">
+                                {ytEntry.youtubeIDs.length} song{ytEntry.youtubeIDs.length !== 1 ? 's' : ''} available — plays directly from YouTube
+                            </p>
+                            <div className="youtube-songs-scroll">
+                                {ytEntry.youtubeIDs.map((id, idx) => (
+                                    <div
+                                        key={id}
+                                        className="youtube-song-tile clickable"
+                                        onClick={() => setYtVideoId(id)}
+                                        title={`Play song ${idx + 1}`}
+                                    >
+                                        <div className="yt-thumb-wrapper">
+                                            <img
+                                                className="yt-thumb-img"
+                                                src={`https://img.youtube.com/vi/${id}/mqdefault.jpg`}
+                                                alt={`Song ${idx + 1}`}
+                                                loading="lazy"
+                                            />
+                                            <div className="yt-play-overlay">
+                                                <div className="yt-play-circle">
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none">
+                                                        <path d="M8 5v14l11-7z" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="yt-tile-label" title={videoTitleMap[id] || id}>
+                                            <span className="yt-tile-index">#{idx + 1}</span>
+                                            {videoTitleMap[id] || id}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })()}
 
 
                 {/* Seasons Section (for TV Shows) */}

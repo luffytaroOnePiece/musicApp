@@ -59,6 +59,7 @@
     margin-bottom: 16px;
     background: linear-gradient(to bottom right, #fff, #a1a1aa);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -494,4 +495,152 @@
     opacity: 1;
     background: rgba(255, 255, 255, 0.2);
     transform: scale(1.1);
+}
+
+/* ── YouTube Songs Backup Section ─────────────────────────────────────── */
+.movie-youtube-section {
+    margin-top: 48px;
+    margin-bottom: 24px;
+}
+
+.movie-youtube-section h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.yt-section-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255, 0, 0, 0.15);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    color: #ff4444;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.yt-section-subtitle {
+    font-size: 13px;
+    color: #86868b;
+    margin-bottom: 20px;
+}
+
+.youtube-songs-scroll {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+.youtube-songs-scroll::-webkit-scrollbar {
+    height: 5px;
+}
+
+.youtube-songs-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.youtube-songs-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+.youtube-song-tile {
+    flex-shrink: 0;
+    width: 220px;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    position: relative;
+}
+
+.youtube-song-tile:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 0, 0, 0.35);
+}
+
+.yt-thumb-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #111;
+}
+
+.yt-thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease, filter 0.35s ease;
+    display: block;
+}
+
+.youtube-song-tile:hover .yt-thumb-img {
+    transform: scale(1.06);
+    filter: brightness(0.65);
+}
+
+.yt-play-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.youtube-song-tile:hover .yt-play-overlay {
+    opacity: 1;
+}
+
+.yt-play-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(255, 0, 0, 0.5);
+    transform: scale(0.85);
+    transition: transform 0.2s ease;
+}
+
+.youtube-song-tile:hover .yt-play-circle {
+    transform: scale(1);
+}
+
+.yt-tile-label {
+    padding: 10px 12px;
+    font-size: 12px;
+    color: #a1a1aa;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.03em;
+}
+
+.yt-tile-index {
+    color: rgba(255, 68, 68, 0.7);
+    font-weight: 700;
+    margin-right: 4px;
 }
