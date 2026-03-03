@@ -231,11 +231,29 @@
     transform: rotate(180deg);
 }
 
+/* Filter row: FilterBar + Shuffle on same line */
+.ytm-filter-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.ytm-filter-row .ytm-filter-bar {
+    flex: 1;
+}
+
+/* Right side: category pills */
+.ytm-header-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
 /* Category filter pills */
 .ytm-category-pills {
     display: flex;
     gap: 8px;
-    margin-top: 12px;
 }
 
 .ytm-cat-pill {

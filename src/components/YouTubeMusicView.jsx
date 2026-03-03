@@ -963,7 +963,31 @@ const YouTubeMusicView = () => {
                             {rawAlbums.length} albums · Spotify-free player
                         </p>
                     </div>
-                    {/* Random shuffle button */}
+                    {/* Right: category pills */}
+                    <div className="ytm-header-right">
+                        <div className="ytm-category-pills">
+                            {["All", "Movie", "Private"].map((cat) => (
+                                <button
+                                    key={cat}
+                                    className={`ytm-cat-pill${selCategory === cat ? " active" : ""}`}
+                                    onClick={() => setSelCategory(cat)}
+                                >
+                                    {cat === "Movie" ? "🎬 Movies" : cat === "Private" ? "🎤 Artists" : "All"}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Filter row: search + lang pills + shuffle */}
+                <div className="ytm-filter-row">
+                    <FilterBar
+                        languages={languages}
+                        selectedLang={selLang}
+                        onLang={setSelLang}
+                        searchTerm={searchTerm}
+                        onSearch={setSearchTerm}
+                    />
                     <button className="ytm-shuffle-btn" onClick={handleShuffle} title="Play random album">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -975,27 +999,6 @@ const YouTubeMusicView = () => {
                         <span>Shuffle</span>
                     </button>
                 </div>
-
-                {/* Category filter */}
-                <div className="ytm-category-pills">
-                    {["All", "Movie", "Private"].map((cat) => (
-                        <button
-                            key={cat}
-                            className={`ytm-cat-pill${selCategory === cat ? " active" : ""}`}
-                            onClick={() => setSelCategory(cat)}
-                        >
-                            {cat === "Movie" ? "🎬 Movies" : cat === "Private" ? "🎤 Artists" : "All"}
-                        </button>
-                    ))}
-                </div>
-
-                <FilterBar
-                    languages={languages}
-                    selectedLang={selLang}
-                    onLang={setSelLang}
-                    searchTerm={searchTerm}
-                    onSearch={setSearchTerm}
-                />
             </div>
 
             {/* Album grid */}
