@@ -323,7 +323,7 @@ const YTVideoModal = ({ track, onClose }) => {
 const TrackCard = React.memo(({ index, ytId, title, isCurrent, onAudio, onVideo }) => (
     <div className={`ytm-track-card${isCurrent ? " ytm-track-card--active" : ""}`}>
         {/* Thumbnail */}
-        <div className="ytm-tc-thumb-wrap">
+        <div className="ytm-tc-thumb-wrap" onClick={() => onAudio({ id: ytId, title })}>
             <img
                 src={`https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`}
                 alt={title}
@@ -338,45 +338,28 @@ const TrackCard = React.memo(({ index, ytId, title, isCurrent, onAudio, onVideo 
                     }
                 }}
             />
-            {/* Track number badge */}
-            <div className="ytm-tc-index-badge">
+            <div className="ytm-tc-overlay">
                 {isCurrent ? (
-                    <div className="ytm-now-bars">
-                        <span /><span /><span />
-                    </div>
+                    <div className="ytm-tc-bars"><span /><span /><span /></div>
                 ) : (
-                    <span>{index + 1}</span>
-                )}
-            </div>
-            {/* Hover overlay: play icon */}
-            <div className="ytm-tc-hover-overlay" onClick={() => onAudio({ id: ytId, title })}>
-                <div className="ytm-tc-play-icon">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                    <svg className="ytm-tc-play-icon" width="28" height="28" viewBox="0 0 24 24" fill="white">
                         <path d="M8 5v14l11-7z" />
                     </svg>
-                </div>
+                )}
             </div>
         </div>
 
-        {/* Card footer */}
+        {/* Footer */}
         <div className="ytm-tc-footer">
             <p className="ytm-tc-title" title={title}>{title}</p>
-            <div className="ytm-tc-btns">
-                <button
-                    className={`ytm-tbtn ytm-tbtn--play${isCurrent ? " active" : ""}`}
-                    onClick={() => onAudio({ id: ytId, title })}
-                    title="Play audio"
-                >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5v14l11-7z" />
-                    </svg>
-                    Play
+            <div className="ytm-tc-actions">
+                <button className={`ytm-tc-btn ytm-tc-btn--play${isCurrent ? " active" : ""}`}
+                    onClick={() => onAudio({ id: ytId, title })}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+                    {isCurrent ? "Playing" : "Play"}
                 </button>
-                <button
-                    className="ytm-tbtn ytm-tbtn--watch"
-                    onClick={() => onVideo({ id: ytId, title })}
-                    title="Watch video"
-                >
+                <button className="ytm-tc-btn ytm-tc-btn--video"
+                    onClick={() => onVideo({ id: ytId, title })}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" />
                     </svg>
@@ -386,6 +369,7 @@ const TrackCard = React.memo(({ index, ytId, title, isCurrent, onAudio, onVideo 
         </div>
     </div>
 ));
+
 
 
 // ─── Album Detail (mirrors AlbumDetail layout) ────────────────────────────────

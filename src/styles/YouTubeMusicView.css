@@ -572,35 +572,33 @@
     gap: 20px;
 }
 
-/* ── Track card ──────────────────────────────────── */
+/* ── Track card (clean minimal) ──────────────────── */
 .ytm-track-card {
-    background: var(--card-bg, rgba(255, 255, 255, 0.05));
+    background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
 }
 
 .ytm-track-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-    border-color: rgba(255, 255, 255, 0.14);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    border-color: rgba(255, 255, 255, 0.13);
 }
 
 .ytm-track-card--active {
-    border-color: rgba(255, 60, 60, 0.4);
-    box-shadow: 0 0 0 1px rgba(255, 60, 60, 0.25),
-        0 12px 32px rgba(255, 0, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.18);
 }
 
-/* Thumbnail wrapper – 16:9 */
+/* Thumbnail – 16:9 */
 .ytm-tc-thumb-wrap {
     position: relative;
     width: 100%;
     aspect-ratio: 16 / 9;
     overflow: hidden;
-    background: #000;
+    background: #111;
+    cursor: pointer;
 }
 
 .ytm-tc-thumb {
@@ -608,52 +606,67 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.3s;
+    transition: transform 0.3s ease, filter 0.3s;
 }
 
 .ytm-track-card:hover .ytm-tc-thumb {
-    transform: scale(1.04);
+    transform: scale(1.03);
+    filter: brightness(0.75);
 }
 
-/* Track number badge – hidden */
-.ytm-tc-index-badge {
-    display: none;
-}
-
-/* Hover overlay with large play button */
-.ytm-tc-hover-overlay {
+/* Overlay – centered play icon or bars */
+.ytm-tc-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.35);
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
     transition: opacity 0.2s;
+    pointer-events: none;
 }
 
-.ytm-track-card:hover .ytm-tc-hover-overlay {
+.ytm-track-card:hover .ytm-tc-overlay,
+.ytm-track-card--active .ytm-tc-overlay {
     opacity: 1;
 }
 
 .ytm-tc-play-icon {
-    width: 52px;
-    height: 52px;
-    background: rgba(255, 0, 0, 0.85);
-    border-radius: 50%;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+}
+
+/* Small animated bars shown when track is active */
+.ytm-tc-bars {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    box-shadow: 0 4px 20px rgba(255, 0, 0, 0.5);
-    transition: transform 0.15s;
+    align-items: flex-end;
+    gap: 3px;
+    height: 20px;
 }
 
-.ytm-tc-hover-overlay:hover .ytm-tc-play-icon {
-    transform: scale(1.08);
+.ytm-tc-bars span {
+    display: block;
+    width: 3px;
+    border-radius: 1.5px;
+    background: #fff;
+    animation: ytm-bar-bounce 0.8s ease-in-out infinite;
 }
 
-/* Card footer */
+.ytm-tc-bars span:nth-child(1) {
+    height: 8px;
+    animation-delay: 0s;
+}
+
+.ytm-tc-bars span:nth-child(2) {
+    height: 16px;
+    animation-delay: 0.15s;
+}
+
+.ytm-tc-bars span:nth-child(3) {
+    height: 11px;
+    animation-delay: 0.3s;
+}
+
+/* Footer */
 .ytm-tc-footer {
     padding: 10px 12px 12px;
     display: flex;
@@ -664,7 +677,7 @@
 .ytm-tc-title {
     font-size: 13px;
     font-weight: 600;
-    color: var(--text-primary, #fff);
+    color: rgba(255, 255, 255, 0.9);
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -675,13 +688,45 @@
 }
 
 .ytm-track-card--active .ytm-tc-title {
-    color: #ff7777;
+    color: #fff;
 }
 
-.ytm-tc-btns {
+/* Action buttons row */
+.ytm-tc-actions {
     display: flex;
     gap: 6px;
 }
+
+.ytm-tc-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px 0;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.6);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.ytm-tc-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+.ytm-tc-btn--play.active {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+
 
 /* Track row */
 .ytm-track-row {
