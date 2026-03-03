@@ -688,16 +688,22 @@ const YouTubeMusicView = () => {
     const [searchTerm, setSearchTerm] = useState("");
 
     // Build raw album list from mapper (no Spotify needed)
-    const rawAlbums = useMemo(() =>
-        Object.entries(movieYoutubeMapper).map(([tmdbId, data]) => ({
+    const rawAlbums = useMemo(() => {
+        const arr = Object.entries(movieYoutubeMapper).map(([tmdbId, data]) => ({
             tmdbId,
             name: data.name,
             language: data.language,
             youtubeIDs: data.youtubeIDs || [],
             posterUrl: null,
             loading: true,
-        })), []
-    );
+        }));
+        // Fisher-Yates shuffle — random order on every page load
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }, []);
 
     // Progressively fetch TMDB posters
     useEffect(() => {
@@ -753,6 +759,12 @@ const YouTubeMusicView = () => {
         return r;
     }, [albums, selLang, searchTerm]);
 
+    const handleShuffle = () => {
+        const pool = filtered.length > 0 ? filtered : rawAlbums;
+        const pick = pool[Math.floor(Math.random() * pool.length)];
+        if (pick) setSelectedAlbum(pick);
+    };
+
     if (selectedAlbum) {
         return <YTAlbumDetail album={selectedAlbum} onBack={() => setSelectedAlbum(null)} />;
     }
@@ -767,12 +779,23 @@ const YouTubeMusicView = () => {
                             <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" />
                         </svg>
                     </div>
-                    <div>
+                    <div style={{ flex: 1 }}>
                         <h1 className="ytm-page-title">YouTube Music</h1>
                         <p className="ytm-page-sub">
                             {rawAlbums.length} movie soundtracks · Spotify-free player
                         </p>
                     </div>
+                    {/* Random shuffle button */}
+                    <button className="ytm-shuffle-btn" onClick={handleShuffle} title="Play random album">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="16 3 21 3 21 8" />
+                            <line x1="4" y1="20" x2="21" y2="3" />
+                            <polyline points="21 16 21 21 16 21" />
+                            <line x1="15" y1="15" x2="21" y2="21" />
+                        </svg>
+                        <span>Shuffle</span>
+                    </button>
                 </div>
 
                 <FilterBar

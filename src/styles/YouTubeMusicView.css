@@ -175,6 +175,37 @@
     box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
 }
 
+/* Shuffle button */
+.ytm-shuffle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #ff2020, #cc0000);
+    border: none;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(255, 0, 0, 0.35);
+    transition: transform 0.18s, box-shadow 0.18s;
+    flex-shrink: 0;
+}
+
+.ytm-shuffle-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 24px rgba(255, 0, 0, 0.5);
+}
+
+.ytm-shuffle-btn svg {
+    transition: transform 0.4s ease;
+}
+
+.ytm-shuffle-btn:hover svg {
+    transform: rotate(180deg);
+}
+
 /* Album grid */
 .ytm-grid {
     display: grid;
