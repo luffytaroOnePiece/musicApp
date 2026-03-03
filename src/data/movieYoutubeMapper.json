@@ -1,4 +1,15 @@
 {
+  "811941": {
+    "name": "Devara Part 1",
+    "language": "Telugu",
+    "spotifyID": "4e7bvx7vkXbP94e0s0nc0M",
+    "youtubeIDs": [
+      "QiZFsaCcme4",
+      "-FMIo-OYo68",
+      "CKpbdCciELk",
+      "A3ws4jpMf0A"
+    ]
+  },
   "1022453": {
     "name": "The RajaSaab",
     "language": "Telugu",
@@ -18,6 +29,15 @@
       "UMFR2nAcego",
       "csVPrZhr3NQ",
       "imaTkoWPkR8"
+    ]
+  },
+  "1407437": {
+    "name": "Andhra King Taluka",
+    "language": "Telugu",
+    "spotifyID": "30ZRwlRTZB6k81TBcAxPuY",
+    "youtubeIDs": [
+      "iBpSuQTJdaU",
+      "W8nny8Vm81s"
     ]
   }
 }
