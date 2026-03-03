@@ -526,7 +526,7 @@ const YTAlbumDetail = ({ album, onBack }) => {
 
     /* ── render ── */
     return (
-        <div className="ytm-detail-view">
+        <div className={`ytm-detail-view${SPOTIFY_THEME ? ' ytm-spotify-theme' : ''}`}>
             {/* Blurred backdrop */}
             {backdropUrl && (
                 <div className="ytm-detail-backdrop"
@@ -583,14 +583,26 @@ const YTAlbumDetail = ({ album, onBack }) => {
                         <div className="ytm-detail-meta">
                             <p className="ytm-detail-type">Movie Soundtrack</p>
                             <h1 className="ytm-detail-title">{name}</h1>
-                            {language && <span className="ytm-detail-lang-badge">{language}</span>}
-                            <p className="ytm-detail-count">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"
-                                    style={{ color: "#ff0000", marginRight: 6, flexShrink: 0 }}>
-                                    <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" />
-                                </svg>
-                                {tracks.length} song{tracks.length !== 1 ? "s" : ""}
-                            </p>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                {language && (
+                                    <span className="ytm-detail-lang-badge">
+                                        {language}
+                                    </span>
+                                )}
+
+                                <p className="ytm-detail-count" style={{ display: "flex", alignItems: "center", margin: 0 }}>
+                                    <svg
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                        style={{ color: "#ffffffff", marginRight: 6, flexShrink: 0 }}
+                                    >
+                                        <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" />
+                                    </svg>
+                                    {tracks.length} song{tracks.length !== 1 ? "s" : ""}
+                                </p>
+                            </div>
 
                             {/* Action buttons – mirrors AlbumHeader Play / Shuffle */}
                             <div className="ytm-detail-actions">
@@ -752,6 +764,9 @@ const YTAlbumDetail = ({ album, onBack }) => {
 };
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
+// ─── Theme toggle: set to true for Spotify green, false for YouTube red ───
+const SPOTIFY_THEME = true;
+
 const YouTubeMusicView = () => {
     const [albums, setAlbums] = useState([]);
     const [selectedAlbum, setSelectedAlbum] = useState(null);
@@ -841,7 +856,7 @@ const YouTubeMusicView = () => {
     }
 
     return (
-        <div className="ytm-view">
+        <div className={`ytm-view${SPOTIFY_THEME ? ' ytm-spotify-theme' : ''}`}>
             {/* Page header */}
             <div className="ytm-page-header">
                 <div className="ytm-page-header-row">
