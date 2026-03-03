@@ -736,7 +736,7 @@ const Dashboard = () => {
           onShowLive={handleShowLive}
           onShowMixes={handleShowMixes}
           onShowMovies={handleShowMovies}
-          onShowZenMode={handleShowZenMode}
+          onShowYtMusic={handleShowYtMusic}
         />
 
         {/* Content Rendering Logic */}

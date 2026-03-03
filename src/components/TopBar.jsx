@@ -17,7 +17,7 @@ const TopBar = ({
   onShowLive,
   onShowMixes,
   onShowMovies,
-  onShowZenMode,
+  onShowYtMusic,
 }) => {
   const [themeMenuOpen, setThemeMenuOpen] = useState(false);
 
@@ -60,26 +60,22 @@ const TopBar = ({
 
       {/* Right Section - Controls */}
       <div className="right-controls-flex">
-        {/* Zen Mode Button */}
+        {/* YT Music Button */}
         <button
-          onClick={onShowZenMode}
+          onClick={onShowYtMusic}
           className="zen-mode-btn-top topbar-nav-btn"
-          title="Enter Zen Mode"
+          title="YT Music"
         >
           <svg
             width="20"
             height="20"
             viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            fill="currentColor"
             className="accent-green"
           >
-            <path d="M2 12h5l3 5 5-11 4 8 3-2" />
+            <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm4.95 17.5l-7.15-4.15V6.5h2.1v5.6l5.75 3.35-0.7 2.05z" />
           </svg>
-          Zen Mode
+          YT Music
         </button>
 
 
