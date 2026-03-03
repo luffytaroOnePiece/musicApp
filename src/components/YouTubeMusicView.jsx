@@ -461,7 +461,8 @@ const TrackCard = React.memo(({ index, ytId, title, isCurrent, onAudio, onVideo 
 
 // ─── Album Detail (mirrors AlbumDetail layout) ────────────────────────────────
 const YTAlbumDetail = ({ album, onBack }) => {
-    const { tmdbId, name, language, youtubeIDs, liveIDs, posterUrl } = album;
+    const { tmdbId, name, language, type, personID, youtubeIDs, liveIDs, posterUrl } = album;
+    const isPrivate = type === 'Private';
 
     const [activeTrack, setActiveTrack] = useState(null); // audio player
     const [fullPlayerOpen, setFullPlayerOpen] = useState(false); // full-screen player
@@ -521,19 +522,31 @@ const YTAlbumDetail = ({ album, onBack }) => {
     useEffect(() => {
         if (viewMode !== "info" || tmdbInfo) return;
         let mounted = true;
-        const fetch = async () => {
+        const fetchInfo = async () => {
             setLoadingInfo(true);
-            const details = await getDetails(tmdbId, "movie").catch(() => null);
-            const imgs = await getImages(tmdbId, "movie").catch(() => null);
-            if (mounted) {
-                setTmdbInfo(details);
-                setTmdbImages([...(imgs?.backdrops || []), ...(imgs?.posters || [])]);
-                setLoadingInfo(false);
+            if (isPrivate && personID) {
+                const details = await getDetails(personID, "person").catch(() => null);
+                const imgs = await getImages(personID, "person").catch(() => null);
+                if (mounted) {
+                    setTmdbInfo(details);
+                    setTmdbImages([...(imgs?.profiles || [])]);
+                    setLoadingInfo(false);
+                }
+            } else if (!tmdbId.startsWith('prv-')) {
+                const details = await getDetails(tmdbId, "movie").catch(() => null);
+                const imgs = await getImages(tmdbId, "movie").catch(() => null);
+                if (mounted) {
+                    setTmdbInfo(details);
+                    setTmdbImages([...(imgs?.backdrops || []), ...(imgs?.posters || [])]);
+                    setLoadingInfo(false);
+                }
+            } else {
+                if (mounted) setLoadingInfo(false);
             }
         };
-        fetch();
+        fetchInfo();
         return () => { mounted = false; };
-    }, [viewMode, tmdbId, tmdbInfo]);
+    }, [viewMode, tmdbId, tmdbInfo, isPrivate, personID]);
 
     const handleAudio = useCallback((t) =>
         setActiveTrack({ ...t, albumName: name }), [name]);
@@ -597,7 +610,7 @@ const YTAlbumDetail = ({ album, onBack }) => {
                         )}
 
                         <div className="ytm-detail-meta">
-                            <p className="ytm-detail-type">Movie Soundtrack</p>
+                            <p className="ytm-detail-type">{isPrivate ? 'Artist Collection' : 'Movie Soundtrack'}</p>
                             <h1 className="ytm-detail-title">{name}</h1>
                             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                 {language && (
@@ -659,7 +672,7 @@ const YTAlbumDetail = ({ album, onBack }) => {
                                 className={`ytm-tab${viewMode === m ? " active" : ""}`}
                                 onClick={() => setViewMode(m)}
                             >
-                                {m === "tracks" ? "Songs" : m === "live" ? `Live (${liveTracks.length})` : "Movie Info"}
+                                {m === "tracks" ? "Songs" : m === "live" ? `Live (${liveTracks.length})` : isPrivate ? "Artist Info" : "Movie Info"}
                             </button>
                         ))}
                     </div>
@@ -733,26 +746,50 @@ const YTAlbumDetail = ({ album, onBack }) => {
                             <div className="ytm-loading">Loading info…</div>
                         ) : tmdbInfo ? (
                             <div className="ytm-tmdb-content">
-                                {tmdbInfo.tagline && (
-                                    <p className="ytm-tmdb-tagline">{tmdbInfo.tagline}</p>
+                                {/* Movie info */}
+                                {!isPrivate && (
+                                    <>
+                                        {tmdbInfo.tagline && (
+                                            <p className="ytm-tmdb-tagline">{tmdbInfo.tagline}</p>
+                                        )}
+                                        {tmdbInfo.overview && (
+                                            <p className="ytm-tmdb-overview">{tmdbInfo.overview}</p>
+                                        )}
+                                        <div className="ytm-tmdb-meta">
+                                            {tmdbInfo.release_date && (
+                                                <span>Release: {tmdbInfo.release_date}</span>
+                                            )}
+                                            {tmdbInfo.vote_average && (
+                                                <span>Rating: {tmdbInfo.vote_average.toFixed(1)} / 10</span>
+                                            )}
+                                            {tmdbInfo.runtime && (
+                                                <span>Runtime: {tmdbInfo.runtime} min</span>
+                                            )}
+                                        </div>
+                                    </>
                                 )}
-                                {tmdbInfo.overview && (
-                                    <p className="ytm-tmdb-overview">{tmdbInfo.overview}</p>
+                                {/* Artist/person info */}
+                                {isPrivate && (
+                                    <>
+                                        {tmdbInfo.biography && (
+                                            <p className="ytm-tmdb-overview">{tmdbInfo.biography}</p>
+                                        )}
+                                        <div className="ytm-tmdb-meta">
+                                            {tmdbInfo.birthday && (
+                                                <span>Born: {tmdbInfo.birthday}</span>
+                                            )}
+                                            {tmdbInfo.place_of_birth && (
+                                                <span>From: {tmdbInfo.place_of_birth}</span>
+                                            )}
+                                            {tmdbInfo.known_for_department && (
+                                                <span>Known for: {tmdbInfo.known_for_department}</span>
+                                            )}
+                                        </div>
+                                    </>
                                 )}
-                                <div className="ytm-tmdb-meta">
-                                    {tmdbInfo.release_date && (
-                                        <span>Release: {tmdbInfo.release_date}</span>
-                                    )}
-                                    {tmdbInfo.vote_average && (
-                                        <span>Rating: {tmdbInfo.vote_average.toFixed(1)} / 10</span>
-                                    )}
-                                    {tmdbInfo.runtime && (
-                                        <span>Runtime: {tmdbInfo.runtime} min</span>
-                                    )}
-                                </div>
                                 {tmdbImages.length > 0 && (
                                     <div className="ytm-tmdb-gallery-wrap">
-                                        <h4>Images</h4>
+                                        <h4>{isPrivate ? "Photos" : "Images"}</h4>
                                         <div className="ytm-tmdb-gallery">
                                             {tmdbImages.slice(0, 20).map((img, i) => {
                                                 const src = getImageUrl(img.file_path, "original");
@@ -769,7 +806,7 @@ const YTAlbumDetail = ({ album, onBack }) => {
                                 )}
                             </div>
                         ) : (
-                            <p className="ytm-empty-msg">No movie info found.</p>
+                            <p className="ytm-empty-msg">{isPrivate ? "No artist info found." : "No movie info found."}</p>
                         )}
                     </div>
                 )}
@@ -810,20 +847,23 @@ const YouTubeMusicView = () => {
     const [albums, setAlbums] = useState([]);
     const [selectedAlbum, setSelectedAlbum] = useState(null);
     const [selLang, setSelLang] = useState("All");
+    const [selCategory, setSelCategory] = useState("All");
     const [searchTerm, setSearchTerm] = useState("");
 
     // Build raw album list from mapper (no Spotify needed)
     const rawAlbums = useMemo(() => {
-        const arr = Object.entries(movieYoutubeMapper).map(([tmdbId, data]) => ({
-            tmdbId,
+        const arr = Object.entries(movieYoutubeMapper).map(([id, data]) => ({
+            tmdbId: id,
             name: data.name,
             language: data.language,
+            type: data.type || 'Movie',
+            personID: data.personID || null,
             youtubeIDs: data.youtubeIDs || [],
             liveIDs: data.liveIDs || [],
             posterUrl: null,
             loading: true,
         }));
-        // Fisher-Yates shuffle — random order on every page load
+        // Fisher-Yates shuffle
         for (let i = arr.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -846,11 +886,22 @@ const YouTubeMusicView = () => {
 
                 const results = await Promise.all(batch.map(async (a) => {
                     try {
-                        const d = await getDetails(a.tmdbId, "movie");
-                        return {
-                            tmdbId: a.tmdbId,
-                            posterUrl: d?.poster_path ? getImageUrl(d.poster_path, "w500") : null,
-                        };
+                        if (a.type === 'Private' && a.personID) {
+                            // Fetch person profile image
+                            const d = await getDetails(a.personID, "person");
+                            return {
+                                tmdbId: a.tmdbId,
+                                posterUrl: d?.profile_path ? getImageUrl(d.profile_path, "w500") : null,
+                            };
+                        } else if (a.type === 'Movie' && !a.tmdbId.startsWith('prv-')) {
+                            // Fetch movie poster
+                            const d = await getDetails(a.tmdbId, "movie");
+                            return {
+                                tmdbId: a.tmdbId,
+                                posterUrl: d?.poster_path ? getImageUrl(d.poster_path, "w500") : null,
+                            };
+                        }
+                        return { tmdbId: a.tmdbId, posterUrl: null };
                     } catch {
                         return { tmdbId: a.tmdbId, posterUrl: null };
                     }
@@ -877,13 +928,14 @@ const YouTubeMusicView = () => {
 
     const filtered = useMemo(() => {
         let r = albums;
+        if (selCategory !== "All") r = r.filter((a) => a.type === selCategory);
         if (selLang !== "All") r = r.filter((a) => a.language === selLang);
         if (searchTerm.trim()) {
             const q = searchTerm.toLowerCase();
             r = r.filter((a) => a.name?.toLowerCase().includes(q));
         }
         return r;
-    }, [albums, selLang, searchTerm]);
+    }, [albums, selCategory, selLang, searchTerm]);
 
     const handleShuffle = () => {
         const pool = filtered.length > 0 ? filtered : rawAlbums;
@@ -908,7 +960,7 @@ const YouTubeMusicView = () => {
                     <div style={{ flex: 1 }}>
                         <h1 className="ytm-page-title">YouTube Music</h1>
                         <p className="ytm-page-sub">
-                            {rawAlbums.length} movie soundtracks · Spotify-free player
+                            {rawAlbums.length} albums · Spotify-free player
                         </p>
                     </div>
                     {/* Random shuffle button */}
@@ -922,6 +974,19 @@ const YouTubeMusicView = () => {
                         </svg>
                         <span>Shuffle</span>
                     </button>
+                </div>
+
+                {/* Category filter */}
+                <div className="ytm-category-pills">
+                    {["All", "Movie", "Private"].map((cat) => (
+                        <button
+                            key={cat}
+                            className={`ytm-cat-pill${selCategory === cat ? " active" : ""}`}
+                            onClick={() => setSelCategory(cat)}
+                        >
+                            {cat === "Movie" ? "🎬 Movies" : cat === "Private" ? "🎤 Artists" : "All"}
+                        </button>
+                    ))}
                 </div>
 
                 <FilterBar

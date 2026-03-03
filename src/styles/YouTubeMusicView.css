@@ -231,6 +231,36 @@
     transform: rotate(180deg);
 }
 
+/* Category filter pills */
+.ytm-category-pills {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.ytm-cat-pill {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+}
+
+.ytm-cat-pill:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.ytm-cat-pill.active {
+    background: var(--ytm-accent);
+    border-color: var(--ytm-accent);
+    color: #fff;
+}
+
 /* Album grid */
 .ytm-grid {
     display: grid;
