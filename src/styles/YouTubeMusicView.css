@@ -966,17 +966,15 @@
 }
 
 .ytm-tmdb-gallery-img {
-    height: 130px;
-    border-radius: 8px;
+    height: 360px;
+    border-radius: 10px;
     cursor: pointer;
     object-fit: cover;
     transition: transform 0.2s, opacity 0.2s;
-    opacity: 0.85;
 }
 
 .ytm-tmdb-gallery-img:hover {
-    transform: scale(1.03);
-    opacity: 1;
+    transform: scale(1.01);
 }
 
 /* ── Lightbox ────────────────────────────────────── */
