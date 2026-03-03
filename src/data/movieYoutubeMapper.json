@@ -12,6 +12,24 @@
       "HFpAtkXoXd0"
     ]
   },
+  "238924": {
+    "name": "Sukoon",
+    "language": "Hindi",
+    "spotifyID": "1Bn5aZ2lQTnbYjkjnsOZo1",
+    "youtubeIDs": [
+      "lX3vT_Gm_HE",
+      "mn8ywyrgPwQ"
+    ]
+  },
+  "316900": {
+    "name": "Roy",
+    "language": "Hindi",
+    "spotifyID": "0EZC8T3t7qsoiqV5sPsyFS",
+    "youtubeIDs": [
+      "nJZcbidTutE",
+      "2aXIfrt7ye0"
+    ]
+  },
   "374954": {
     "name": "Sarrainodu",
     "language": "Telugu",
@@ -36,6 +54,14 @@
       "h2JH0vqDcYc"
     ]
   },
+  "496331": {
+    "name": "Brahmastra: Part One",
+    "language": "Hindi",
+    "spotifyID": "5CdxG2RqWaUgjboDBQ1cMA",
+    "youtubeIDs": [
+      "P7yRYiBiV3g"
+    ]
+  },
   "566143": {
     "name": "Mr. Majnu",
     "language": "Telugu",
@@ -43,6 +69,18 @@
     "youtubeIDs": [
       "tTpQbfHj4j4",
       "IW9i3bJ8bkU"
+    ]
+  },
+  "577328": {
+    "name": "Kabir Singh",
+    "language": "Hindi",
+    "spotifyID": "4w8HTdSwLhqTVSuB7mut5S",
+    "youtubeIDs": [
+      "dzH-fG4murA",
+      "j8AF2WV2pEI",
+      "5DFJO3rNRTA",
+      "WMAYDl6uWEs",
+      "U5wnnQ7X3qw"
     ]
   },
   "628241": {
@@ -57,6 +95,16 @@
       "gdt-yIgm2zc"
     ]
   },
+  "673392": {
+    "name": "Radhe Shyam",
+    "language": "Telugu",
+    "spotifyID": "5iyWHUVq2euW032bRBMzmU",
+    "youtubeIDs": [
+      "BxFMF2LaKu0",
+      "YWL-iH2jLno",
+      "e_PhAbB0rkQ"
+    ]
+  },
   "811941": {
     "name": "Devara Part 1",
     "language": "Telugu",
@@ -66,6 +114,14 @@
       "-FMIo-OYo68",
       "CKpbdCciELk",
       "A3ws4jpMf0A"
+    ]
+  },
+  "872906": {
+    "name": "Jawan",
+    "language": "Hindi",
+    "spotifyID": "1WTyvUvbHM3EVEdD2F7tky",
+    "youtubeIDs": [
+      "dfLH_3QXpp4"
     ]
   },
   "1022453": {
@@ -89,6 +145,14 @@
       "iPEEHwG1fjo",
       "sCkUYyYtqRI",
       "YxG_u2nJ8Ik"
+    ]
+  },
+  "1163194": {
+    "name": "Laapataa Ladies",
+    "language": "Hindi",
+    "spotifyID": "2qyn4gz94ZYuEZUPWxPupI",
+    "youtubeIDs": [
+      "gYHVddokkd0"
     ]
   },
   "1226354": {
@@ -124,6 +188,14 @@
       "7IBDa53IsvI"
     ]
   },
+  "1315021": {
+    "name": "Amar Prem Ki Prem Kahani",
+    "language": "Hindi",
+    "spotifyID": "4M6H9NC9zXi7LIf675W5Uo",
+    "youtubeIDs": [
+      "reySvnsz-tk"
+    ]
+  },
   "1407437": {
     "name": "Andhra King Taluka",
     "language": "Telugu",
@@ -131,6 +203,14 @@
     "youtubeIDs": [
       "iBpSuQTJdaU",
       "W8nny8Vm81s"
+    ]
+  },
+  "660046-1": {
+    "name": "Ponniyin Selvan",
+    "language": "Tamil",
+    "spotifyID": "2iVmFaIo6Da89Zk2HwcHMt",
+    "youtubeIDs": [
+      "0aavCtXiiX4"
     ]
   }
 }
