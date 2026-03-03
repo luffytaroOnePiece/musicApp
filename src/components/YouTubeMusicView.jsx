@@ -461,13 +461,15 @@ const TrackCard = React.memo(({ index, ytId, title, isCurrent, onAudio, onVideo 
 
 // ─── Album Detail (mirrors AlbumDetail layout) ────────────────────────────────
 const YTAlbumDetail = ({ album, onBack }) => {
-    const { tmdbId, name, language, youtubeIDs, posterUrl } = album;
+    const { tmdbId, name, language, youtubeIDs, liveIDs, posterUrl } = album;
 
     const [activeTrack, setActiveTrack] = useState(null); // audio player
     const [fullPlayerOpen, setFullPlayerOpen] = useState(false); // full-screen player
     const [videoTrack, setVideoTrack] = useState(null); // video modal
     const [localSearch, setLocalSearch] = useState("");
-    const [viewMode, setViewMode] = useState("tracks"); // "tracks" | "info"
+    const [viewMode, setViewMode] = useState("tracks"); // "tracks" | "live" | "info"
+
+    const hasLive = liveIDs && liveIDs.length > 0;
     const [tmdbInfo, setTmdbInfo] = useState(null);
     const [tmdbImages, setTmdbImages] = useState([]);
     const [loadingInfo, setLoadingInfo] = useState(false);
@@ -482,6 +484,20 @@ const YTAlbumDetail = ({ album, onBack }) => {
             index: i,
         })), [youtubeIDs]
     );
+
+    // Build live tracks list
+    const liveTracks = useMemo(() => {
+        if (!liveIDs || liveIDs.length === 0) return [];
+        return liveIDs.map((live, i) => {
+            const officialTitle = videoTitleMap[live.officialId] || `Song ${live.songIndex + 1}`;
+            return {
+                id: live.liveId,
+                title: `${officialTitle} (Live ${live.liveNum})`,
+                index: i,
+                officialId: live.officialId,
+            };
+        });
+    }, [liveIDs]);
 
     const filteredTracks = useMemo(() => {
         const q = localSearch.toLowerCase();
@@ -637,13 +653,13 @@ const YTAlbumDetail = ({ album, onBack }) => {
 
                     {/* View mode tabs — mirrors AlbumHeader tabs */}
                     <div className="ytm-view-tabs">
-                        {["tracks", "info"].map((m) => (
+                        {["tracks", ...(hasLive ? ["live"] : []), "info"].map((m) => (
                             <button
                                 key={m}
                                 className={`ytm-tab${viewMode === m ? " active" : ""}`}
                                 onClick={() => setViewMode(m)}
                             >
-                                {m === "tracks" ? "Songs" : "Movie Info"}
+                                {m === "tracks" ? "Songs" : m === "live" ? `Live (${liveTracks.length})` : "Movie Info"}
                             </button>
                         ))}
                     </div>
@@ -684,6 +700,29 @@ const YTAlbumDetail = ({ album, onBack }) => {
                                 />
                             ))}
                         </div>
+                    </div>
+                )}
+
+                {/* ── Live view ── */}
+                {viewMode === "live" && (
+                    <div className="ytm-tracks-section">
+                        {liveTracks.length === 0 ? (
+                            <p className="ytm-empty-msg">No live performances found</p>
+                        ) : (
+                            <div className="ytm-tracks-grid">
+                                {liveTracks.map((t) => (
+                                    <TrackCard
+                                        key={t.id}
+                                        index={t.index}
+                                        ytId={t.id}
+                                        title={t.title}
+                                        isCurrent={activeTrack?.id === t.id}
+                                        onAudio={handleAudio}
+                                        onVideo={handleVideo}
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -780,6 +819,7 @@ const YouTubeMusicView = () => {
             name: data.name,
             language: data.language,
             youtubeIDs: data.youtubeIDs || [],
+            liveIDs: data.liveIDs || [],
             posterUrl: null,
             loading: true,
         }));

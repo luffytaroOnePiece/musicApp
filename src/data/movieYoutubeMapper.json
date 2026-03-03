@@ -17,8 +17,15 @@
     "language": "Hindi",
     "spotifyID": "1Bn5aZ2lQTnbYjkjnsOZo1",
     "youtubeIDs": [
-      "lX3vT_Gm_HE",
-      "mn8ywyrgPwQ"
+      "lX3vT_Gm_HE"
+    ],
+    "liveIDs": [
+      {
+        "songIndex": 0,
+        "officialId": "lX3vT_Gm_HE",
+        "liveId": "mn8ywyrgPwQ",
+        "liveNum": 1
+      }
     ]
   },
   "316900": {

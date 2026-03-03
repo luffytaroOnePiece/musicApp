@@ -49,21 +49,43 @@ function generateMapper() {
 
         const tmdbID = String(album.tmdbID).trim();
 
-        // Normalise youtubeIDs — some legacy entries use comma-separated strings
+        // Normalise youtubeIDs — some entries use comma-separated strings
+        // Format: "officialId,liveId1,liveId2" — first is official, rest are live
         const rawIDs = Array.isArray(album.youtubeIDs) ? album.youtubeIDs : [];
-        const youtubeIDs = rawIDs
-            .flatMap(id => (typeof id === 'string' ? id.split(',').map(s => s.trim()) : []))
-            .filter(Boolean);
+
+        const youtubeIDs = [];  // official video IDs (first of each group)
+        const liveIDs = [];     // { title: index, officialId, liveId }
+
+        rawIDs.forEach((entry, idx) => {
+            if (typeof entry !== 'string') return;
+            const parts = entry.split(',').map(s => s.trim()).filter(Boolean);
+            if (parts.length === 0) return;
+
+            // First part is always the official video
+            youtubeIDs.push(parts[0]);
+
+            // Remaining parts are live versions of the same song
+            for (let li = 1; li < parts.length; li++) {
+                liveIDs.push({
+                    songIndex: idx,
+                    officialId: parts[0],
+                    liveId: parts[li],
+                    liveNum: li,
+                });
+            }
+        });
 
         mapper[tmdbID] = {
             name: album.name || '',
             language: album.language || '',
             spotifyID,
             youtubeIDs,
+            ...(liveIDs.length > 0 ? { liveIDs } : {}),
         };
 
         mapped++;
-        console.log(`  ✓  [${tmdbID}] ${album.name}  (${youtubeIDs.length} video${youtubeIDs.length !== 1 ? 's' : ''})`);
+        const liveStr = liveIDs.length > 0 ? ` + ${liveIDs.length} live` : '';
+        console.log(`  ✓  [${tmdbID}] ${album.name}  (${youtubeIDs.length} video${youtubeIDs.length !== 1 ? 's' : ''}${liveStr})`);
     }
 
     fs.writeFileSync(OUTPUT_FILE, JSON.stringify(mapper, null, 2), 'utf-8');
