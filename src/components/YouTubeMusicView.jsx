@@ -176,33 +176,103 @@ const YTFullPlayer = ({ track, tracks, albumName, posterUrl, onClose, onSelectTr
 };
 
 // ─── Mini Embedded Player Bar ─────────────────────────────────────────────────
-const YTEmbedPlayer = ({ track, tracks, onClose, onExpand, onSelectTrack, fullPlayerOpen }) => {
-    if (!track) return null;
+// Load YouTube IFrame API once
+let ytApiReady = false;
+let ytApiCallbacks = [];
+function loadYTApi() {
+    if (ytApiReady || document.getElementById('yt-iframe-api')) return;
+    const tag = document.createElement('script');
+    tag.id = 'yt-iframe-api';
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+    window.onYouTubeIframeAPIReady = () => {
+        ytApiReady = true;
+        ytApiCallbacks.forEach(cb => cb());
+        ytApiCallbacks = [];
+    };
+}
+function onYTReady(cb) {
+    if (ytApiReady) cb();
+    else { loadYTApi(); ytApiCallbacks.push(cb); }
+}
 
-    const currentIdx = tracks ? tracks.findIndex(t => t.id === track.id) : -1;
+const YTEmbedPlayer = ({ track, tracks, onClose, onExpand, onSelectTrack, fullPlayerOpen }) => {
+    const playerRef = useRef(null);
+    const containerRef = useRef(null);
+    const [isPlaying, setIsPlaying] = useState(true);
+
+    const currentIdx = tracks ? tracks.findIndex(t => t.id === track?.id) : -1;
     const hasPrev = currentIdx > 0;
     const hasNext = currentIdx !== -1 && currentIdx < (tracks?.length ?? 0) - 1;
 
     const goPrev = () => { if (hasPrev && onSelectTrack) onSelectTrack(tracks[currentIdx - 1]); };
     const goNext = () => { if (hasNext && onSelectTrack) onSelectTrack(tracks[currentIdx + 1]); };
 
+    // Create / destroy YT player
+    useEffect(() => {
+        if (!track || fullPlayerOpen) {
+            // Destroy player when full player is open or no track
+            if (playerRef.current) {
+                playerRef.current.destroy();
+                playerRef.current = null;
+            }
+            return;
+        }
+
+        const createPlayer = () => {
+            if (playerRef.current) {
+                playerRef.current.destroy();
+                playerRef.current = null;
+            }
+            if (!containerRef.current) return;
+
+            playerRef.current = new window.YT.Player(containerRef.current, {
+                height: '1',
+                width: '1',
+                videoId: track.id,
+                playerVars: { autoplay: 1, controls: 0, rel: 0, modestbranding: 1 },
+                events: {
+                    onStateChange: (e) => {
+                        // YT.PlayerState: PLAYING=1, PAUSED=2, ENDED=0
+                        if (e.data === 1) setIsPlaying(true);
+                        else if (e.data === 2) setIsPlaying(false);
+                        else if (e.data === 0 && hasNext && onSelectTrack) {
+                            // Auto-advance to next track when current ends
+                            onSelectTrack(tracks[currentIdx + 1]);
+                        }
+                    },
+                },
+            });
+            setIsPlaying(true);
+        };
+
+        onYTReady(createPlayer);
+
+        return () => {
+            if (playerRef.current) {
+                playerRef.current.destroy();
+                playerRef.current = null;
+            }
+        };
+    }, [track?.id, fullPlayerOpen]);
+
+    const togglePlay = () => {
+        if (!playerRef.current) return;
+        if (isPlaying) {
+            playerRef.current.pauseVideo();
+        } else {
+            playerRef.current.playVideo();
+        }
+    };
+
+    if (!track) return null;
+
     return (
         <div className="ytm-embed-player">
-            {/* Hidden iframe for audio (only when full player is closed) */}
-            {!fullPlayerOpen && (
-                <div className="ytm-ep-frame-wrap">
-                    <iframe
-                        key={track.id}
-                        src={`https://www.youtube.com/embed/${track.id}?autoplay=1&rel=0&controls=0`}
-                        title={track.title}
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        className="ytm-ep-iframe"
-                    />
-                </div>
-            )}
+            {/* Hidden YT player container */}
+            {!fullPlayerOpen && <div className="ytm-ep-frame-wrap"><div ref={containerRef} /></div>}
 
-            {/* Left: art + now-playing indicator */}
+            {/* Left: art + meta */}
             <div className="ytm-ep-left" onClick={onExpand} title="Expand player">
                 <div className="ytm-ep-art-wrap">
                     <img
@@ -219,17 +289,21 @@ const YTEmbedPlayer = ({ track, tracks, onClose, onExpand, onSelectTrack, fullPl
                 </div>
                 <div className="ytm-ep-meta">
                     <div className="ytm-ep-now-row">
-                        <div className="ytm-ep-bars">
-                            <span /><span /><span />
-                        </div>
-                        <span className="ytm-ep-now-label">Now Playing</span>
+                        {isPlaying && !fullPlayerOpen && (
+                            <div className="ytm-ep-bars">
+                                <span /><span /><span />
+                            </div>
+                        )}
+                        <span className="ytm-ep-now-label">
+                            {isPlaying && !fullPlayerOpen ? "Now Playing" : "Paused"}
+                        </span>
                     </div>
                     <span className="ytm-ep-title" title={track.title}>{track.title}</span>
                     <span className="ytm-ep-album">{track.albumName}</span>
                 </div>
             </div>
 
-            {/* Centre: Prev / Next controls */}
+            {/* Centre: Prev / Play-Pause / Next */}
             <div className="ytm-ep-controls">
                 <button
                     className={`ytm-ep-ctrl-btn${!hasPrev ? " disabled" : ""}`}
@@ -242,10 +316,23 @@ const YTEmbedPlayer = ({ track, tracks, onClose, onExpand, onSelectTrack, fullPl
                     </svg>
                 </button>
 
-                {/* Playing indicator circle */}
-                <div className="ytm-ep-playing-dot">
-                    <div className="ytm-ep-pulse" />
-                </div>
+                {/* Play / Pause toggle */}
+                <button
+                    className="ytm-ep-play-pause"
+                    onClick={togglePlay}
+                    title={isPlaying ? "Pause" : "Play"}
+                >
+                    {isPlaying ? (
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="6" y="4" width="4" height="16" rx="1" />
+                            <rect x="14" y="4" width="4" height="16" rx="1" />
+                        </svg>
+                    ) : (
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z" />
+                        </svg>
+                    )}
+                </button>
 
                 <button
                     className={`ytm-ep-ctrl-btn${!hasNext ? " disabled" : ""}`}
