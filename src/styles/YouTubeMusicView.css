@@ -922,6 +922,10 @@
 }
 
 /* ── Embedded audio player bar (fixed bottom) ───── */
+/* ══════════════════════════════════════════════════
+   ENHANCED MINI PLAYER BAR
+══════════════════════════════════════════════════ */
+
 .ytm-embed-player {
     position: fixed;
     bottom: 0;
@@ -929,58 +933,21 @@
     right: 0;
     z-index: 1100;
     display: flex;
-    align-items: stretch;
-    gap: 14px;
-    background: rgba(10, 10, 10, 0.97);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.09);
-    padding: 0 20px;
-    min-height: 80px;
-    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.6);
+    align-items: center;
+    justify-content: space-between;
+    height: 80px;
+    padding: 0 24px;
+    gap: 0;
+    background: rgba(8, 8, 10, 0.96);
+    backdrop-filter: blur(28px) saturate(1.6);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 4px solid #e10000;
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.7),
+        0 -1px 0 rgba(255, 40, 40, 0.15);
     animation: ytm-slide-up 0.3s ease;
 }
 
-.ytm-ep-art {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-}
-
-.ytm-ep-art-img {
-    width: 52px;
-    height: 52px;
-    border-radius: 8px;
-    object-fit: cover;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-.ytm-ep-meta {
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 3px;
-    min-width: 130px;
-    max-width: 190px;
-}
-
-.ytm-ep-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary, #fff);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.ytm-ep-album {
-    font-size: 11px;
-    color: var(--text-secondary, rgba(255, 255, 255, 0.42));
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
+/* Hidden audio iframe */
 .ytm-ep-frame-wrap {
     position: absolute;
     width: 1px;
@@ -994,27 +961,246 @@
     width: 1px;
     height: 1px;
     border: none;
+}
+
+/* ── Left section: art + meta ────────────────────── */
+.ytm-ep-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    flex: 1;
+    min-width: 0;
+    padding-right: 20px;
+    transition: opacity 0.18s;
+}
+
+.ytm-ep-left:hover {
+    opacity: 0.85;
+}
+
+.ytm-ep-art-wrap {
+    position: relative;
+    flex-shrink: 0;
+    width: 54px;
+    height: 54px;
+}
+
+.ytm-ep-art-img {
+    width: 54px;
+    height: 54px;
+    border-radius: 10px;
+    object-fit: cover;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5),
+        0 0 0 2px rgba(255, 255, 255, 0.08);
     display: block;
 }
 
-.ytm-ep-close {
+.ytm-ep-art-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.18s;
+}
+
+.ytm-ep-left:hover .ytm-ep-art-overlay {
+    opacity: 1;
+}
+
+.ytm-ep-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.ytm-ep-now-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 2px;
+}
+
+.ytm-ep-now-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #ff4444;
+}
+
+/* Mini animated bars in player bar */
+.ytm-ep-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 12px;
+}
+
+.ytm-ep-bars span {
+    display: block;
+    width: 2.5px;
+    border-radius: 2px;
+    background: #ff3333;
+    animation: ytm-bar-bounce 0.8s ease-in-out infinite;
+}
+
+.ytm-ep-bars span:nth-child(1) {
+    height: 7px;
+    animation-delay: 0s;
+}
+
+.ytm-ep-bars span:nth-child(2) {
+    height: 12px;
+    animation-delay: 0.15s;
+}
+
+.ytm-ep-bars span:nth-child(3) {
+    height: 5px;
+    animation-delay: 0.3s;
+}
+
+.ytm-ep-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary, #fff);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ytm-ep-album {
+    font-size: 11px;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.4));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Centre: controls ─────────────────────────────── */
+.ytm-ep-controls {
+    display: flex;
+    align-items: center;
+    gap: 18px;
     flex-shrink: 0;
-    align-self: center;
+}
+
+.ytm-ep-ctrl-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.18s, background 0.18s, transform 0.15s;
+}
+
+.ytm-ep-ctrl-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.ytm-ep-ctrl-btn.disabled {
+    opacity: 0.28;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* Pulsing red dot — playing indicator */
+.ytm-ep-playing-dot {
+    position: relative;
+    width: 12px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ytm-ep-playing-dot::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: #ff3333;
+    border-radius: 50%;
+    display: block;
+}
+
+.ytm-ep-pulse {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 50, 50, 0.5);
+    animation: ytm-dot-pulse 1.4s ease-out infinite;
+}
+
+@keyframes ytm-dot-pulse {
+    0% {
+        transform: scale(0.6);
+        opacity: 0.9;
+    }
+
+    100% {
+        transform: scale(1.8);
+        opacity: 0;
+    }
+}
+
+/* ── Right: expand + close ───────────────────────── */
+.ytm-ep-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    padding-left: 20px;
+}
+
+.ytm-ep-expand-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
     background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 20px;
+    color: var(--text-primary, #fff);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s;
+}
+
+.ytm-ep-expand-btn:hover {
+    background: rgba(255, 40, 40, 0.18);
+    border-color: rgba(255, 60, 60, 0.4);
+    color: #ff8888;
+}
+
+.ytm-ep-close {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 50%;
     width: 36px;
     height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.45);
     cursor: pointer;
     transition: background 0.18s, color 0.18s;
 }
 
 .ytm-ep-close:hover {
-    background: rgba(255, 60, 60, 0.2);
+    background: rgba(255, 60, 60, 0.22);
     color: #ff6666;
 }
 

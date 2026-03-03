@@ -176,54 +176,111 @@ const YTFullPlayer = ({ track, tracks, albumName, posterUrl, onClose, onSelectTr
 };
 
 // ─── Mini Embedded Player Bar ─────────────────────────────────────────────────
-const YTEmbedPlayer = ({ track, onClose, onExpand, fullPlayerOpen }) => {
+const YTEmbedPlayer = ({ track, tracks, onClose, onExpand, onSelectTrack, fullPlayerOpen }) => {
     if (!track) return null;
+
+    const currentIdx = tracks ? tracks.findIndex(t => t.id === track.id) : -1;
+    const hasPrev = currentIdx > 0;
+    const hasNext = currentIdx !== -1 && currentIdx < (tracks?.length ?? 0) - 1;
+
+    const goPrev = () => { if (hasPrev && onSelectTrack) onSelectTrack(tracks[currentIdx - 1]); };
+    const goNext = () => { if (hasNext && onSelectTrack) onSelectTrack(tracks[currentIdx + 1]); };
+
     return (
         <div className="ytm-embed-player">
-            {/* Clickable area → opens full player */}
-            <div className="ytm-ep-click-area" onClick={onExpand} title="Open full player">
-                <div className="ytm-ep-art">
-                    <img
-                        src={`https://img.youtube.com/vi/${track.id}/default.jpg`}
-                        alt={track.title}
-                        className="ytm-ep-art-img"
-                    />
-                    <div className="ytm-ep-expand-hint">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                            <polyline points="18 15 12 9 6 15" />
-                        </svg>
-                    </div>
-                </div>
-                <div className="ytm-ep-meta">
-                    <span className="ytm-ep-title" title={track.title}>{track.title}</span>
-                    <span className="ytm-ep-album">{track.albumName}</span>
-                </div>
-            </div>
-            {/* Only render iframe when full player is closed — prevents dual audio */}
+            {/* Hidden iframe for audio (only when full player is closed) */}
             {!fullPlayerOpen && (
                 <div className="ytm-ep-frame-wrap">
                     <iframe
                         key={track.id}
-                        src={`https://www.youtube.com/embed/${track.id}?autoplay=1&rel=0&controls=1`}
+                        src={`https://www.youtube.com/embed/${track.id}?autoplay=1&rel=0&controls=0`}
                         title={track.title}
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
                         className="ytm-ep-iframe"
                     />
                 </div>
             )}
-            <button className="ytm-ep-close" onClick={onClose} title="Close player">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2.5">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-            </button>
+
+            {/* Left: art + now-playing indicator */}
+            <div className="ytm-ep-left" onClick={onExpand} title="Expand player">
+                <div className="ytm-ep-art-wrap">
+                    <img
+                        src={`https://img.youtube.com/vi/${track.id}/mqdefault.jpg`}
+                        alt={track.title}
+                        className="ytm-ep-art-img"
+                    />
+                    <div className="ytm-ep-art-overlay">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <polyline points="18 15 12 9 6 15" strokeWidth="2.5"
+                                stroke="currentColor" fill="none" strokeLinecap="round" />
+                        </svg>
+                    </div>
+                </div>
+                <div className="ytm-ep-meta">
+                    <div className="ytm-ep-now-row">
+                        <div className="ytm-ep-bars">
+                            <span /><span /><span />
+                        </div>
+                        <span className="ytm-ep-now-label">Now Playing</span>
+                    </div>
+                    <span className="ytm-ep-title" title={track.title}>{track.title}</span>
+                    <span className="ytm-ep-album">{track.albumName}</span>
+                </div>
+            </div>
+
+            {/* Centre: Prev / Next controls */}
+            <div className="ytm-ep-controls">
+                <button
+                    className={`ytm-ep-ctrl-btn${!hasPrev ? " disabled" : ""}`}
+                    onClick={goPrev}
+                    disabled={!hasPrev}
+                    title="Previous"
+                >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z" />
+                    </svg>
+                </button>
+
+                {/* Playing indicator circle */}
+                <div className="ytm-ep-playing-dot">
+                    <div className="ytm-ep-pulse" />
+                </div>
+
+                <button
+                    className={`ytm-ep-ctrl-btn${!hasNext ? " disabled" : ""}`}
+                    onClick={goNext}
+                    disabled={!hasNext}
+                    title="Next"
+                >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 18l8.5-6L6 6v12zm2.5-6 5.5 3.9V8.1z" />
+                        <path d="M16 6h2v12h-2z" />
+                    </svg>
+                </button>
+            </div>
+
+            {/* Right: expand + close */}
+            <div className="ytm-ep-actions">
+                <button className="ytm-ep-expand-btn" onClick={onExpand} title="Open full player">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                        <polyline points="18 15 12 9 6 15" />
+                    </svg>
+                    <span>Full Player</span>
+                </button>
+                <button className="ytm-ep-close" onClick={onClose} title="Close">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" strokeWidth="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
         </div>
     );
 };
+
 
 // ─── Full-screen Video Modal ──────────────────────────────────────────────────
 const YTVideoModal = ({ track, onClose }) => {
@@ -613,8 +670,10 @@ const YTAlbumDetail = ({ album, onBack }) => {
             {/* Mini embedded player bar */}
             <YTEmbedPlayer
                 track={activeTrack}
+                tracks={tracks}
                 onClose={() => { setActiveTrack(null); setFullPlayerOpen(false); }}
                 onExpand={() => setFullPlayerOpen(true)}
+                onSelectTrack={(t) => setActiveTrack({ ...t, albumName: name })}
                 fullPlayerOpen={fullPlayerOpen}
             />
         </div>
