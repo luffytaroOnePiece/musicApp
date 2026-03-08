@@ -912,6 +912,18 @@ const YouTubeMusicView = () => {
     const [selLang, setSelLang] = useState("All");
     const [selCategory, setSelCategory] = useState("All");
     const [searchTerm, setSearchTerm] = useState("");
+    const [sortBy, setSortBy] = useState("shuffle");
+    const [sortOpen, setSortOpen] = useState(false);
+    const sortRef = useRef(null);
+
+    // Close sort dropdown on outside click
+    useEffect(() => {
+        const handler = (e) => {
+            if (sortRef.current && !sortRef.current.contains(e.target)) setSortOpen(false);
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
 
     // Build raw album list from mapper (no Spotify needed)
     const rawAlbums = useMemo(() => {
@@ -924,6 +936,7 @@ const YouTubeMusicView = () => {
             youtubeIDs: data.youtubeIDs || [],
             liveIDs: data.liveIDs || [],
             posterUrl: null,
+            releaseDate: null,
             loading: true,
         }));
         // Fisher-Yates shuffle
@@ -955,6 +968,7 @@ const YouTubeMusicView = () => {
                             return {
                                 tmdbId: a.tmdbId,
                                 posterUrl: d?.profile_path ? getImageUrl(d.profile_path, "w500") : null,
+                                releaseDate: d?.birthday || null,
                             };
                         } else if (a.type === 'Movie' && !a.tmdbId.startsWith('prv-')) {
                             // Fetch movie poster
@@ -962,6 +976,7 @@ const YouTubeMusicView = () => {
                             return {
                                 tmdbId: a.tmdbId,
                                 posterUrl: d?.poster_path ? getImageUrl(d.poster_path, "w500") : null,
+                                releaseDate: d?.release_date || null,
                             };
                         }
                         return { tmdbId: a.tmdbId, posterUrl: null };
@@ -973,7 +988,7 @@ const YouTubeMusicView = () => {
                 if (!isMounted) break;
                 setAlbums((prev) => prev.map((a) => {
                     const hit = results.find((r) => r.tmdbId === a.tmdbId);
-                    return hit ? { ...a, posterUrl: hit.posterUrl, loading: false } : a;
+                    return hit ? { ...a, posterUrl: hit.posterUrl, releaseDate: hit.releaseDate, loading: false } : a;
                 }));
 
                 if (i + BATCH < rawAlbums.length) await delay(300);
@@ -997,8 +1012,25 @@ const YouTubeMusicView = () => {
             const q = searchTerm.toLowerCase();
             r = r.filter((a) => a.name?.toLowerCase().includes(q));
         }
+        // Apply sorting
+        if (sortBy !== "shuffle") {
+            r = [...r].sort((a, b) => {
+                switch (sortBy) {
+                    case "name-asc":
+                        return (a.name || "").localeCompare(b.name || "");
+                    case "name-desc":
+                        return (b.name || "").localeCompare(a.name || "");
+                    case "release-asc":
+                        return (a.releaseDate || "9999").localeCompare(b.releaseDate || "9999");
+                    case "release-desc":
+                        return (b.releaseDate || "0000").localeCompare(a.releaseDate || "0000");
+                    default:
+                        return 0;
+                }
+            });
+        }
         return r;
-    }, [albums, selCategory, selLang, searchTerm]);
+    }, [albums, selCategory, selLang, searchTerm, sortBy]);
 
     const handleShuffle = () => {
         const pool = filtered.length > 0 ? filtered : rawAlbums;
@@ -1061,6 +1093,95 @@ const YouTubeMusicView = () => {
                         </svg>
                         <span>Shuffle</span>
                     </button>
+
+                    {/* Sort dropdown */}
+                    <div className="ytm-sort-wrap" ref={sortRef}>
+                        <button
+                            className={`ytm-sort-btn${sortBy !== "shuffle" ? " active" : ""}`}
+                            onClick={() => setSortOpen((p) => !p)}
+                            title="Sort albums"
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="4" y1="6" x2="20" y2="6" />
+                                <line x1="4" y1="12" x2="16" y2="12" />
+                                <line x1="4" y1="18" x2="12" y2="18" />
+                            </svg>
+                            <span>{{
+                                shuffle: "Sort",
+                                "name-asc": "A → Z",
+                                "name-desc": "Z → A",
+                                "release-asc": "Oldest",
+                                "release-desc": "Newest",
+                            }[sortBy]}</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                                <polyline points={sortOpen ? "18 15 12 9 6 15" : "6 9 12 15 18 9"} />
+                            </svg>
+                        </button>
+
+                        {sortOpen && (
+                            <div className="ytm-sort-dropdown">
+                                {[
+                                    {
+                                        id: "shuffle", label: "Shuffle", icon: (
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <polyline points="16 3 21 3 21 8" /><line x1="4" y1="20" x2="21" y2="3" />
+                                                <polyline points="21 16 21 21 16 21" /><line x1="15" y1="15" x2="21" y2="21" />
+                                            </svg>
+                                        )
+                                    },
+                                    {
+                                        id: "name-asc", label: "Name A → Z", icon: (
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <line x1="4" y1="6" x2="11" y2="6" /><line x1="4" y1="12" x2="11" y2="12" /><line x1="4" y1="18" x2="11" y2="18" />
+                                                <polyline points="15 18 18 21 21 18" /><line x1="18" y1="7" x2="18" y2="21" />
+                                            </svg>
+                                        )
+                                    },
+                                    {
+                                        id: "name-desc", label: "Name Z → A", icon: (
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <line x1="4" y1="6" x2="11" y2="6" /><line x1="4" y1="12" x2="11" y2="12" /><line x1="4" y1="18" x2="11" y2="18" />
+                                                <polyline points="15 7 18 4 21 7" /><line x1="18" y1="4" x2="18" y2="18" />
+                                            </svg>
+                                        )
+                                    },
+                                    {
+                                        id: "release-asc", label: "Oldest First", icon: (
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" />
+                                                <line x1="3" y1="10" x2="21" y2="10" /><polyline points="14 15 17 18 20 15" />
+                                            </svg>
+                                        )
+                                    },
+                                    {
+                                        id: "release-desc", label: "Newest First", icon: (
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" />
+                                                <line x1="3" y1="10" x2="21" y2="10" /><polyline points="14 18 17 15 20 18" />
+                                            </svg>
+                                        )
+                                    },
+                                ].map((opt) => (
+                                    <button
+                                        key={opt.id}
+                                        className={`ytm-sort-option${sortBy === opt.id ? " active" : ""}`}
+                                        onClick={() => { setSortBy(opt.id); setSortOpen(false); }}
+                                    >
+                                        <span className="ytm-sort-option-icon">{opt.icon}</span>
+                                        {opt.label}
+                                        {sortBy === opt.id && (
+                                            <svg className="ytm-sort-check" width="14" height="14" viewBox="0 0 24 24"
+                                                fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                                <polyline points="20 6 9 17 4 12" />
+                                            </svg>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 

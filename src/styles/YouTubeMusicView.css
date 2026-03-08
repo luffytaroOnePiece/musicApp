@@ -231,6 +231,102 @@
     transform: rotate(180deg);
 }
 
+/* ── Sort dropdown ───────────────────────────────── */
+.ytm-sort-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.ytm-sort-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 18px;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, border-color 0.18s;
+    flex-shrink: 0;
+}
+
+.ytm-sort-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.ytm-sort-btn.active {
+    background: rgba(var(--ytm-accent-rgb), 0.15);
+    border-color: rgba(var(--ytm-accent-rgb), 0.35);
+    color: var(--ytm-accent-light);
+}
+
+.ytm-sort-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 200px;
+    background: rgba(18, 18, 22, 0.98);
+    backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    z-index: 100;
+    animation: ytm-fade-in 0.15s ease;
+}
+
+.ytm-sort-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background 0.15s, color 0.15s;
+    text-align: left;
+}
+
+.ytm-sort-option:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.ytm-sort-option.active {
+    background: rgba(var(--ytm-accent-rgb), 0.12);
+    color: var(--ytm-accent-light);
+}
+
+.ytm-sort-option-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.ytm-sort-option.active .ytm-sort-option-icon {
+    opacity: 1;
+}
+
+.ytm-sort-check {
+    margin-left: auto;
+    color: var(--ytm-accent-mid);
+    flex-shrink: 0;
+}
+
 /* Filter row: FilterBar + Shuffle on same line */
 .ytm-filter-row {
     display: flex;
