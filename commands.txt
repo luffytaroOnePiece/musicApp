@@ -1,0 +1,3 @@
+npm run extract-ids
+npm run enrich-mix
+
