@@ -1226,6 +1226,27 @@
     font-size: 15px;
 }
 
+/* ── Recommended albums section ──────────────────── */
+.ytm-reco-section {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.ytm-reco-heading {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary, #fff);
+    margin: 0 0 16px;
+    letter-spacing: 0.2px;
+}
+
+.ytm-reco-scroll {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+}
+
 /* ── Movie Info tab ──────────────────────────────── */
 .ytm-info-section {
     display: flex;
