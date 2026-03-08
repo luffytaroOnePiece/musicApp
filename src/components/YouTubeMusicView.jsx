@@ -521,6 +521,40 @@ const TrackCard = React.memo(({ index, ytId, title, isCurrent, onAudio, onVideo 
 ));
 
 
+// ─── Compact List Row ─────────────────────────────────────────────────────────
+const TrackListRow = React.memo(({ index, ytId, title, isCurrent, onAudio, onVideo }) => (
+    <div className={`ytm-list-row${isCurrent ? " ytm-list-row--active" : ""}`}
+        onClick={() => onAudio({ id: ytId, title })}>
+        <div className="ytm-list-row-num">
+            {isCurrent ? (
+                <div className="ytm-list-row-bars"><span /><span /><span /></div>
+            ) : (
+                <span className="ytm-list-row-idx">{index + 1}</span>
+            )}
+        </div>
+        <img
+            src={`https://img.youtube.com/vi/${ytId}/default.jpg`}
+            alt={title}
+            className="ytm-list-row-thumb"
+            loading="lazy"
+        />
+        <span className={`ytm-list-row-title${isCurrent ? " active" : ""}`} title={title}>{title}</span>
+        <div className="ytm-list-row-actions">
+            <button className={`ytm-list-row-btn${isCurrent ? " active" : ""}`}
+                onClick={(e) => { e.stopPropagation(); onAudio({ id: ytId, title }); }}
+                title={isCurrent ? "Playing" : "Play"}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+            </button>
+            <button className="ytm-list-row-btn"
+                onClick={(e) => { e.stopPropagation(); onVideo({ id: ytId, title }); }}
+                title="Watch video">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+));
 
 // ─── Album Detail (mirrors AlbumDetail layout) ────────────────────────────────
 const YTAlbumDetail = ({ album, onBack }) => {
@@ -532,6 +566,7 @@ const YTAlbumDetail = ({ album, onBack }) => {
     const [videoTrack, setVideoTrack] = useState(null); // video modal
     const [localSearch, setLocalSearch] = useState("");
     const [viewMode, setViewMode] = useState("tracks"); // "tracks" | "live" | "info"
+    const [trackLayout, setTrackLayout] = useState("grid"); // "grid" | "list"
 
     const hasLive = liveIDs && liveIDs.length > 0;
     const [tmdbInfo, setTmdbInfo] = useState(null);
@@ -744,7 +779,7 @@ const YTAlbumDetail = ({ album, onBack }) => {
                 {/* ── Tracks view ── */}
                 {viewMode === "tracks" && (
                     <div className="ytm-tracks-section">
-                        {/* Search within album – mirrors AlbumTracks search bar */}
+                        {/* Search within album + layout toggle */}
                         <div className="ytm-tracks-toolbar">
                             <div className="ytm-track-search-wrap">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
@@ -759,23 +794,71 @@ const YTAlbumDetail = ({ album, onBack }) => {
                                     onChange={(e) => setLocalSearch(e.target.value)}
                                 />
                             </div>
+                            <div className="ytm-layout-toggle">
+                                <button
+                                    className={`ytm-layout-btn${trackLayout === "grid" ? " active" : ""}`}
+                                    onClick={() => setTrackLayout("grid")}
+                                    title="Grid view"
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="3" y="3" width="7" height="7" rx="1" />
+                                        <rect x="14" y="3" width="7" height="7" rx="1" />
+                                        <rect x="3" y="14" width="7" height="7" rx="1" />
+                                        <rect x="14" y="14" width="7" height="7" rx="1" />
+                                    </svg>
+                                </button>
+                                <button
+                                    className={`ytm-layout-btn${trackLayout === "list" ? " active" : ""}`}
+                                    onClick={() => setTrackLayout("list")}
+                                    title="List view"
+                                >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="8" y1="6" x2="21" y2="6" />
+                                        <line x1="8" y1="12" x2="21" y2="12" />
+                                        <line x1="8" y1="18" x2="21" y2="18" />
+                                        <line x1="3" y1="6" x2="3.01" y2="6" />
+                                        <line x1="3" y1="12" x2="3.01" y2="12" />
+                                        <line x1="3" y1="18" x2="3.01" y2="18" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
 
-                        <div className="ytm-tracks-grid">
-                            {filteredTracks.length === 0 ? (
-                                <p className="ytm-empty-msg">No songs found</p>
-                            ) : filteredTracks.map((t) => (
-                                <TrackCard
-                                    key={t.id}
-                                    index={t.index}
-                                    ytId={t.id}
-                                    title={t.title}
-                                    isCurrent={activeTrack?.id === t.id}
-                                    onAudio={handleAudio}
-                                    onVideo={handleVideo}
-                                />
-                            ))}
-                        </div>
+                        {trackLayout === "grid" ? (
+                            <div className="ytm-tracks-grid">
+                                {filteredTracks.length === 0 ? (
+                                    <p className="ytm-empty-msg">No songs found</p>
+                                ) : filteredTracks.map((t) => (
+                                    <TrackCard
+                                        key={t.id}
+                                        index={t.index}
+                                        ytId={t.id}
+                                        title={t.title}
+                                        isCurrent={activeTrack?.id === t.id}
+                                        onAudio={handleAudio}
+                                        onVideo={handleVideo}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="ytm-tracks-list">
+                                {filteredTracks.length === 0 ? (
+                                    <p className="ytm-empty-msg">No songs found</p>
+                                ) : filteredTracks.map((t) => (
+                                    <TrackListRow
+                                        key={t.id}
+                                        index={t.index}
+                                        ytId={t.id}
+                                        title={t.title}
+                                        isCurrent={activeTrack?.id === t.id}
+                                        onAudio={handleAudio}
+                                        onVideo={handleVideo}
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
 

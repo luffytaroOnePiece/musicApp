@@ -701,7 +701,183 @@
 
 .ytm-tracks-toolbar {
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+/* ── Layout toggle buttons ────────────────────────── */
+.ytm-layout-toggle {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 3px;
+}
+
+.ytm-layout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 30px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.ytm-layout-btn:hover {
+    color: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.ytm-layout-btn.active {
+    background: rgba(var(--ytm-accent-rgb), 0.18);
+    color: var(--ytm-accent-light);
+}
+
+/* ── Compact list view ────────────────────────────── */
+.ytm-tracks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ytm-list-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.ytm-list-row:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.ytm-list-row--active {
+    background: rgba(var(--ytm-accent-rgb), 0.1) !important;
+}
+
+.ytm-list-row-num {
+    width: 24px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ytm-list-row-idx {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.3);
+    font-variant-numeric: tabular-nums;
+}
+
+.ytm-list-row--active .ytm-list-row-idx {
+    color: var(--ytm-accent-mid);
+}
+
+/* Animated bars for active row */
+.ytm-list-row-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 14px;
+}
+
+.ytm-list-row-bars span {
+    display: block;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--ytm-accent-mid);
+    animation: ytm-bar-bounce 0.8s ease-in-out infinite;
+}
+
+.ytm-list-row-bars span:nth-child(1) {
+    height: 8px;
+    animation-delay: 0s;
+}
+
+.ytm-list-row-bars span:nth-child(2) {
+    height: 14px;
+    animation-delay: 0.15s;
+}
+
+.ytm-list-row-bars span:nth-child(3) {
+    height: 6px;
+    animation-delay: 0.3s;
+}
+
+.ytm-list-row-thumb {
+    width: 48px;
+    height: 36px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.ytm-list-row-title {
+    flex: 1;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.85);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ytm-list-row-title.active {
+    color: var(--ytm-accent-light);
+    font-weight: 600;
+}
+
+.ytm-list-row-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.ytm-list-row:hover .ytm-list-row-actions,
+.ytm-list-row--active .ytm-list-row-actions {
+    opacity: 1;
+}
+
+.ytm-list-row-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, transform 0.12s;
+}
+
+.ytm-list-row-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    transform: scale(1.08);
+}
+
+.ytm-list-row-btn.active {
+    background: rgba(var(--ytm-accent-rgb), 0.2);
+    color: var(--ytm-accent-light);
 }
 
 .ytm-track-search-wrap {
