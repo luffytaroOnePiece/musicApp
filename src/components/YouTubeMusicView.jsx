@@ -200,6 +200,10 @@ const YTEmbedPlayer = ({ track, tracks, onClose, onExpand, onSelectTrack, fullPl
     const playerRef = useRef(null);
     const containerRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(true);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const progressRef = useRef(null);
+    const isSeeking = useRef(false);
 
     const currentIdx = tracks ? tracks.findIndex(t => t.id === track?.id) : -1;
     const hasPrev = currentIdx > 0;
@@ -256,6 +260,26 @@ const YTEmbedPlayer = ({ track, tracks, onClose, onExpand, onSelectTrack, fullPl
         };
     }, [track?.id, fullPlayerOpen]);
 
+    // Poll current time & duration
+    useEffect(() => {
+        if (!track || fullPlayerOpen) return;
+        const interval = setInterval(() => {
+            if (playerRef.current && typeof playerRef.current.getCurrentTime === 'function' && !isSeeking.current) {
+                const ct = playerRef.current.getCurrentTime() || 0;
+                const dur = playerRef.current.getDuration() || 0;
+                setCurrentTime(ct);
+                setDuration(dur);
+            }
+        }, 500);
+        return () => clearInterval(interval);
+    }, [track?.id, fullPlayerOpen]);
+
+    // Reset times when track changes
+    useEffect(() => {
+        setCurrentTime(0);
+        setDuration(0);
+    }, [track?.id]);
+
     const togglePlay = () => {
         if (!playerRef.current) return;
         if (isPlaying) {
@@ -263,6 +287,23 @@ const YTEmbedPlayer = ({ track, tracks, onClose, onExpand, onSelectTrack, fullPl
         } else {
             playerRef.current.playVideo();
         }
+    };
+
+    const fmtTime = (s) => {
+        const m = Math.floor(s / 60);
+        const sec = Math.floor(s % 60);
+        return `${m}:${sec.toString().padStart(2, '0')}`;
+    };
+
+    const handleSeek = (e) => {
+        if (!playerRef.current || !duration) return;
+        const rect = progressRef.current.getBoundingClientRect();
+        const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        const seekTo = pct * duration;
+        isSeeking.current = true;
+        playerRef.current.seekTo(seekTo, true);
+        setCurrentTime(seekTo);
+        setTimeout(() => { isSeeking.current = false; }, 600);
     };
 
     if (!track) return null;
@@ -345,6 +386,28 @@ const YTEmbedPlayer = ({ track, tracks, onClose, onExpand, onSelectTrack, fullPl
                         <path d="M16 6h2v12h-2z" />
                     </svg>
                 </button>
+            </div>
+
+            {/* Progress bar */}
+            <div className="ytm-ep-progress-section">
+                <span className="ytm-ep-time">{fmtTime(currentTime)}</span>
+                <div
+                    className="ytm-ep-progress-bar"
+                    ref={progressRef}
+                    onClick={handleSeek}
+                >
+                    <div className="ytm-ep-progress-track">
+                        <div
+                            className="ytm-ep-progress-fill"
+                            style={{ width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }}
+                        />
+                        <div
+                            className="ytm-ep-progress-thumb"
+                            style={{ left: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }}
+                        />
+                    </div>
+                </div>
+                <span className="ytm-ep-time">{fmtTime(duration)}</span>
             </div>
 
             {/* Right: expand + close */}
