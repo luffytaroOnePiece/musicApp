@@ -1701,6 +1701,263 @@
     animation-delay: 0.3s;
 }
 
+/* ── Random 30 Frames Modal ─────────────────────── */
+.ytm-frames-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: ytm-fade-in 0.25s ease;
+}
+
+.ytm-frames-content {
+    position: relative;
+    background: rgba(16, 16, 20, 0.98);
+    border-radius: 20px;
+    overflow: hidden;
+    width: min(1200px, calc(100vw - 40px));
+    max-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 32px 100px rgba(0, 0, 0, 0.85),
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        0 0 60px rgba(var(--ytm-accent-rgb), 0.08);
+}
+
+.ytm-frames-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 22px;
+    background: rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
+}
+
+.ytm-frames-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ytm-accent-mid);
+    min-width: 0;
+    flex: 1;
+}
+
+.ytm-frames-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary, #fff);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ytm-frames-close {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 10px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.55);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.18s, color 0.18s, transform 0.15s;
+}
+
+.ytm-frames-close:hover {
+    background: rgba(255, 80, 80, 0.25);
+    color: var(--ytm-accent-light);
+    transform: scale(1.06);
+}
+
+/* Loading state */
+.ytm-frames-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 80px 20px;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.5));
+}
+
+.ytm-frames-loading p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.ytm-frames-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: var(--ytm-accent-mid);
+    border-radius: 50%;
+    animation: ytm-spin 0.8s linear infinite;
+}
+
+@keyframes ytm-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Grid of frames */
+.ytm-frames-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    padding: 18px;
+    overflow-y: auto;
+    max-height: calc(100vh - 140px);
+}
+
+.ytm-frames-grid::-webkit-scrollbar {
+    width: 5px;
+}
+
+.ytm-frames-grid::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+}
+
+/* Individual frame */
+.ytm-frame-item {
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
+}
+
+.ytm-frame-item:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(var(--ytm-accent-rgb), 0.12);
+    border-color: rgba(var(--ytm-accent-rgb), 0.3);
+}
+
+.ytm-frame-iframe-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    background: #000;
+}
+
+.ytm-frame-iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    pointer-events: none;
+}
+
+/* Transparent overlay to make frames non-interactive (clicks go to lightbox) */
+.ytm-frame-overlay {
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    z-index: 1;
+}
+
+.ytm-frame-timestamp {
+    display: block;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ytm-accent-mid);
+    padding: 5px 6px;
+    background: rgba(0, 0, 0, 0.6);
+    letter-spacing: 0.5px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Lightbox for enlarged frame */
+.ytm-frame-lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+    animation: ytm-fade-in 0.2s ease;
+}
+
+.ytm-frame-lightbox-inner {
+    position: relative;
+    width: min(900px, calc(100vw - 60px));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.ytm-frame-lightbox-close {
+    position: absolute;
+    top: -44px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 10px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.15s;
+}
+
+.ytm-frame-lightbox-close:hover {
+    background: rgba(var(--ytm-accent-rgb), 0.3);
+    transform: scale(1.06);
+}
+
+.ytm-frame-lightbox-iframe {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+}
+
+.ytm-frame-lightbox-ts {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ytm-accent-mid);
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+/* Frames button on track cards */
+.ytm-tc-btn--frames {
+    background: rgba(147, 51, 234, 0.12);
+    border-color: rgba(147, 51, 234, 0.25);
+    color: #c084fc;
+}
+
+.ytm-tc-btn--frames:hover {
+    background: rgba(147, 51, 234, 0.22);
+    border-color: rgba(147, 51, 234, 0.4);
+    color: #d8b4fe;
+}
+
 /* ── Responsive ─────────────────────────────────── */
 
 @media (max-width: 640px) {
@@ -1733,5 +1990,11 @@
 
     .ytm-ep-meta {
         display: none;
+    }
+
+    .ytm-frames-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding: 12px;
     }
 }
