@@ -16,7 +16,7 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import { getDetails, getImages, getImageUrl } from "../services/tmdbApi";
+import { getDetails, getImages, getImageUrl, getCredits } from "../services/tmdbApi";
 import movieYoutubeMapper from "../data/movieYoutubeMapper.json";
 import youtubeMixData from "../data/youtubeMixData.json";
 import "../styles/YouTubeMusicView.css";
@@ -753,6 +753,9 @@ const YTAlbumDetail = ({ album, onBack, allAlbums, onSelectAlbum }) => {
   const [loadingInfo, setLoadingInfo] = useState(false);
   const [lightbox, setLightbox] = useState(null);
   const [backdropUrl, setBackdropUrl] = useState(null);
+  const [musicCredits, setMusicCredits] = useState([]);
+  const [castCredits, setCastCredits] = useState([]);
+  const [crewByDept, setCrewByDept] = useState({});
 
   // Build tracks list
   const tracks = useMemo(
@@ -802,7 +805,7 @@ const YTAlbumDetail = ({ album, onBack, allAlbums, onSelectAlbum }) => {
 
   // Fetch TMDB info when switching to Info tab
   useEffect(() => {
-    if (viewMode !== "info" || tmdbInfo) return;
+    if ((viewMode !== "info" && viewMode !== "credits") || tmdbInfo) return;
     let mounted = true;
     const fetchInfo = async () => {
       setLoadingInfo(true);
@@ -815,11 +818,53 @@ const YTAlbumDetail = ({ album, onBack, allAlbums, onSelectAlbum }) => {
           setLoadingInfo(false);
         }
       } else if (!tmdbId.startsWith("prv-")) {
-        const details = await getDetails(tmdbId, "movie").catch(() => null);
-        const imgs = await getImages(tmdbId, "movie").catch(() => null);
+        const [details, imgs, credits] = await Promise.all([
+          getDetails(tmdbId, "movie").catch(() => null),
+          getImages(tmdbId, "movie").catch(() => null),
+          getCredits(tmdbId, "movie").catch(() => null),
+        ]);
         if (mounted) {
           setTmdbInfo(details);
           setTmdbImages([...(imgs?.backdrops || []), ...(imgs?.posters || [])]);
+          // Filter crew for Sound & Music departments
+          if (credits?.crew) {
+            const musicCrew = credits.crew.filter(
+              (c) =>
+                c.department === "Sound" ||
+                c.department === "Music" ||
+                c.known_for_department === "Sound" ||
+                c.job?.toLowerCase().includes("music") ||
+                c.job?.toLowerCase().includes("composer") ||
+                c.job?.toLowerCase().includes("singer") ||
+                c.job?.toLowerCase().includes("lyric") ||
+                c.job?.toLowerCase().includes("score"),
+            );
+            const seen = new Set();
+            const unique = musicCrew.filter((c) => {
+              const key = `${c.id}-${c.job}`;
+              if (seen.has(key)) return false;
+              seen.add(key);
+              return true;
+            });
+            setMusicCredits(unique);
+
+            // Group ALL crew by department (deduplicated)
+            const deptMap = {};
+            const seenAll = new Set();
+            credits.crew.forEach((c) => {
+              const key = `${c.id}-${c.job}`;
+              if (seenAll.has(key)) return;
+              seenAll.add(key);
+              const dept = c.department || "Other";
+              if (!deptMap[dept]) deptMap[dept] = [];
+              deptMap[dept].push(c);
+            });
+            setCrewByDept(deptMap);
+          }
+          // Top cast
+          if (credits?.cast) {
+            setCastCredits(credits.cast.slice(0, 12));
+          }
           setLoadingInfo(false);
         }
       } else {
@@ -1019,7 +1064,7 @@ const YTAlbumDetail = ({ album, onBack, allAlbums, onSelectAlbum }) => {
 
           {/* View mode tabs — mirrors AlbumHeader tabs */}
           <div className="ytm-view-tabs">
-            {["tracks", ...(hasLive ? ["live"] : []), "info"].map((m) => (
+            {["tracks", ...(hasLive ? ["live"] : []), "info", ...(!isPrivate ? ["credits"] : [])].map((m) => (
               <button
                 key={m}
                 className={`ytm-tab${viewMode === m ? " active" : ""}`}
@@ -1029,9 +1074,9 @@ const YTAlbumDetail = ({ album, onBack, allAlbums, onSelectAlbum }) => {
                   ? "Songs"
                   : m === "live"
                     ? `Live (${liveTracks.length})`
-                    : isPrivate
-                      ? "Artist Info"
-                      : "Movie Info"}
+                    : m === "info"
+                      ? (isPrivate ? "Artist Info" : "Movie Info")
+                      : "Credits"}
               </button>
             ))}
           </div>
@@ -1251,6 +1296,118 @@ const YTAlbumDetail = ({ album, onBack, allAlbums, onSelectAlbum }) => {
           </div>
         )}
 
+
+        {/* ── TMDB Credits view ── */}
+        {viewMode === "credits" && !isPrivate && (
+          <div className="ytm-info-section">
+            {loadingInfo ? (
+              <div className="ytm-loading">Loading credits…</div>
+            ) : tmdbInfo ? (
+              <div className="ytm-tmdb-content">
+                {/* Cast */}
+                {!isPrivate && castCredits.length > 0 && (
+                  <div className="ytm-music-credits">
+                    <h4 className="ytm-credits-heading">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                      </svg>
+                      Cast
+                    </h4>
+                    <div className="ytm-credits-grid">
+                      {castCredits.map((person) => (
+                        <div key={`cast-${person.id}-${person.character}`} className="ytm-credit-card">
+                          {person.profile_path ? (
+                            <img
+                              src={getImageUrl(person.profile_path, "w185")}
+                              alt={person.name}
+                              className="ytm-credit-photo"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="ytm-credit-photo-fallback">
+                              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" strokeWidth="1.5">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                              </svg>
+                            </div>
+                          )}
+                          <div className="ytm-credit-info">
+                            <span className="ytm-credit-name">{person.name}</span>
+                            <span className="ytm-credit-job">{person.character || "Actor"}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {/* Crew by department */}
+                {!isPrivate && Object.keys(crewByDept).length > 0 && (() => {
+                  const deptOrder = ["Directing", "Writing", "Music", "Sound", "Production", "Camera", "Editing", "Art", "Costume & Make-Up", "Visual Effects", "Lighting", "Crew"];
+                  const sortedDepts = Object.keys(crewByDept).sort((a, b) => {
+                    const ia = deptOrder.indexOf(a);
+                    const ib = deptOrder.indexOf(b);
+                    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+                  });
+                  const deptIcons = {
+                    Directing: <><path d="M15.6 11.6L22 7v10l-6.4-4.6" /><rect x="2" y="7" width="14" height="10" rx="2" /></>,
+                    Writing: <><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></>,
+                    Music: <><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></>,
+                    Sound: <><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></>,
+                    Production: <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></>,
+                    Camera: <><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></>,
+                    Editing: <><circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M13 6h3a2 2 0 0 1 2 2v7" /><path d="M11 18H8a2 2 0 0 1-2-2V9" /></>,
+                    Art: <><path d="M12 19l7-7 3 3-7 7-3-3z" /><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" /><path d="M2 2l7.586 7.586" /><circle cx="11" cy="11" r="2" /></>,
+                  };
+                  return sortedDepts.map((dept) => (
+                    <div key={dept} className="ytm-music-credits">
+                      <h4 className="ytm-credits-heading">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          {deptIcons[dept] || <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></>}
+                        </svg>
+                        {dept}
+                      </h4>
+                      <div className="ytm-credits-grid">
+                        {crewByDept[dept].map((person) => (
+                          <div key={`${person.id}-${person.job}`} className="ytm-credit-card">
+                            {person.profile_path ? (
+                              <img
+                                src={getImageUrl(person.profile_path, "w185")}
+                                alt={person.name}
+                                className="ytm-credit-photo"
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className="ytm-credit-photo-fallback">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                                  stroke="currentColor" strokeWidth="1.5">
+                                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                  <circle cx="12" cy="7" r="4" />
+                                </svg>
+                              </div>
+                            )}
+                            <div className="ytm-credit-info">
+                              <span className="ytm-credit-name">{person.name}</span>
+                              <span className="ytm-credit-job">{person.job}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ));
+                })()}
+              </div>
+            ) : (
+              <p className="ytm-empty-msg">No credits found.</p>
+            )}
+          </div>
+        )}
+
         {/* ── Recommended albums ── */}
         {recommendations.length > 0 && (
           <div className="ytm-reco-section">
@@ -1394,11 +1551,11 @@ const YouTubeMusicView = () => {
             const hit = results.find((r) => r.tmdbId === a.tmdbId);
             return hit
               ? {
-                  ...a,
-                  posterUrl: hit.posterUrl,
-                  releaseDate: hit.releaseDate,
-                  loading: false,
-                }
+                ...a,
+                posterUrl: hit.posterUrl,
+                releaseDate: hit.releaseDate,
+                loading: false,
+              }
               : a;
           }),
         );
