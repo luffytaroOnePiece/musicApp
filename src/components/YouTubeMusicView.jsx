@@ -406,172 +406,8 @@ const YTVideoModal = ({ track, onClose }) => {
     );
 };
 
-// ─── Random 30 Frames Modal ───────────────────────────────────────────────────
-const YTFramesModal = ({ track, onClose }) => {
-    const [frames, setFrames] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [duration, setDuration] = useState(null);
-    const [lightboxFrame, setLightboxFrame] = useState(null);
-    const playerDivRef = useRef(null);
-    const playerInstanceRef = useRef(null);
-
-    // Escape to close
-    useEffect(() => {
-        const fn = (e) => { if (e.key === "Escape") { if (lightboxFrame) setLightboxFrame(null); else onClose(); } };
-        window.addEventListener("keydown", fn);
-        return () => window.removeEventListener("keydown", fn);
-    }, [onClose, lightboxFrame]);
-
-    // Use YT IFrame API to get video duration, then generate random timestamps
-    useEffect(() => {
-        if (!track) return;
-        let cancelled = false;
-
-        const init = () => {
-            if (playerInstanceRef.current) {
-                playerInstanceRef.current.destroy();
-                playerInstanceRef.current = null;
-            }
-            if (!playerDivRef.current) return;
-
-            playerInstanceRef.current = new window.YT.Player(playerDivRef.current, {
-                height: '1',
-                width: '1',
-                videoId: track.id,
-                playerVars: { autoplay: 0, controls: 0 },
-                events: {
-                    onReady: (e) => {
-                        if (cancelled) return;
-                        const dur = e.target.getDuration();
-                        if (dur && dur > 0) {
-                            setDuration(dur);
-                            // Generate 30 unique random timestamps
-                            const timestamps = new Set();
-                            while (timestamps.size < 30) {
-                                timestamps.add(Math.floor(Math.random() * dur));
-                            }
-                            const sorted = Array.from(timestamps).sort((a, b) => a - b);
-                            setFrames(sorted);
-                            setLoading(false);
-                        } else {
-                            // Fallback: generate frames assuming ~3min video
-                            const fallbackDur = 180;
-                            const timestamps = new Set();
-                            while (timestamps.size < 30) {
-                                timestamps.add(Math.floor(Math.random() * fallbackDur));
-                            }
-                            setFrames(Array.from(timestamps).sort((a, b) => a - b));
-                            setLoading(false);
-                        }
-                        // Destroy hidden player after getting duration
-                        e.target.destroy();
-                        playerInstanceRef.current = null;
-                    },
-                },
-            });
-        };
-
-        onYTReady(init);
-
-        return () => {
-            cancelled = true;
-            if (playerInstanceRef.current) {
-                playerInstanceRef.current.destroy();
-                playerInstanceRef.current = null;
-            }
-        };
-    }, [track?.id]);
-
-    const formatTimestamp = (s) => {
-        const m = Math.floor(s / 60);
-        const sec = s % 60;
-        return `${m}:${sec.toString().padStart(2, '0')}`;
-    };
-
-    if (!track) return null;
-
-    return (
-        <div className="ytm-frames-overlay" onClick={onClose}>
-            <div className="ytm-frames-content" onClick={(e) => e.stopPropagation()}>
-                <div className="ytm-frames-header">
-                    <div className="ytm-frames-title-wrap">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zm-6-1l5-4-5-4v3H9v2h5v3z" />
-                        </svg>
-                        <span className="ytm-frames-title" title={track.title}>
-                            30 Random Frames — {track.title}
-                        </span>
-                    </div>
-                    <button className="ytm-frames-close" onClick={onClose}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" strokeWidth="2.5">
-                            <line x1="18" y1="6" x2="6" y2="18" />
-                            <line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
-                    </button>
-                </div>
-
-                {loading ? (
-                    <div className="ytm-frames-loading">
-                        <div className="ytm-frames-spinner" />
-                        <p>Analyzing video…</p>
-                    </div>
-                ) : (
-                    <div className="ytm-frames-grid">
-                        {frames.map((ts, i) => (
-                            <div key={i} className="ytm-frame-item" onClick={() => setLightboxFrame(ts)}>
-                                <div className="ytm-frame-iframe-wrap">
-                                    <iframe
-                                        src={`https://www.youtube.com/embed/${track.id}?start=${ts}&end=${ts + 2}&autoplay=0&controls=0&showinfo=0&rel=0&modestbranding=1&mute=1&loop=0`}
-                                        title={`Frame at ${formatTimestamp(ts)}`}
-                                        frameBorder="0"
-                                        loading="lazy"
-                                        className="ytm-frame-iframe"
-                                        sandbox="allow-scripts allow-same-origin"
-                                    />
-                                    <div className="ytm-frame-overlay" />
-                                </div>
-                                <span className="ytm-frame-timestamp">{formatTimestamp(ts)}</span>
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {/* Hidden player div for getting duration */}
-                <div style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}>
-                    <div ref={playerDivRef} />
-                </div>
-
-                {/* Lightbox for enlarged frame */}
-                {lightboxFrame !== null && (
-                    <div className="ytm-frame-lightbox" onClick={() => setLightboxFrame(null)}>
-                        <div className="ytm-frame-lightbox-inner" onClick={(e) => e.stopPropagation()}>
-                            <button className="ytm-frame-lightbox-close" onClick={() => setLightboxFrame(null)}>
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" strokeWidth="2.5">
-                                    <line x1="18" y1="6" x2="6" y2="18" />
-                                    <line x1="6" y1="6" x2="18" y2="18" />
-                                </svg>
-                            </button>
-                            <iframe
-                                src={`https://www.youtube.com/embed/${track.id}?start=${lightboxFrame}&autoplay=0&controls=1&rel=0&modestbranding=1`}
-                                title={`Frame at ${formatTimestamp(lightboxFrame)}`}
-                                frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                                className="ytm-frame-lightbox-iframe"
-                            />
-                            <p className="ytm-frame-lightbox-ts">Timestamp: {formatTimestamp(lightboxFrame)}</p>
-                        </div>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-};
-
 // ─── Track Row (mirrors AlbumTracks row style) ────────────────────────────────
-const TrackCard = React.memo(({ index, ytId, title, isCurrent, onAudio, onVideo, onFrames }) => (
+const TrackCard = React.memo(({ index, ytId, title, isCurrent, onAudio, onVideo }) => (
     <div className={`ytm-track-card${isCurrent ? " ytm-track-card--active" : ""}`}>
         {/* Thumbnail */}
         <div className="ytm-tc-thumb-wrap" onClick={() => onAudio({ id: ytId, title })}>
@@ -616,13 +452,6 @@ const TrackCard = React.memo(({ index, ytId, title, isCurrent, onAudio, onVideo,
                     </svg>
                     Video
                 </button>
-                <button className="ytm-tc-btn ytm-tc-btn--frames"
-                    onClick={() => onFrames({ id: ytId, title })}>
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zm-6-1l5-4-5-4v3H9v2h5v3z" />
-                    </svg>
-                    Frames
-                </button>
             </div>
         </div>
     </div>
@@ -638,7 +467,6 @@ const YTAlbumDetail = ({ album, onBack }) => {
     const [activeTrack, setActiveTrack] = useState(null); // audio player
     const [fullPlayerOpen, setFullPlayerOpen] = useState(false); // full-screen player
     const [videoTrack, setVideoTrack] = useState(null); // video modal
-    const [framesTrack, setFramesTrack] = useState(null); // frames modal
     const [localSearch, setLocalSearch] = useState("");
     const [viewMode, setViewMode] = useState("tracks"); // "tracks" | "live" | "info"
 
@@ -724,8 +552,6 @@ const YTAlbumDetail = ({ album, onBack }) => {
         setActiveTrack({ ...t, albumName: name }), [name]);
     const handleVideo = useCallback((t) =>
         setVideoTrack(t), []);
-    const handleFrames = useCallback((t) =>
-        setFramesTrack(t), []);
 
     /* ── render ── */
     return (
@@ -755,11 +581,6 @@ const YTAlbumDetail = ({ album, onBack }) => {
             {/* Video modal */}
             {videoTrack && (
                 <YTVideoModal track={videoTrack} onClose={() => setVideoTrack(null)} />
-            )}
-
-            {/* Frames modal */}
-            {framesTrack && (
-                <YTFramesModal track={framesTrack} onClose={() => setFramesTrack(null)} />
             )}
 
             <div className="ytm-detail-content">
@@ -889,7 +710,6 @@ const YTAlbumDetail = ({ album, onBack }) => {
                                     isCurrent={activeTrack?.id === t.id}
                                     onAudio={handleAudio}
                                     onVideo={handleVideo}
-                                    onFrames={handleFrames}
                                 />
                             ))}
                         </div>
@@ -912,7 +732,6 @@ const YTAlbumDetail = ({ album, onBack }) => {
                                         isCurrent={activeTrack?.id === t.id}
                                         onAudio={handleAudio}
                                         onVideo={handleVideo}
-                                        onFrames={handleFrames}
                                     />
                                 ))}
                             </div>
