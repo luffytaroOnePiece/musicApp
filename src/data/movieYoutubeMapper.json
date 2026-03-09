@@ -30,6 +30,16 @@
       }
     ]
   },
+  "292139": {
+    "name": "Power",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "6t7F0nkzqx1Q24a6u8L0jc",
+    "youtubeIDs": [
+      "KvqGVzobpxI",
+      "7X3lMc7WUy4"
+    ]
+  },
   "316900": {
     "name": "Roy",
     "language": "Hindi",
@@ -38,6 +48,16 @@
     "youtubeIDs": [
       "nJZcbidTutE",
       "2aXIfrt7ye0"
+    ]
+  },
+  "365187": {
+    "name": "Nannaku Prematho",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "58QPvCiy9PjyJeIoqEvHlD",
+    "youtubeIDs": [
+      "JOAJoe38rXo",
+      "P0twhKgZXnI"
     ]
   },
   "374954": {
@@ -122,6 +142,18 @@
       "e_PhAbB0rkQ"
     ]
   },
+  "784696": {
+    "name": "Sarkaru Vaari Paata",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "0reyMF4rcaMjoLJF2CmnjQ",
+    "youtubeIDs": [
+      "lcfcTbEppQM",
+      "Aopz1VusvRU",
+      "EqyKcZibh-Y",
+      "VtQZEFOP1Cs"
+    ]
+  },
   "811941": {
     "name": "Devara Part 1",
     "language": "Telugu",
@@ -132,6 +164,15 @@
       "-FMIo-OYo68",
       "CKpbdCciELk",
       "A3ws4jpMf0A"
+    ]
+  },
+  "858067": {
+    "name": "Thiruchitrambalam",
+    "language": "Tamil",
+    "type": "Movie",
+    "spotifyID": "5umLRBB1iYRFC73vX1OVmj",
+    "youtubeIDs": [
+      "cEWwJxEq9Lg"
     ]
   },
   "872906": {
@@ -155,6 +196,15 @@
       "hLXWkFKY4XI"
     ]
   },
+  "1032627": {
+    "name": "Love Today",
+    "language": "Tamil",
+    "type": "Movie",
+    "spotifyID": "3OII5hoPhljHRm5V2xr50I",
+    "youtubeIDs": [
+      "TYpEpuP3-E8"
+    ]
+  },
   "1080365": {
     "name": "OG",
     "language": "Telugu",
@@ -175,6 +225,15 @@
     "spotifyID": "2qyn4gz94ZYuEZUPWxPupI",
     "youtubeIDs": [
       "gYHVddokkd0"
+    ]
+  },
+  "1209511": {
+    "name": "Love Insurance Kompany",
+    "language": "Tamil",
+    "type": "Movie",
+    "spotifyID": "38SUvcNAxuETLWbKmT4G9W",
+    "youtubeIDs": [
+      "H1frBzuWqqM"
     ]
   },
   "1226354": {
@@ -200,6 +259,15 @@
       "06WW1v6oJMw"
     ]
   },
+  "1273049": {
+    "name": "Return of The Dragon",
+    "language": "Tamil",
+    "type": "Movie",
+    "spotifyID": "58yg6CueoE1HIT9xKt3Lh1",
+    "youtubeIDs": [
+      "m-RiOAOfCGs"
+    ]
+  },
   "1291608": {
     "name": "Dhurandhar",
     "language": "Hindi",
@@ -222,6 +290,24 @@
       "reySvnsz-tk"
     ]
   },
+  "1321108": {
+    "name": "Dude",
+    "language": "Tamil",
+    "type": "Movie",
+    "spotifyID": "7vgkF7DqSeS9zfxMCQlMH0",
+    "youtubeIDs": [
+      "4Bsc2uI_LsM"
+    ]
+  },
+  "1407432": {
+    "name": "Anaganaga Oka Raju",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "0WIiyaQOvWSUKqem81zybE",
+    "youtubeIDs": [
+      "45h_xXANqtQ"
+    ]
+  },
   "1407437": {
     "name": "Andhra King Taluka",
     "language": "Telugu",
@@ -232,6 +318,34 @@
       "W8nny8Vm81s"
     ]
   },
+  "1439713": {
+    "name": "Mana ShankaraVaraPrasad Garu",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "5Byv34zdV5YbQFYUiQ9w7b",
+    "youtubeIDs": [
+      "F-KfKbCDBIk",
+      "1_JNUlsEQEE"
+    ]
+  },
+  "1442975": {
+    "name": "Bhartha Mahasayulaku Wignyapthi",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "3wbzRBcgqsiG99uOkxFs6B",
+    "youtubeIDs": [
+      "LHCbyu_gs2I"
+    ]
+  },
+  "1448170": {
+    "name": "Champion",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "4GygK5cNrv23bEBeg85oPt",
+    "youtubeIDs": [
+      "7Z5abg_C2dU"
+    ]
+  },
   "858082-2": {
     "name": "Ponniyin Selvan",
     "language": "Tamil",
@@ -239,6 +353,38 @@
     "spotifyID": "2iVmFaIo6Da89Zk2HwcHMt",
     "youtubeIDs": [
       "0aavCtXiiX4"
+    ]
+  },
+  "370817-2": {
+    "name": "Kick 2",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "5fJowCQvh2clkfXinhKmmK",
+    "youtubeIDs": [
+      "4IA_sptpYtY"
+    ]
+  },
+  "587412-chapter-2": {
+    "name": "KGF 2",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "2PnWeohb0Gq4GH70xm8QbW",
+    "youtubeIDs": [
+      "_C1D77ogkGY",
+      "5QDiKZA-wdI",
+      "ebMMTDFKBIg",
+      "PikKs62zE-A"
+    ]
+  },
+  "363152-bengal-tiger": {
+    "name": "Bengal Tiger",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "0wwpFVAkBtzX43TUYNkpWu",
+    "youtubeIDs": [
+      "ozYHoMDRoXQ",
+      "WKhx4g2kdCs",
+      "vP8cFd2BTfY"
     ]
   },
   "prv-4oY76bDskuYQjuYjztCWFC": {

@@ -1,3 +1,4 @@
 npm run extract-ids
 npm run enrich-mix
+node scripts/generateMovieYoutubeMapper.js
 
