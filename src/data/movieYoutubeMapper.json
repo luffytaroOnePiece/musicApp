@@ -1,4 +1,28 @@
 {
+  "101736": {
+    "name": "Jai Lava Kusa",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "3Pkbd5dey0C6Uf8sIRLC1n",
+    "youtubeIDs": [
+      "e0rnjOTTiQI",
+      "f8fgCIza8G0",
+      "Vo_OnvjRQHE"
+    ]
+  },
+  "176590": {
+    "name": "Mirchi",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "3alq3kIDFmt2HBth9fCAwA",
+    "youtubeIDs": [
+      "fS8BwujG-QY",
+      "YtGhGXLMHw0",
+      "N28E3F9ZW0k",
+      "mMKMJk8XdHc",
+      "ppWFbBjamCE"
+    ]
+  },
   "182954": {
     "name": "Nayak",
     "language": "Telugu",
@@ -40,6 +64,16 @@
       "7X3lMc7WUy4"
     ]
   },
+  "294413": {
+    "name": "Aagadu",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "4dmJG26vjaKI4kiabquYnw",
+    "youtubeIDs": [
+      "X-qRK88m18I",
+      "arZ2uTxmv2w"
+    ]
+  },
   "316900": {
     "name": "Roy",
     "language": "Hindi",
@@ -60,6 +94,15 @@
       "P0twhKgZXnI"
     ]
   },
+  "369925": {
+    "name": "Oopiri",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "45Wfe4rQIV7AsjjV50dPIL",
+    "youtubeIDs": [
+      "iyIHp_HjGSg"
+    ]
+  },
   "374954": {
     "name": "Sarrainodu",
     "language": "Telugu",
@@ -72,6 +115,27 @@
       "NI6GO-4_fjs",
       "qaU03QRrcPs",
       "KOwrZddjoKI"
+    ]
+  },
+  "405924": {
+    "name": "Janatha Garage",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "4PWtM3JsMSBRUfe4cJtNWC",
+    "youtubeIDs": [
+      "3-KiPzrZJ1A",
+      "_trhJirf5lM",
+      "uIhizUvC5-8",
+      "HQdozGgKYWY"
+    ]
+  },
+  "413882": {
+    "name": "Ok Jaanu",
+    "language": "Hindi",
+    "type": "Movie",
+    "spotifyID": "39daVFknNs5bXGu0xMOf5t",
+    "youtubeIDs": [
+      "sXoCRkfVRXA"
     ]
   },
   "454292": {
@@ -118,6 +182,16 @@
       "U5wnnQ7X3qw"
     ]
   },
+  "609108": {
+    "name": "iSmart Shankar",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "0FPA6bL8gRMVqptQl6pZwd",
+    "youtubeIDs": [
+      "C-Cf0ZWdyEE",
+      "V5c4BnmPTpU"
+    ]
+  },
   "628241": {
     "name": "Ala Vaikunthapurramuloo",
     "language": "Telugu",
@@ -131,6 +205,27 @@
       "gdt-yIgm2zc"
     ]
   },
+  "653221": {
+    "name": "Hridayam",
+    "language": "Malayalam",
+    "type": "Movie",
+    "spotifyID": "6adzF69hcrfPmzcvm3bePb",
+    "youtubeIDs": [
+      "epAFDEJImrU",
+      "N_zXtXla2-c",
+      "lZL2K3ewRYM",
+      "xyUxkUPe2xg"
+    ]
+  },
+  "663457": {
+    "name": "Govinda Naam Mera",
+    "language": "Hindi",
+    "type": "Movie",
+    "spotifyID": "7nOrPv3HTumz3ZLB3OSax2",
+    "youtubeIDs": [
+      "qZQPQ1MfupQ"
+    ]
+  },
   "673392": {
     "name": "Radhe Shyam",
     "language": "Telugu",
@@ -140,6 +235,35 @@
       "BxFMF2LaKu0",
       "YWL-iH2jLno",
       "e_PhAbB0rkQ"
+    ]
+  },
+  "679919": {
+    "name": "Acharya",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "0w5qzADEBVW1Q0cTLOnyNR",
+    "youtubeIDs": [
+      "6VTb1aiN2CE",
+      "wTxu9v9X1fA"
+    ]
+  },
+  "694103": {
+    "name": "Roohi",
+    "language": "Hindi",
+    "type": "Movie",
+    "spotifyID": "3Clxf1E30lg9vse3tzaqvT",
+    "youtubeIDs": [
+      "t928rdRYYnU"
+    ]
+  },
+  "784572": {
+    "name": "Krack",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "1Ezkr8BeR5zQr6WcmjoJ1R",
+    "youtubeIDs": [
+      "emVUFz_KSI8",
+      "t-UXozzpGRg"
     ]
   },
   "784696": {
@@ -152,6 +276,26 @@
       "Aopz1VusvRU",
       "EqyKcZibh-Y",
       "VtQZEFOP1Cs"
+    ]
+  },
+  "794961": {
+    "name": "Akhanda",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "19bAyyQEKkqq5mJViD78O8",
+    "youtubeIDs": [
+      "ENvdFUJz6cE"
+    ]
+  },
+  "799676": {
+    "name": "Shyam Singha Roy",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "3i2kXXh2yxKZTCjEjNcrsY",
+    "youtubeIDs": [
+      "8Zdacu05gq4",
+      "n4zjueDXYsE",
+      "hovezwINQMo"
     ]
   },
   "811941": {
@@ -184,6 +328,34 @@
       "dfLH_3QXpp4"
     ]
   },
+  "888234": {
+    "name": "Dhamaka",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "6XOeIIdAT2YLzumZ35D31W",
+    "youtubeIDs": [
+      "KlJoT-kv-Ww",
+      "EgnaDC_xrRM"
+    ]
+  },
+  "896669": {
+    "name": "Veera Simha Reddy",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "3h1cxJl7ZuGWGRK9c11hZw",
+    "youtubeIDs": [
+      "wcC7_pkel5A"
+    ]
+  },
+  "989017": {
+    "name": "Waltair Veerayya",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "0H7X7qm12TN2NgDzWhLXj2",
+    "youtubeIDs": [
+      "xhZX7QNmF4U"
+    ]
+  },
   "1022453": {
     "name": "The RajaSaab",
     "language": "Telugu",
@@ -205,6 +377,24 @@
       "TYpEpuP3-E8"
     ]
   },
+  "1043665": {
+    "name": "Das Ka Dhamki",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "7oaEarzQC9RP1Ss10aCmPg",
+    "youtubeIDs": [
+      "B3UcypzegHc"
+    ]
+  },
+  "1057265": {
+    "name": "Peddi",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "5JFPFW6HmKkh5qey39eOGs",
+    "youtubeIDs": [
+      "vVDp1ulBKIk"
+    ]
+  },
   "1080365": {
     "name": "OG",
     "language": "Telugu",
@@ -218,6 +408,24 @@
       "YxG_u2nJ8Ik"
     ]
   },
+  "1120762": {
+    "name": "Robinhood",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "60Xwc4jDV6NYGLt3LmoNeu",
+    "youtubeIDs": [
+      "rlMtaSs7wfs"
+    ]
+  },
+  "1127824": {
+    "name": "Double ISmart",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "6gAzMQcmpVdqSoazr1fxSQ",
+    "youtubeIDs": [
+      "6poeERInxRE"
+    ]
+  },
   "1163194": {
     "name": "Laapataa Ladies",
     "language": "Hindi",
@@ -225,6 +433,25 @@
     "spotifyID": "2qyn4gz94ZYuEZUPWxPupI",
     "youtubeIDs": [
       "gYHVddokkd0"
+    ]
+  },
+  "1171693": {
+    "name": "Gangs of Godavari",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "2i37EBXDgWeYuXchVP8xzQ",
+    "youtubeIDs": [
+      "KPufjoSP3sw",
+      "VzvqVR0NqRY"
+    ]
+  },
+  "1202235": {
+    "name": "Daaku Maharaaj",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "4XCHyDvbmuMXlb6yigSQ6Z",
+    "youtubeIDs": [
+      "UYcQn_W71vw"
     ]
   },
   "1209511": {
@@ -299,6 +526,15 @@
       "4Bsc2uI_LsM"
     ]
   },
+  "1403735": {
+    "name": "Laila",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "01n667h95m8mMboxl8aoK7",
+    "youtubeIDs": [
+      "JmZN6_gvm5g"
+    ]
+  },
   "1407432": {
     "name": "Anaganaga Oka Raju",
     "language": "Telugu",
@@ -316,6 +552,15 @@
     "youtubeIDs": [
       "iBpSuQTJdaU",
       "W8nny8Vm81s"
+    ]
+  },
+  "1407523": {
+    "name": "Tu Meri Main Tera Main Tera Tu Meri",
+    "language": "Hindi",
+    "type": "Movie",
+    "spotifyID": "475rItHedXCYYAzLwz2D0j",
+    "youtubeIDs": [
+      "Q7e0MfG07T4"
     ]
   },
   "1439713": {
@@ -385,6 +630,152 @@
       "ozYHoMDRoXQ",
       "WKhx4g2kdCs",
       "vP8cFd2BTfY"
+    ]
+  },
+  "412326-150": {
+    "name": "Khaidi No 150",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "3fMlPXqaCRLMZALB9diA7u",
+    "youtubeIDs": [
+      "fbi6OGUW5qM",
+      "bwW_qTwXEIs",
+      "pSH5Ar8t9PQ",
+      "I-mjQ9J1R4g"
+    ]
+  },
+  "681435-red": {
+    "name": "Red",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "3G9bLuiSyNmnO3kxNh2g1H",
+    "youtubeIDs": [
+      "apfSvhnmJNk"
+    ]
+  },
+  "801505-varudu-kaavalenu": {
+    "name": "Varudu Kaavalenu",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "7rRuYYmknNKeoystQ8UJwN",
+    "youtubeIDs": [
+      "XGNqfBUgog0"
+    ]
+  },
+  "1372588-2": {
+    "name": "Akhanda 2",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "3607KXYPoJFxtcA83HQJ9m",
+    "youtubeIDs": [
+      "UY8LtHLvOY8"
+    ]
+  },
+  "891010-macherla-niyojakavargam": {
+    "name": "Macherla Niyojakavargam",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "4l0ldCaCwAAhhdQyALjemd",
+    "youtubeIDs": [
+      "by4USgMmICE"
+    ]
+  },
+  "857598-2-the-rule": {
+    "name": "Pushpa 2",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "4JvWjSf289z35LsIMV8j02",
+    "youtubeIDs": [
+      "0XHfa80NKfA",
+      "LZXJUE9OH_0",
+      "gXNyyKDhIo8"
+    ]
+  },
+  "690957-the-rise": {
+    "name": "Pushpa 1",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "5VApBAFMnmemoZ4e1Fb5hf",
+    "youtubeIDs": [
+      "u_wB6byrl5k",
+      "txHO7PLGE3o"
+    ]
+  },
+  "1359490-mad": {
+    "name": "Mad Square",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "5LjeccOA8Umj5pJn0rIpTQ",
+    "youtubeIDs": [
+      "-vr0Ir5PMww"
+    ]
+  },
+  "249772-1": {
+    "name": "One Nenokkadine",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "1Cqv2yPlXQiksAjCdCV3wY",
+    "youtubeIDs": [
+      "hcGRjiKXlpw",
+      "E6g6VVX5in0",
+      "qINq-ReJeMg",
+      "q5sxzHWvkqk",
+      "clSpuVAX-U0"
+    ]
+  },
+  "460699-nene-raju-nene-mantri": {
+    "name": "Nene Raju Nene Mantri",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "0jXlOYgTapFLmyK7dHN45R",
+    "youtubeIDs": [
+      "sQofIa319rY"
+    ]
+  },
+  "850161-on-duty": {
+    "name": "Ramarao On Duty",
+    "language": "Telugu",
+    "type": "Movie",
+    "spotifyID": "5v3ga5YeYUoIU36JW9FFxY",
+    "youtubeIDs": [
+      "AzhV-ag8UJ8"
+    ]
+  },
+  "1290190-chapter-1": {
+    "name": "Lokah Chapter 1: Chandra",
+    "language": "Malayalam",
+    "type": "Movie",
+    "spotifyID": "3NO7JStLp3nEqOpXjAkmjM",
+    "youtubeIDs": [
+      "Y23dN3JZrcE",
+      "dR9B_gPxjkk"
+    ]
+  },
+  "260266-ragini-mms-2": {
+    "name": "Ragini MMS 2",
+    "language": "Hindi",
+    "type": "Movie",
+    "spotifyID": "0QSUkv63MJh9sJ8jrV17Vx",
+    "youtubeIDs": [
+      "U-o5jaxPL-M"
+    ]
+  },
+  "644712-street-dancer-3d": {
+    "name": "Street Dancer 3D",
+    "language": "Hindi",
+    "type": "Movie",
+    "spotifyID": "5xY0ZjrI1MQtYvIVMlpjKN",
+    "youtubeIDs": [
+      "EAJtIrDke3o"
+    ]
+  },
+  "1045931-crew": {
+    "name": "Crew",
+    "language": "Hindi",
+    "type": "Movie",
+    "spotifyID": "3YTSKLiD89SLF6QRLVGUva",
+    "youtubeIDs": [
+      "KPUqnTWKnO8"
     ]
   },
   "prv-4oY76bDskuYQjuYjztCWFC": {
