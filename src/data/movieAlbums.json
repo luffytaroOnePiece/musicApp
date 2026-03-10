@@ -724,5 +724,61 @@
     "type": "Movie",
     "language": "Telugu",
     "tmdbID": "964132"
+  },
+  "6On5LyQR1PMOWxRmLjAj6S": {
+    "name": "Animal",
+    "youtubeIDs": [
+      "p93O-umBg98",
+      "XvRsfPO63jQ",
+      "9W6CSt6-PIU",
+      "zTmQeQSwwbk",
+      "bqW-mtsWnhk",
+      "KsEMAXNXnO4"
+    ],
+    "type": "Movie",
+    "language": "Hindi",
+    "tmdbID": "781732-animal"
+  },
+  "3GEq7ineW7LWviqQ6du1Dl": {
+    "name": "Dhada",
+    "youtubeIDs": ["yYKYXsXnh9o"],
+    "type": "Movie",
+    "language": "Telugu",
+    "tmdbID": "79819"
+  },
+  "6yaqbB9u2rmIlpQf0jXGOf": {
+    "name": "Soggade Chinni Nayana",
+    "youtubeIDs": ["Kg7YUgxAvdY", "GA82PqcT0kw", "PGoyn44ilNU", "04ii-CWizlo"],
+    "type": "Movie",
+    "language": "Telugu",
+    "tmdbID": "378777-soggade-chinni-nayana"
+  },
+  "70Ng5Rdcf5CU7mQg6sdsNA": {
+    "name": "Dhruva",
+    "youtubeIDs": ["n42iRfYAkUY", "rZT5cTiTokA", "1FMDlWOu-AI", "RcMQuy1ObeY"],
+    "type": "Movie",
+    "language": "Telugu",
+    "tmdbID": "410994"
+  },
+  "5OHig2MwpdX6OCObR1R3Jr": {
+    "name": "Awaara",
+    "youtubeIDs": ["VffosKXVZoY", "twA4pHMJrFs", "hCt-H4-5wco", "cmXLAb-6oeM"],
+    "type": "Movie",
+    "language": "Telugu",
+    "tmdbID": "39523-paiyaa"
+  },
+  "1UH7hfo6EuYp7ijprY8nSl": {
+    "name": "Game Changer",
+    "youtubeIDs": ["YpViW3V734g"],
+    "type": "Movie",
+    "language": "Telugu",
+    "tmdbID": "811944"
+  },
+  "3q8OYs41nF7GOFDEDuMaI0": {
+    "name": "Hit 2",
+    "youtubeIDs": ["Tn8RLoe0Zb8"],
+    "type": "Movie",
+    "language": "Telugu",
+    "tmdbID": "811945"
   }
 }
