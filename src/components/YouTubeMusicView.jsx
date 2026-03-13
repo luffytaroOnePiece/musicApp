@@ -126,6 +126,16 @@ const YTFullPlayer = ({
   onClose,
   onSelectTrack,
 }) => {
+  // Blank the iframe src on unmount so the browser releases the media pipeline
+  const iframeRef = useRef(null);
+  useEffect(() => {
+    return () => {
+      if (iframeRef.current) {
+        iframeRef.current.src = "about:blank";
+      }
+    };
+  }, []);
+
   useEffect(() => {
     const fn = (e) => {
       if (e.key === "Escape") onClose();
@@ -174,6 +184,7 @@ const YTFullPlayer = ({
           {/* Big video embed */}
           <div className="ytm-fp-video-wrap">
             <iframe
+              ref={iframeRef}
               key={track.id}
               src={`https://www.youtube.com/embed/${track.id}?autoplay=1&rel=0&controls=1`}
               title={track.title}
@@ -247,12 +258,17 @@ function loadYTApi() {
     ytApiCallbacks = [];
   };
 }
+// Returns a cleanup fn that removes the callback if it hasn't run yet
 function onYTReady(cb) {
-  if (ytApiReady) cb();
-  else {
-    loadYTApi();
-    ytApiCallbacks.push(cb);
+  if (ytApiReady) {
+    cb();
+    return () => { };
   }
+  loadYTApi();
+  ytApiCallbacks.push(cb);
+  return () => {
+    ytApiCallbacks = ytApiCallbacks.filter((c) => c !== cb);
+  };
 }
 
 const YTEmbedPlayer = ({
@@ -270,6 +286,12 @@ const YTEmbedPlayer = ({
   const [duration, setDuration] = useState(0);
   const progressRef = useRef(null);
   const isSeeking = useRef(false);
+
+  // ── Refs so the onStateChange closure always reads fresh values ──
+  const tracksRef = useRef(tracks);
+  const onSelectTrackRef = useRef(onSelectTrack);
+  useEffect(() => { tracksRef.current = tracks; }, [tracks]);
+  useEffect(() => { onSelectTrackRef.current = onSelectTrack; }, [onSelectTrack]);
 
   const currentIdx = tracks ? tracks.findIndex((t) => t.id === track?.id) : -1;
   const hasPrev = currentIdx > 0;
@@ -308,11 +330,17 @@ const YTEmbedPlayer = ({
         events: {
           onStateChange: (e) => {
             // YT.PlayerState: PLAYING=1, PAUSED=2, ENDED=0
+            // Always read from refs — never capture stale closure values
             if (e.data === 1) setIsPlaying(true);
             else if (e.data === 2) setIsPlaying(false);
-            else if (e.data === 0 && hasNext && onSelectTrack) {
-              // Auto-advance to next track when current ends
-              onSelectTrack(tracks[currentIdx + 1]);
+            else if (e.data === 0) {
+              const currentTracks = tracksRef.current;
+              const cb = onSelectTrackRef.current;
+              if (!currentTracks || !cb) return;
+              const idx = currentTracks.findIndex((t) => t.id === track.id);
+              if (idx !== -1 && idx < currentTracks.length - 1) {
+                cb(currentTracks[idx + 1]);
+              }
             }
           },
         },
@@ -320,9 +348,12 @@ const YTEmbedPlayer = ({
       setIsPlaying(true);
     };
 
-    onYTReady(createPlayer);
+    // Store cleanup so we can remove the callback if the component unmounts
+    // before the YT API has loaded
+    const cancelYTReady = onYTReady(createPlayer);
 
     return () => {
+      cancelYTReady();
       if (playerRef.current) {
         playerRef.current.destroy();
         playerRef.current = null;
@@ -545,6 +576,16 @@ const YTEmbedPlayer = ({
 
 // ─── Full-screen Video Modal ──────────────────────────────────────────────────
 const YTVideoModal = ({ track, onClose }) => {
+  // Blank the iframe src on unmount so the browser releases the media pipeline
+  const modalIframeRef = useRef(null);
+  useEffect(() => {
+    return () => {
+      if (modalIframeRef.current) {
+        modalIframeRef.current.src = "about:blank";
+      }
+    };
+  }, []);
+
   useEffect(() => {
     const fn = (e) => {
       if (e.key === "Escape") onClose();
@@ -577,6 +618,7 @@ const YTVideoModal = ({ track, onClose }) => {
         </div>
         <div className="ytm-modal-player-wrap">
           <iframe
+            ref={modalIframeRef}
             src={`https://www.youtube.com/embed/${track.id}?autoplay=1&rel=0&controls=1`}
             title={track.title}
             frameBorder="0"
