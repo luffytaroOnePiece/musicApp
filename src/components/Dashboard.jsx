@@ -78,7 +78,7 @@ const Dashboard = () => {
   const [isExploreOpen, setIsExploreOpen] = useState(false);
   const [showMovies, setShowMovies] = useState(false);
   const [showScripts, setShowScripts] = useState(false);
-  const [showYtMusic, setShowYtMusic] = useState(false);
+  const [showYtMusic, setShowYtMusic] = useState(true);
   const [albumsResetToken, setAlbumsResetToken] = useState(0);
 
   const themes = [
