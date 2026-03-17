@@ -780,5 +780,40 @@
     "type": "Movie",
     "language": "Telugu",
     "tmdbID": "811945"
+  },
+  "1MjEB5W6mvqPFNrOzFVEe5": {
+    "name": "The Devil",
+    "youtubeIDs": ["mY-cUpdvq8c"],
+    "type": "Movie",
+    "language": "Hindi",
+    "tmdbID": "1103473-kd-the-devil"
+  },
+  "5dipne069xn3kpim9gZ7ut": {
+    "name": "Thamma",
+    "youtubeIDs": ["SRu3BtefIEs"],
+    "type": "Movie",
+    "language": "Hindi",
+    "tmdbID": "1196364"
+  },
+  "57QapAyohoimomCxgvW9Pt": {
+    "name": "Force",
+    "youtubeIDs": ["AiBFRKmOPGw"],
+    "type": "Movie",
+    "language": "Hindi",
+    "tmdbID": "75745-force"
+  },
+  "6YZEJaEK8gCoJ50rz70S4X": {
+    "name": "Drive",
+    "youtubeIDs": ["BNjR7kYnIZY"],
+    "type": "Movie",
+    "language": "Hindi",
+    "tmdbID": "64690-drive"
+  },
+  "3sEqwRXJWq4B624mtk9DbO": {
+    "name": "Gangubai Kathiawadi",
+    "youtubeIDs": ["Id0v89eGKmA", "A0Bzrt-GeHQ", "Co5ypxVyoPI"],
+    "type": "Movie",
+    "language": "Hindi",
+    "tmdbID": "664332"
   }
 }
