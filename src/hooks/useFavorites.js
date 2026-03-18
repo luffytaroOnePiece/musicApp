@@ -1,37 +1,46 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 
+const IS_DEV = import.meta.env.DEV;
 const API_URL = "/api/favorites";
 
 /**
- * Custom hook: manage YouTube‑Music favourites via local JSON file.
+ * Custom hook: manage YouTube‑Music favourites.
  *
- * Each favourite entry shape:
- * {
- *   ytId        : string,
- *   title       : string,
- *   albumName   : string,
- *   language    : string,
- *   type        : string,
- *   addedAt     : string,   // ISO timestamp
- * }
+ * - DEV mode:  read/write via Vite middleware → src/data/favorites.json
+ * - PROD mode: read the statically‑bundled favorites.json (no write)
  */
 const useFavorites = () => {
   const [favorites, setFavorites] = useState([]);
   const savingRef = useRef(false);
+  const loadedRef = useRef(false);
 
-  // Load from JSON file on mount
+  // ── Load favorites ──
   useEffect(() => {
-    fetch(API_URL)
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) setFavorites(data);
-      })
-      .catch(() => {});
+    if (loadedRef.current) return;
+    loadedRef.current = true;
+
+    if (IS_DEV) {
+      // Dev: fetch from Vite middleware
+      fetch(API_URL)
+        .then((r) => r.json())
+        .then((data) => {
+          if (Array.isArray(data)) setFavorites(data);
+        })
+        .catch(() => {});
+    } else {
+      // Prod: dynamically import the bundled JSON
+      import("../data/favorites.json")
+        .then((mod) => {
+          const data = mod.default || mod;
+          if (Array.isArray(data)) setFavorites(data);
+        })
+        .catch(() => {});
+    }
   }, []);
 
-  // Persist to JSON file
+  // ── Persist to file (dev only) ──
   const persistToFile = useCallback((favs) => {
-    if (savingRef.current) return;
+    if (!IS_DEV || savingRef.current) return;
     savingRef.current = true;
     fetch(API_URL, {
       method: "POST",
@@ -51,6 +60,7 @@ const useFavorites = () => {
 
   const toggleFavorite = useCallback(
     (meta) => {
+      if (!IS_DEV) return; // no-op in prod
       setFavorites((prev) => {
         const exists = prev.some((f) => f.ytId === meta.ytId);
         const next = exists
@@ -87,7 +97,7 @@ const useFavorites = () => {
     URL.revokeObjectURL(url);
   }, [favorites]);
 
-  return { favorites, isFavorite, toggleFavorite, exportFavorites };
+  return { favorites, isFavorite, toggleFavorite, exportFavorites, isDev: IS_DEV };
 };
 
 export default useFavorites;

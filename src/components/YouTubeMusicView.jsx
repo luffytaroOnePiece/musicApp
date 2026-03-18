@@ -1530,7 +1530,7 @@ const YouTubeMusicView = () => {
   const [sortBy, setSortBy] = useState("shuffle");
   const [sortOpen, setSortOpen] = useState(false);
   const [pageView, setPageView] = useState("albums"); // "albums" | "allVideos" | "favorites"
-  const { favorites, isFavorite, toggleFavorite, exportFavorites } = useFavorites();
+  const { favorites, isFavorite, toggleFavorite, exportFavorites, isDev } = useFavorites();
 
   // For playing from All Videos / Favorites views
   const [globalActiveTrack, setGlobalActiveTrack] = useState(null);
@@ -2159,7 +2159,7 @@ const YouTubeMusicView = () => {
                   onAudio={(t) => handleGlobalAudio(t, v.albumName)}
                   onVideo={handleGlobalVideo}
                   isFav={isFavorite(v.ytId)}
-                  onToggleFav={(meta) => handleToggleFav({ ...meta, language: v.language, type: v.type })}
+                  onToggleFav={isDev ? (meta) => handleToggleFav({ ...meta, language: v.language, type: v.type }) : undefined}
                 />
               ))}
             </div>
@@ -2203,7 +2203,7 @@ const YouTubeMusicView = () => {
                   onAudio={(t) => handleGlobalAudio(t, v.albumName)}
                   onVideo={handleGlobalVideo}
                   isFav={true}
-                  onToggleFav={(meta) => handleToggleFav({ ...meta, language: v.language, type: v.type })}
+                  onToggleFav={isDev ? (meta) => handleToggleFav({ ...meta, language: v.language, type: v.type }) : undefined}
                 />
               ))}
             </div>
