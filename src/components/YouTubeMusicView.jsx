@@ -1850,17 +1850,6 @@ const YouTubeMusicView = () => {
     if (pick) setSelectedAlbum(pick);
   };
 
-  if (selectedAlbum) {
-    return (
-      <YTAlbumDetail
-        album={selectedAlbum}
-        onBack={() => setSelectedAlbum(null)}
-        allAlbums={albums}
-        onSelectAlbum={setSelectedAlbum}
-      />
-    );
-  }
-
   // Languages for favorites (derived from saved favorites)
   const favLanguages = useMemo(() => {
     const s = new Set(favorites.map((f) => f.language).filter(Boolean));
@@ -1876,6 +1865,17 @@ const YouTubeMusicView = () => {
       albumName: v.albumName || "",
     }));
   }, [pageView, filteredAllVideos, filteredFavorites]);
+
+  if (selectedAlbum) {
+    return (
+      <YTAlbumDetail
+        album={selectedAlbum}
+        onBack={() => setSelectedAlbum(null)}
+        allAlbums={albums}
+        onSelectAlbum={setSelectedAlbum}
+      />
+    );
+  }
 
   return (
     <div className={`ytm-view${SPOTIFY_THEME ? " ytm-spotify-theme" : ""}`}>
