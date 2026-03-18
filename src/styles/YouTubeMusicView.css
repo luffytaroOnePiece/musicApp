@@ -2324,6 +2324,35 @@
     color: rgba(255, 255, 255, 0.5);
 }
 
+/* Small reshuffle button (used in All Videos + Favorites headers) */
+.ytm-reshuffle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.55);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    flex-shrink: 0;
+}
+
+.ytm-reshuffle-btn:hover {
+    background: rgba(var(--ytm-accent-rgb), 0.15);
+    border-color: rgba(var(--ytm-accent-rgb), 0.35);
+    color: var(--ytm-accent-light);
+    transform: rotate(180deg);
+}
+
+.ytm-fav-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .ytm-all-videos-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

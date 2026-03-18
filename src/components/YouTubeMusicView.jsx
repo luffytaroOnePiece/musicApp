@@ -1574,6 +1574,7 @@ const YouTubeMusicView = () => {
   const [sortBy, setSortBy] = useState("shuffle");
   const [sortOpen, setSortOpen] = useState(false);
   const [pageView, setPageView] = useState("albums"); // "albums" | "allVideos" | "favorites"
+  const [shuffleKey, setShuffleKey] = useState(0); // bump to re-shuffle display order
   const { favorites, isFavorite, toggleFavorite, exportFavorites, isDev } = useFavorites();
 
   // For playing from All Videos / Favorites views
@@ -1769,9 +1770,16 @@ const YouTubeMusicView = () => {
             return 0;
         }
       });
+    } else {
+      // Fisher-Yates shuffle (re-runs when shuffleKey changes)
+      r = [...r];
+      for (let i = r.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [r[i], r[j]] = [r[j], r[i]];
+      }
     }
     return r;
-  }, [allVideos, selCategory, selLang, searchTerm, sortBy]);
+  }, [allVideos, selCategory, selLang, searchTerm, sortBy, shuffleKey]);
 
   // ── Filtered "Favorites" ──
   const filteredFavorites = useMemo(() => {
@@ -1796,9 +1804,15 @@ const YouTubeMusicView = () => {
             return 0;
         }
       });
+    } else {
+      r = [...r];
+      for (let i = r.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [r[i], r[j]] = [r[j], r[i]];
+      }
     }
     return r;
-  }, [favorites, selLang, searchTerm, sortBy]);
+  }, [favorites, selLang, searchTerm, sortBy, shuffleKey]);
 
   // ── Fav-aware toggle helper that attaches language/type ──
   const handleToggleFav = useCallback(
@@ -2204,6 +2218,18 @@ const YouTubeMusicView = () => {
         <>
           <div className="ytm-all-videos-header">
             <span className="ytm-av-count">{filteredAllVideos.length} videos</span>
+            <button
+              className="ytm-reshuffle-btn"
+              onClick={() => setShuffleKey((k) => k + 1)}
+              title="Reshuffle order"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="16 3 21 3 21 8" />
+                <line x1="4" y1="20" x2="21" y2="3" />
+                <polyline points="21 16 21 21 16 21" />
+                <line x1="15" y1="15" x2="21" y2="21" />
+              </svg>
+            </button>
           </div>
           {filteredAllVideos.length === 0 ? (
             <div className="ytm-empty">No videos match your filters</div>
@@ -2233,16 +2259,30 @@ const YouTubeMusicView = () => {
         <>
           <div className="ytm-fav-header">
             <span className="ytm-fav-count">{filteredFavorites.length} favorite{filteredFavorites.length !== 1 ? "s" : ""}</span>
-            {favorites.length > 0 && (
-              <button className="ytm-fav-export-btn" onClick={exportFavorites} title="Download favorites as JSON">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
+            <div className="ytm-fav-header-actions">
+              <button
+                className="ytm-reshuffle-btn"
+                onClick={() => setShuffleKey((k) => k + 1)}
+                title="Reshuffle order"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="16 3 21 3 21 8" />
+                  <line x1="4" y1="20" x2="21" y2="3" />
+                  <polyline points="21 16 21 21 16 21" />
+                  <line x1="15" y1="15" x2="21" y2="21" />
                 </svg>
-                Export JSON
               </button>
-            )}
+              {favorites.length > 0 && (
+                <button className="ytm-fav-export-btn" onClick={exportFavorites} title="Download favorites as JSON">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Export JSON
+                </button>
+              )}
+            </div>
           </div>
           {filteredFavorites.length === 0 ? (
             <div className="ytm-empty ytm-fav-empty">
