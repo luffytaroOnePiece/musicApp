@@ -1785,8 +1785,20 @@ const YouTubeMusicView = () => {
           v.albumName?.toLowerCase().includes(q),
       );
     }
+    if (sortBy !== "shuffle") {
+      r = [...r].sort((a, b) => {
+        switch (sortBy) {
+          case "name-asc":
+            return (a.title || "").localeCompare(b.title || "");
+          case "name-desc":
+            return (b.title || "").localeCompare(a.title || "");
+          default:
+            return 0;
+        }
+      });
+    }
     return r;
-  }, [favorites, selLang, searchTerm]);
+  }, [favorites, selLang, searchTerm, sortBy]);
 
   // ── Fav-aware toggle helper that attaches language/type ──
   const handleToggleFav = useCallback(
@@ -1811,6 +1823,11 @@ const YouTubeMusicView = () => {
   const handleShuffle = () => {
     if (pageView === "allVideos" && filteredAllVideos.length > 0) {
       const pick = filteredAllVideos[Math.floor(Math.random() * filteredAllVideos.length)];
+      handleGlobalAudio({ id: pick.ytId, title: pick.title }, pick.albumName);
+      return;
+    }
+    if (pageView === "favorites" && filteredFavorites.length > 0) {
+      const pick = filteredFavorites[Math.floor(Math.random() * filteredFavorites.length)];
       handleGlobalAudio({ id: pick.ytId, title: pick.title }, pick.albumName);
       return;
     }
