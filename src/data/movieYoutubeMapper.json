@@ -132,6 +132,24 @@
       "2aXIfrt7ye0"
     ]
   },
+  "362045": {
+    "name": "Bajirao Mastani",
+    "language": "Hindi",
+    "type": "Movie",
+    "spotifyID": "56b320TXbUrF7F5beu4TN",
+    "youtubeIDs": [
+      "jPxbfNr13v0"
+    ]
+  },
+  "363343": {
+    "name": "Raees",
+    "language": "Hindi",
+    "type": "Movie",
+    "spotifyID": "60l9poKzblQSx19Pyos4cM",
+    "youtubeIDs": [
+      "EhnGBB6jHPc"
+    ]
+  },
   "365187": {
     "name": "Nannaku Prematho",
     "language": "Telugu",
@@ -163,6 +181,15 @@
       "NI6GO-4_fjs",
       "qaU03QRrcPs",
       "KOwrZddjoKI"
+    ]
+  },
+  "391629": {
+    "name": "Baaghi",
+    "language": "Hindi",
+    "type": "Movie",
+    "spotifyID": "7ad4BoqppSzktweEAFioe5",
+    "youtubeIDs": [
+      "EIiFuuVmNUA"
     ]
   },
   "405924": {
@@ -199,6 +226,16 @@
       "cbr2i96Q4ak"
     ]
   },
+  "432527": {
+    "name": "Padmaavat",
+    "language": "Hindi",
+    "type": "Movie",
+    "spotifyID": "5hSWx7qt0z3vFgj6TIAoHQ",
+    "youtubeIDs": [
+      "3-0BPHxBL5g",
+      "SB-TWGenYNY"
+    ]
+  },
   "454292": {
     "name": "Saaho",
     "language": "Telugu",
@@ -227,6 +264,15 @@
     "spotifyID": "5CdxG2RqWaUgjboDBQ1cMA",
     "youtubeIDs": [
       "P7yRYiBiV3g"
+    ]
+  },
+  "547865": {
+    "name": "Bollywood Hits",
+    "language": "Hindi",
+    "type": "Movie",
+    "spotifyID": "743BTRJazd1yHV5suFgzGk",
+    "youtubeIDs": [
+      "RBMT1QCTaPk"
     ]
   },
   "563604": {
@@ -715,7 +761,8 @@
       "MxIEUzBJn8U",
       "amdOdzmAbSk",
       "JWux9POAQzU",
-      "SX2kAdVPVNE"
+      "SX2kAdVPVNE",
+      "BWFr1xlkgL0"
     ]
   },
   "1315021": {

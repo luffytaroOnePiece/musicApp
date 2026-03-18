@@ -110,7 +110,8 @@
       "MxIEUzBJn8U",
       "amdOdzmAbSk",
       "JWux9POAQzU",
-      "SX2kAdVPVNE"
+      "SX2kAdVPVNE",
+      "BWFr1xlkgL0"
     ],
     "type": "Movie",
     "language": "Hindi",
@@ -837,5 +838,40 @@
     "type": "Movie",
     "language": "Hindi",
     "tmdbID": "192558"
+  },
+  "60l9poKzblQSx19Pyos4cM": {
+    "name": "Raees",
+    "youtubeIDs": ["EhnGBB6jHPc"],
+    "type": "Movie",
+    "language": "Hindi",
+    "tmdbID": "363343"
+  },
+  "5hSWx7qt0z3vFgj6TIAoHQ": {
+    "name": "Padmaavat",
+    "youtubeIDs": ["3-0BPHxBL5g", "SB-TWGenYNY"],
+    "type": "Movie",
+    "language": "Hindi",
+    "tmdbID": "432527"
+  },
+  "7ad4BoqppSzktweEAFioe5": {
+    "name": "Baaghi",
+    "youtubeIDs": ["EIiFuuVmNUA"],
+    "type": "Movie",
+    "language": "Hindi",
+    "tmdbID": "391629"
+  },
+  "56b320TXbUrF7F5beu4TN": {
+    "name": "Bajirao Mastani",
+    "youtubeIDs": ["jPxbfNr13v0"],
+    "type": "Movie",
+    "language": "Hindi",
+    "tmdbID": "362045"
+  },
+  "743BTRJazd1yHV5suFgzGk": {
+    "name": "Bollywood Hits",
+    "youtubeIDs": ["RBMT1QCTaPk"],
+    "type": "Movie",
+    "language": "Hindi",
+    "tmdbID": "547865"
   }
 }
