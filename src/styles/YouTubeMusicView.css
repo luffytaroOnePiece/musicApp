@@ -2192,3 +2192,226 @@
         display: none;
     }
 }
+
+/* ══════════════════════════════════════════════════
+   PAGE VIEW TABS (Albums / All Videos / Favorites)
+══════════════════════════════════════════════════ */
+.ytm-page-view-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 0;
+}
+
+.ytm-pv-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-bottom: 2.5px solid transparent;
+    transition: color 0.18s, border-color 0.2s;
+    margin-bottom: -1px;
+}
+
+.ytm-pv-tab:hover {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.ytm-pv-tab.active {
+    color: #fff;
+    border-bottom-color: var(--ytm-accent-mid);
+}
+
+.ytm-pv-tab svg {
+    opacity: 0.55;
+    transition: opacity 0.18s;
+    flex-shrink: 0;
+}
+
+.ytm-pv-tab.active svg {
+    opacity: 1;
+    color: var(--ytm-accent-mid);
+}
+
+/* ══════════════════════════════════════════════════
+   FAVORITE HEART BUTTON (on TrackCard)
+══════════════════════════════════════════════════ */
+.ytm-tc-fav-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(6px);
+    color: rgba(255, 255, 255, 0.55);
+    cursor: pointer;
+    transition: transform 0.18s, background 0.18s, color 0.18s;
+    z-index: 3;
+    opacity: 0;
+    pointer-events: auto;
+}
+
+.ytm-track-card:hover .ytm-tc-fav-btn,
+.ytm-tc-fav-btn.active {
+    opacity: 1;
+}
+
+.ytm-tc-fav-btn:hover {
+    transform: scale(1.1);
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.ytm-tc-fav-btn.active {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.ytm-tc-fav-btn.active:hover {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+/* Pulse animation when toggling on */
+@keyframes ytm-fav-pulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+.ytm-tc-fav-btn.active svg {
+    animation: ytm-fav-pulse 0.35s ease;
+}
+
+/* Album name in track card footer */
+.ytm-tc-album-name {
+    display: block;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 2px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ══════════════════════════════════════════════════
+   ALL VIDEOS VIEW
+══════════════════════════════════════════════════ */
+.ytm-all-videos-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 0 2px;
+}
+
+.ytm-av-count {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.ytm-all-videos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+/* ══════════════════════════════════════════════════
+   FAVORITES VIEW
+══════════════════════════════════════════════════ */
+.ytm-fav-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 0 2px;
+}
+
+.ytm-fav-count {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.ytm-fav-export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.ytm-fav-export-btn:hover {
+    background: rgba(var(--ytm-accent-rgb), 0.15);
+    border-color: rgba(var(--ytm-accent-rgb), 0.35);
+    color: var(--ytm-accent-light);
+}
+
+/* Favorites empty state */
+.ytm-fav-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 80px 20px;
+}
+
+.ytm-fav-empty svg {
+    color: rgba(255, 255, 255, 0.15);
+}
+
+.ytm-fav-empty p {
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 15px;
+    margin: 0;
+    max-width: 340px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* ── Responsive: page view tabs ── */
+@media (max-width: 600px) {
+    .ytm-page-view-tabs {
+        gap: 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .ytm-pv-tab {
+        padding: 10px 14px;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .ytm-all-videos-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .ytm-fav-header,
+    .ytm-all-videos-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}

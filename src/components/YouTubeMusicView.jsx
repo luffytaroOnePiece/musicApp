@@ -19,6 +19,7 @@ import React, {
 import { getDetails, getImages, getImageUrl, getCredits } from "../services/tmdbApi";
 import movieYoutubeMapper from "../data/movieYoutubeMapper.json";
 import youtubeMixData from "../data/youtubeMixData.json";
+import useFavorites from "../hooks/useFavorites";
 import "../styles/YouTubeMusicView.css";
 
 // ─── Fast video-ID → title lookup ────────────────────────────────────────────
@@ -634,7 +635,7 @@ const YTVideoModal = ({ track, onClose }) => {
 
 // ─── Track Row (mirrors AlbumTracks row style) ────────────────────────────────
 const TrackCard = React.memo(
-  ({ index, ytId, title, isCurrent, onAudio, onVideo }) => (
+  ({ index, ytId, title, isCurrent, onAudio, onVideo, isFav, onToggleFav, albumName }) => (
     <div
       className={`ytm-track-card${isCurrent ? " ytm-track-card--active" : ""}`}
     >
@@ -676,6 +677,24 @@ const TrackCard = React.memo(
             </svg>
           )}
         </div>
+        {/* Favorite heart button */}
+        {onToggleFav && (
+          <button
+            className={`ytm-tc-fav-btn${isFav ? " active" : ""}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFav({ ytId, title, albumName: albumName || "" });
+            }}
+            title={isFav ? "Remove from favorites" : "Add to favorites"}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24"
+              fill={isFav ? "currentColor" : "none"}
+              stroke="currentColor" strokeWidth="2"
+            >
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Footer */}
@@ -683,6 +702,7 @@ const TrackCard = React.memo(
         <p className="ytm-tc-title" title={title}>
           {title}
         </p>
+        {albumName && <span className="ytm-tc-album-name">{albumName}</span>}
         <div className="ytm-tc-actions">
           <button
             className={`ytm-tc-btn ytm-tc-btn--play${isCurrent ? " active" : ""}`}
@@ -1509,6 +1529,13 @@ const YouTubeMusicView = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("shuffle");
   const [sortOpen, setSortOpen] = useState(false);
+  const [pageView, setPageView] = useState("albums"); // "albums" | "allVideos" | "favorites"
+  const { favorites, isFavorite, toggleFavorite, exportFavorites } = useFavorites();
+
+  // For playing from All Videos / Favorites views
+  const [globalActiveTrack, setGlobalActiveTrack] = useState(null);
+  const [globalFullPlayer, setGlobalFullPlayer] = useState(false);
+  const [globalVideoTrack, setGlobalVideoTrack] = useState(null);
   const sortRef = useRef(null);
 
   // Close sort dropdown on outside click
@@ -1541,6 +1568,31 @@ const YouTubeMusicView = () => {
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
     return arr;
+  }, []);
+
+  // ── Build flat "All Videos" list from all albums ──
+  const allVideos = useMemo(() => {
+    const list = [];
+    Object.entries(movieYoutubeMapper).forEach(([, data]) => {
+      const lang = data.language || "";
+      const albumType = data.type || "Movie";
+      const albumName = data.name || "";
+      (data.youtubeIDs || []).forEach((ytId) => {
+        list.push({
+          ytId,
+          title: videoTitleMap[ytId] || albumName,
+          albumName,
+          language: lang,
+          type: albumType,
+        });
+      });
+    });
+    // Shuffle
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+    return list;
   }, []);
 
   // Progressively fetch TMDB posters
@@ -1649,7 +1701,75 @@ const YouTubeMusicView = () => {
     return r;
   }, [albums, selCategory, selLang, searchTerm, sortBy]);
 
+  // ── Filtered "All Videos" ──
+  const filteredAllVideos = useMemo(() => {
+    let r = allVideos;
+    if (selCategory !== "All") r = r.filter((v) => v.type === selCategory);
+    if (selLang !== "All") r = r.filter((v) => v.language === selLang);
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase();
+      r = r.filter(
+        (v) =>
+          v.title?.toLowerCase().includes(q) ||
+          v.albumName?.toLowerCase().includes(q),
+      );
+    }
+    if (sortBy !== "shuffle") {
+      r = [...r].sort((a, b) => {
+        switch (sortBy) {
+          case "name-asc":
+            return (a.title || "").localeCompare(b.title || "");
+          case "name-desc":
+            return (b.title || "").localeCompare(a.title || "");
+          default:
+            return 0;
+        }
+      });
+    }
+    return r;
+  }, [allVideos, selCategory, selLang, searchTerm, sortBy]);
+
+  // ── Filtered "Favorites" ──
+  const filteredFavorites = useMemo(() => {
+    let r = favorites;
+    if (selLang !== "All") r = r.filter((v) => v.language === selLang);
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase();
+      r = r.filter(
+        (v) =>
+          v.title?.toLowerCase().includes(q) ||
+          v.albumName?.toLowerCase().includes(q),
+      );
+    }
+    return r;
+  }, [favorites, selLang, searchTerm]);
+
+  // ── Fav-aware toggle helper that attaches language/type ──
+  const handleToggleFav = useCallback(
+    (meta) => {
+      // Enrich with language & type from allVideos if missing
+      const match = allVideos.find((v) => v.ytId === meta.ytId);
+      toggleFavorite({
+        ...meta,
+        language: meta.language || match?.language || "",
+        type: meta.type || match?.type || "",
+      });
+    },
+    [allVideos, toggleFavorite],
+  );
+
+  const handleGlobalAudio = useCallback(
+    (t, albumName) => setGlobalActiveTrack({ ...t, albumName: albumName || t.albumName || "" }),
+    [],
+  );
+  const handleGlobalVideo = useCallback((t) => setGlobalVideoTrack(t), []);
+
   const handleShuffle = () => {
+    if (pageView === "allVideos" && filteredAllVideos.length > 0) {
+      const pick = filteredAllVideos[Math.floor(Math.random() * filteredAllVideos.length)];
+      handleGlobalAudio({ id: pick.ytId, title: pick.title }, pick.albumName);
+      return;
+    }
     const pool = filtered.length > 0 ? filtered : rawAlbums;
     const pick = pool[Math.floor(Math.random() * pool.length)];
     if (pick) setSelectedAlbum(pick);
@@ -1666,8 +1786,41 @@ const YouTubeMusicView = () => {
     );
   }
 
+  // Languages for favorites (derived from saved favorites)
+  const favLanguages = useMemo(() => {
+    const s = new Set(favorites.map((f) => f.language).filter(Boolean));
+    return ["All", ...Array.from(s).sort()];
+  }, [favorites]);
+
+  // Build tracks list for global player queue
+  const globalTracks = useMemo(() => {
+    const src = pageView === "favorites" ? filteredFavorites : filteredAllVideos;
+    return src.map((v) => ({
+      id: v.ytId,
+      title: v.title,
+      albumName: v.albumName || "",
+    }));
+  }, [pageView, filteredAllVideos, filteredFavorites]);
+
   return (
     <div className={`ytm-view${SPOTIFY_THEME ? " ytm-spotify-theme" : ""}`}>
+      {/* Global video modal for All Videos / Favorites */}
+      {globalVideoTrack && (
+        <YTVideoModal track={globalVideoTrack} onClose={() => setGlobalVideoTrack(null)} />
+      )}
+
+      {/* Global full player for All Videos / Favorites */}
+      {globalFullPlayer && globalActiveTrack && (
+        <YTFullPlayer
+          track={globalActiveTrack}
+          tracks={globalTracks}
+          albumName={globalActiveTrack.albumName || ""}
+          posterUrl={null}
+          onClose={() => setGlobalFullPlayer(false)}
+          onSelectTrack={(t) => setGlobalActiveTrack({ ...t, albumName: t.albumName || globalActiveTrack.albumName || "" })}
+        />
+      )}
+
       {/* Page header */}
       <div className="ytm-page-header">
         <div className="ytm-page-header-row">
@@ -1679,27 +1832,60 @@ const YouTubeMusicView = () => {
           <div style={{ flex: 1 }}>
             <h1 className="ytm-page-title">YouTube Music</h1>
             <p className="ytm-page-sub">
-              {rawAlbums.length} albums · Spotify-free player
+              {rawAlbums.length} albums · {allVideos.length} videos
             </p>
           </div>
-          {/* Right: category pills */}
-          <div className="ytm-header-right">
-            <div className="ytm-category-pills">
-              {["All", "Movie", "Private"].map((cat) => (
-                <button
-                  key={cat}
-                  className={`ytm-cat-pill${selCategory === cat ? " active" : ""}`}
-                  onClick={() => setSelCategory(cat)}
-                >
-                  {cat === "Movie"
-                    ? "🎬 Movies"
-                    : cat === "Private"
-                      ? "🎤 Artists"
-                      : "All"}
-                </button>
-              ))}
+          {/* Right: category pills (only show for albums / allVideos) */}
+          {pageView !== "favorites" && (
+            <div className="ytm-header-right">
+              <div className="ytm-category-pills">
+                {["All", "Movie", "Private"].map((cat) => (
+                  <button
+                    key={cat}
+                    className={`ytm-cat-pill${selCategory === cat ? " active" : ""}`}
+                    onClick={() => setSelCategory(cat)}
+                  >
+                    {cat === "Movie"
+                      ? "🎬 Movies"
+                      : cat === "Private"
+                        ? "🎤 Artists"
+                        : "All"}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+        </div>
+
+        {/* ── Page‑level view tabs ── */}
+        <div className="ytm-page-view-tabs">
+          {[
+            { id: "albums", label: "Albums", icon: (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
+              </svg>
+            )},
+            { id: "allVideos", label: "All Videos", icon: (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" />
+              </svg>
+            )},
+            { id: "favorites", label: `♥ Favorites (${favorites.length})`, icon: (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            )},
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              className={`ytm-pv-tab${pageView === tab.id ? " active" : ""}`}
+              onClick={() => setPageView(tab.id)}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {/* Filter row: search + lang pills + shuffle */}
@@ -1927,19 +2113,111 @@ const YouTubeMusicView = () => {
         </div>
       </div>
 
-      {/* Album grid */}
-      {filtered.length === 0 ? (
-        <div className="ytm-empty">No albums found</div>
-      ) : (
-        <div className="ytm-grid">
-          {filtered.map((a) => (
-            <YTAlbumCard
-              key={a.tmdbId}
-              album={a}
-              onClick={() => setSelectedAlbum(a)}
-            />
-          ))}
-        </div>
+      {/* ── Albums view (default) ── */}
+      {pageView === "albums" && (
+        <>
+          {filtered.length === 0 ? (
+            <div className="ytm-empty">No albums found</div>
+          ) : (
+            <div className="ytm-grid">
+              {filtered.map((a) => (
+                <YTAlbumCard
+                  key={a.tmdbId}
+                  album={a}
+                  onClick={() => setSelectedAlbum(a)}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── All Videos view ── */}
+      {pageView === "allVideos" && (
+        <>
+          <div className="ytm-all-videos-header">
+            <span className="ytm-av-count">{filteredAllVideos.length} videos</span>
+          </div>
+          {filteredAllVideos.length === 0 ? (
+            <div className="ytm-empty">No videos match your filters</div>
+          ) : (
+            <div className="ytm-tracks-grid ytm-all-videos-grid">
+              {filteredAllVideos.map((v) => (
+                <TrackCard
+                  key={v.ytId}
+                  index={0}
+                  ytId={v.ytId}
+                  title={v.title}
+                  albumName={v.albumName}
+                  isCurrent={globalActiveTrack?.id === v.ytId}
+                  onAudio={(t) => handleGlobalAudio(t, v.albumName)}
+                  onVideo={handleGlobalVideo}
+                  isFav={isFavorite(v.ytId)}
+                  onToggleFav={(meta) => handleToggleFav({ ...meta, language: v.language, type: v.type })}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── Favorites view ── */}
+      {pageView === "favorites" && (
+        <>
+          <div className="ytm-fav-header">
+            <span className="ytm-fav-count">{filteredFavorites.length} favorite{filteredFavorites.length !== 1 ? "s" : ""}</span>
+            {favorites.length > 0 && (
+              <button className="ytm-fav-export-btn" onClick={exportFavorites} title="Download favorites as JSON">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Export JSON
+              </button>
+            )}
+          </div>
+          {filteredFavorites.length === 0 ? (
+            <div className="ytm-empty ytm-fav-empty">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+              <p>{favorites.length === 0 ? "No favorites yet — click the ♥ icon on any video to add it here" : "No favorites match your filters"}</p>
+            </div>
+          ) : (
+            <div className="ytm-tracks-grid ytm-all-videos-grid">
+              {filteredFavorites.map((v) => (
+                <TrackCard
+                  key={v.ytId}
+                  index={0}
+                  ytId={v.ytId}
+                  title={v.title}
+                  albumName={v.albumName}
+                  isCurrent={globalActiveTrack?.id === v.ytId}
+                  onAudio={(t) => handleGlobalAudio(t, v.albumName)}
+                  onVideo={handleGlobalVideo}
+                  isFav={true}
+                  onToggleFav={(meta) => handleToggleFav({ ...meta, language: v.language, type: v.type })}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Global mini embed player for All Videos / Favorites views */}
+      {(pageView === "allVideos" || pageView === "favorites") && (
+        <YTEmbedPlayer
+          track={globalActiveTrack}
+          tracks={globalTracks}
+          onClose={() => {
+            setGlobalActiveTrack(null);
+            setGlobalFullPlayer(false);
+          }}
+          onExpand={() => setGlobalFullPlayer(true)}
+          onSelectTrack={(t) => setGlobalActiveTrack({ ...t, albumName: t.albumName || globalActiveTrack?.albumName || "" })}
+          fullPlayerOpen={globalFullPlayer}
+        />
       )}
     </div>
   );
