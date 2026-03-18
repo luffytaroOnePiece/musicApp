@@ -127,15 +127,68 @@ const YTFullPlayer = ({
   onClose,
   onSelectTrack,
 }) => {
-  // Blank the iframe src on unmount so the browser releases the media pipeline
-  const iframeRef = useRef(null);
+  const playerContainerRef = useRef(null);
+  const playerRef = useRef(null);
+
+  // Keep refs to latest values so closures are never stale
+  const tracksRef = useRef(tracks);
+  const trackIdRef = useRef(track?.id);
+  const onSelectTrackRef = useRef(onSelectTrack);
+  useEffect(() => { tracksRef.current = tracks; }, [tracks]);
+  useEffect(() => { trackIdRef.current = track?.id; }, [track?.id]);
+  useEffect(() => { onSelectTrackRef.current = onSelectTrack; }, [onSelectTrack]);
+
+  // Create / destroy YT player — runs on every track change
   useEffect(() => {
+    if (!track) return;
+
+    // 1. Always destroy the previous player first (clear stale data)
+    if (playerRef.current) {
+      try { playerRef.current.destroy(); } catch (_) {}
+      playerRef.current = null;
+    }
+
+    // 2. Reset the container so YT.Player has a clean DOM node
+    if (playerContainerRef.current) {
+      playerContainerRef.current.innerHTML = "";
+      const fresh = document.createElement("div");
+      playerContainerRef.current.appendChild(fresh);
+
+      const createPlayer = () => {
+        playerRef.current = new window.YT.Player(fresh, {
+          width: "100%",
+          height: "100%",
+          videoId: track.id,
+          playerVars: { autoplay: 1, rel: 0, controls: 1, modestbranding: 1 },
+          events: {
+            onStateChange: (e) => {
+              // YT.PlayerState.ENDED === 0 → auto-play next
+              if (e.data === 0) {
+                const currentTracks = tracksRef.current;
+                const currentId = trackIdRef.current;
+                const cb = onSelectTrackRef.current;
+                if (!currentTracks || !cb) return;
+                const idx = currentTracks.findIndex((t) => t.id === currentId);
+                if (idx !== -1 && idx < currentTracks.length - 1) {
+                  cb(currentTracks[idx + 1]);
+                }
+              }
+            },
+          },
+        });
+      };
+
+      var cancelYTReady = onYTReady(createPlayer);
+    }
+
     return () => {
-      if (iframeRef.current) {
-        iframeRef.current.src = "about:blank";
+      if (cancelYTReady) cancelYTReady();
+      if (playerRef.current) {
+        try { playerRef.current.destroy(); } catch (_) {}
+        playerRef.current = null;
       }
     };
-  }, []);
+  }, [track?.id]);
 
   useEffect(() => {
     const fn = (e) => {
@@ -182,18 +235,9 @@ const YTFullPlayer = ({
 
         {/* Main layout: big player + sidebar track list */}
         <div className="ytm-fp-body">
-          {/* Big video embed */}
+          {/* Big video embed via YT API — stable container, no key */}
           <div className="ytm-fp-video-wrap">
-            <iframe
-              ref={iframeRef}
-              key={track.id}
-              src={`https://www.youtube.com/embed/${track.id}?autoplay=1&rel=0&controls=1`}
-              title={track.title}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="ytm-fp-iframe"
-            />
+            <div ref={playerContainerRef} className="ytm-fp-iframe" />
           </div>
 
           {/* Right panel: track info + track list */}
