@@ -16,6 +16,9 @@
     "generate-movie-mapper": "node scripts/generateMovieYoutubeMapper.js"
   },
   "dependencies": {
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0",
+    "@capacitor/ios": "^8.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-draggable": "^4.5.0",
