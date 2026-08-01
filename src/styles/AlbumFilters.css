@@ -1,0 +1,181 @@
+/* ─── Album Filters Bar ─────────────────────────────────────────────── */
+.album-filters-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.filter-chips-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* ─── Filter Chip (Pill Button) ─────────────────────────────────────── */
+.filter-chip-dropdown {
+    position: relative;
+    z-index: 10;
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+}
+
+.filter-chip:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.filter-chip--open {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.filter-chip--active {
+    background: rgba(100, 189, 172, 0.12);
+    border-color: rgba(100, 189, 172, 0.35);
+    color: #7dd4c0;
+}
+
+.filter-chip--active:hover {
+    background: rgba(100, 189, 172, 0.18);
+    border-color: rgba(100, 189, 172, 0.45);
+}
+
+.filter-chip-label {
+    color: rgba(255, 255, 255, 0.35);
+    font-weight: 400;
+    font-size: 0.78rem;
+}
+
+.filter-chip--active .filter-chip-label {
+    color: rgba(100, 189, 172, 0.55);
+}
+
+.filter-chip-value {
+    font-weight: 600;
+}
+
+.filter-chip-arrow {
+    opacity: 0.4;
+    transition: transform 0.2s ease, opacity 0.2s;
+    margin-left: 2px;
+}
+
+.filter-chip:hover .filter-chip-arrow {
+    opacity: 0.7;
+}
+
+.filter-chip-arrow.open {
+    transform: rotate(180deg);
+    opacity: 0.8;
+}
+
+/* ─── Dropdown Menu ─────────────────────────────────────────────────── */
+.filter-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 180px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px;
+    animation: filterDropIn 0.15s ease-out;
+
+    background: rgba(18, 18, 18, 0.95);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 16px 48px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+}
+
+@keyframes filterDropIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.filter-dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+    width: 100%;
+}
+
+.filter-dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+}
+
+.filter-dropdown-item--active {
+    color: #7dd4c0;
+    font-weight: 600;
+}
+
+.filter-dropdown-item--active:hover {
+    background: rgba(100, 189, 172, 0.1);
+}
+
+.filter-dropdown-item--active svg {
+    color: #7dd4c0;
+}
+
+/* ─── Clear Button ──────────────────────────────────────────────────── */
+.filter-clear-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    border: 1px solid rgba(255, 100, 100, 0.2);
+    border-radius: 100px;
+    background: rgba(255, 100, 100, 0.06);
+    color: rgba(255, 130, 130, 0.8);
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.filter-clear-btn:hover {
+    background: rgba(255, 100, 100, 0.12);
+    border-color: rgba(255, 100, 100, 0.35);
+    color: #ff9999;
+}

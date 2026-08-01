@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import '../../styles/YouTubeFilters.css';
+import '../../styles/AlbumFilters.css';
 
 const AlbumFilters = ({
     selectedType,
@@ -18,61 +18,58 @@ const AlbumFilters = ({
     const sortOptions = ["Default", "Date (Newest)", "Date (Oldest)"];
 
     return (
-        <div className="filters-container">
-            {types && types.length > 0 && (
-                <Dropdown
-                    label="Type"
-                    selected={selectedType}
-                    onSelect={setSelectedType}
-                    options={types}
+        <div className="album-filters-bar">
+            {/* Filter chips row */}
+            <div className="filter-chips-row">
+                {types && types.length > 0 && (
+                    <FilterChipDropdown
+                        label="Type"
+                        selected={selectedType}
+                        onSelect={setSelectedType}
+                        options={types}
+                    />
+                )}
+
+                {languages && languages.length > 0 && (
+                    <FilterChipDropdown
+                        label="Language"
+                        selected={selectedLanguage}
+                        onSelect={setSelectedLanguage}
+                        options={languages}
+                    />
+                )}
+
+                <FilterChipDropdown
+                    label="Sort"
+                    selected={selectedSort}
+                    onSelect={setSelectedSort}
+                    options={sortOptions}
                 />
-            )}
 
-            {languages && languages.length > 0 && (
-                <Dropdown
-                    label="Language"
-                    selected={selectedLanguage}
-                    onSelect={setSelectedLanguage}
-                    options={languages}
-                />
-            )}
-
-            <Dropdown
-                label="Sort"
-                selected={selectedSort}
-                onSelect={setSelectedSort}
-                options={sortOptions}
-            />
-
-            <button
-                className={`yt-filter-btn yt-reset-btn ${isFiltered ? 'active' : 'disabled'}`}
-                onClick={onReset}
-                disabled={!isFiltered}
-                title="Reset Filters"
-            >
-                <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                >
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
+                {isFiltered && (
+                    <button
+                        className="filter-clear-btn"
+                        onClick={onReset}
+                        title="Clear all filters"
+                    >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        Clear
+                    </button>
+                )}
+            </div>
         </div>
     );
 };
 
-const Dropdown = ({ label, selected, onSelect, options }) => {
+const FilterChipDropdown = ({ label, selected, onSelect, options }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
-    // Close on click outside
+    const isActive = selected && selected !== "All" && selected !== "Default";
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -80,19 +77,17 @@ const Dropdown = ({ label, selected, onSelect, options }) => {
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     return (
-        <div className="yt-filter-dropdown" ref={dropdownRef}>
+        <div className="filter-chip-dropdown" ref={dropdownRef}>
             <button
-                className="yt-filter-btn"
+                className={`filter-chip ${isActive ? 'filter-chip--active' : ''} ${isOpen ? 'filter-chip--open' : ''}`}
                 onClick={() => setIsOpen(!isOpen)}
             >
-                <span className="yt-dropdown-label">{label}:</span>
-                {selected}
+                <span className="filter-chip-label">{label}</span>
+                <span className="filter-chip-value">{selected}</span>
                 <svg
                     width="12"
                     height="12"
@@ -102,26 +97,30 @@ const Dropdown = ({ label, selected, onSelect, options }) => {
                     strokeWidth="3"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className={`yt-arrow-icon ${isOpen ? 'open' : ''}`}
+                    className={`filter-chip-arrow ${isOpen ? 'open' : ''}`}
                 >
                     <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
             </button>
 
             {isOpen && (
-                <div className="yt-dropdown-menu">
+                <div className="filter-dropdown-menu">
                     {options.map((option) => (
-                        <div
+                        <button
                             key={option}
-                            className={`yt-dropdown-item ${selected === option ? "active" : ""}`}
+                            className={`filter-dropdown-item ${selected === option ? "filter-dropdown-item--active" : ""}`}
                             onClick={() => {
                                 onSelect(option);
                                 setIsOpen(false);
                             }}
                         >
-                            {option}
-                            {selected === option && <span>✓</span>}
-                        </div>
+                            <span>{option}</span>
+                            {selected === option && (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            )}
+                        </button>
                     ))}
                 </div>
             )}

@@ -21,7 +21,7 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
   // UI State
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState("albums"); // 'albums' | 'all-songs' | 'live' | 'others'
+  const [viewMode, setViewMode] = useState("albums"); // 'albums' | 'all-songs' | 'others'
 
   // Filter States
   const [selectedType, setSelectedType] = useState("All");
@@ -235,9 +235,8 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
           }
         });
       }
-      // CASE: LIVE OR ALL SONGS
+      // CASE: ALL SONGS
       else {
-        // Filter relevant albums logic
         const relevantAlbumIds = Object.keys(itemsMetadata).filter((id) =>
           isMatch(itemsMetadata[id])
         );
@@ -245,8 +244,6 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
         const promises = relevantAlbumIds.map(async (id) => {
           const meta = itemsMetadata[id];
           try {
-            // We need full playlist tracks.
-            // Optimization: Cache this? For now, fetch.
             const playlist = await getPlaylist(id);
             if (!playlist || !playlist.tracks) return [];
 
@@ -254,53 +251,23 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
             const youtubeIDs = albumsData[id]?.youtubeIDs || [];
             const localFormat = albumsData[id]?.format || "HD";
 
-            if (viewMode === "live") {
-              const liveTracks = [];
-              rawTracks.forEach((item, i) => {
-                if (!item.track || !youtubeIDs[i]) return;
-                const ytIds = youtubeIDs[i].split(",");
-                if (ytIds.length > 1) {
-                  const liveIds = ytIds.slice(1);
-                  liveIds.forEach((liveId, liveIndex) => {
-                    liveTracks.push({
-                      ...item.track,
-                      id: item.track.id,
-                      name: `${item.track.name} (Live ${liveIndex + 1})`,
-                      videoId: liveId.trim(),
-                      type: "Live Performance",
-                      format: localFormat,
-                      keyId: `${item.track.id}-live-${liveIndex}`,
-                      // context for playback
-                      trackUri: item.track.uri,
-                      // Fix for FullPlayer consistency (though Live view might use modal mostly, if it triggers FullPlayer it needs this)
-                      linked_youtube_id: liveId.trim(),
-                      linked_format: localFormat,
-                    });
-                  });
-                }
-              });
-              return liveTracks;
-            } else {
-              // all-songs
-              return rawTracks
-                .map((item, i) => {
-                  if (!item.track || !youtubeIDs[i]) return null;
-                  return {
-                    ...item.track,
-                    id: item.track.id,
-                    name: item.track.name,
-                    videoId: youtubeIDs[i], // For grid card
-                    type: meta.type || "Song",
-                    format: localFormat,
-                    keyId: item.track.id,
-                    trackUri: item.track.uri,
-                    // Fix for FullPlayer inconsistency:
-                    linked_youtube_id: youtubeIDs[i],
-                    linked_format: localFormat,
-                  };
-                })
-                .filter(Boolean);
-            }
+            return rawTracks
+              .map((item, i) => {
+                if (!item.track || !youtubeIDs[i]) return null;
+                return {
+                  ...item.track,
+                  id: item.track.id,
+                  name: item.track.name,
+                  videoId: youtubeIDs[i],
+                  type: meta.type || "Song",
+                  format: localFormat,
+                  keyId: item.track.id,
+                  trackUri: item.track.uri,
+                  linked_youtube_id: youtubeIDs[i],
+                  linked_format: localFormat,
+                };
+              })
+              .filter(Boolean);
           } catch (e) {
             console.warn("Error fetching tracks for album", id, e);
             return [];

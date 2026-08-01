@@ -1,16 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   getUserPlaylists,
-  getPlaylistTracks,
   playTrack,
-  searchTracks,
-  removeTrackFromPlaylist,
-  checkUserSavedTracks,
-  saveTracks,
-  removeSavedTracks,
-  getUserSavedTracks,
-  getArtistTopTracks,
-  getAlbum,
   nextTrack,
   prevTrack,
   pauseTrack,
@@ -18,7 +9,6 @@ import {
   seekTrack,
 } from "../services/spotifyApi";
 import useSpotifyPlayer from "../hooks/useSpotifyPlayer";
-import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import AlbumsView from "./AlbumsView";
 import PlayerBar from "./PlayerBar";
@@ -35,23 +25,11 @@ const Dashboard = () => {
   const [deviceId, setDeviceId] = useState(null);
 
   // UI State
-  const [currentTheme, setCurrentTheme] = useState("pure-dark");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [lastActivePlaylistContext, setLastActivePlaylistContext] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isFullPlayerOpen, setIsFullPlayerOpen] = useState(false);
   const [albumsResetToken, setAlbumsResetToken] = useState(0);
-
-  const themes = [
-    { id: "ocean-depths", name: "Ocean Depths" },
-    { id: "sunset-vibes", name: "Sunset Vibes" },
-    { id: "midnight-nebula", name: "Midnight Nebula" },
-    { id: "forest-rain", name: "Forest Rain" },
-    { id: "cyber-city", name: "Cyber City" },
-    { id: "royal-velvet", name: "Royal Velvet" },
-    { id: "pure-dark", name: "Pure Dark" },
-  ];
 
   // Fetch Playlists on Mount
   useEffect(() => {
@@ -166,25 +144,9 @@ const Dashboard = () => {
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
-  const goHome = () => {
-    // Albums is the only view, so just reset the token
-    setAlbumsResetToken(prev => prev + 1);
-    setSearchTerm("");
-  };
-
   const handleShowAlbums = () => {
     setAlbumsResetToken(prev => prev + 1);
     setSearchTerm("");
-  };
-
-  const getActiveModule = () => {
-    return "albums";
-  };
-
-  const handleModuleSelect = (moduleId) => {
-    if (moduleId === "albums") {
-      handleShowAlbums();
-    }
   };
 
   const performSearch = async () => {
@@ -192,53 +154,15 @@ const Dashboard = () => {
   };
 
   return (
-    <div
-      className={`dashboard-container ${currentTheme} ${!isSidebarOpen ? "sidebar-collapsed" : ""
-        }`}
-    >
-      <Sidebar
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-        activeModule={getActiveModule()}
-        onModuleSelect={handleModuleSelect}
-      />
-
+    <div className="dashboard-container pure-dark sidebar-collapsed">
       <div className="main-content">
-        {!isSidebarOpen && (
-          <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="sidebar-open-floating"
-            title="Show Library"
-          >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </button>
-        )}
-
         <TopBar
-          currentTheme={currentTheme}
-          setCurrentTheme={setCurrentTheme}
-          themes={themes}
-          isSidebarOpen={isSidebarOpen}
-          setIsSidebarOpen={setIsSidebarOpen}
-          goHome={goHome}
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           performSearch={performSearch}
           onShowAlbums={handleShowAlbums}
         />
 
-        {/* Albums is the only content view */}
         <AlbumsView handlePlay={handlePlay} searchTerm={searchTerm} formatTime={formatTime} resetToken={albumsResetToken} />
       </div>
 

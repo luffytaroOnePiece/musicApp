@@ -1,27 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import "../styles/TopBar.css";
 import { logout } from "../services/auth";
 
 const TopBar = ({
-  currentTheme,
-  setCurrentTheme,
-  themes,
-  isSidebarOpen,
-  setIsSidebarOpen,
-  goHome,
   searchTerm,
   setSearchTerm,
   performSearch,
   onShowAlbums,
 }) => {
-  const [themeMenuOpen, setThemeMenuOpen] = useState(false);
-
   return (
-    <div
-      className={`top-bar-controls top-bar-container-flex ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"
-        }`}
-    >
-      {/* Center - Search Bar (Expanded to Left) */}
+    <div className="top-bar-controls top-bar-container-flex sidebar-closed">
+      {/* Search Bar */}
       <div className="search-container search-container-flex">
         <div className="search-wrapper-relative">
           <svg
@@ -40,7 +29,7 @@ const TopBar = ({
           </svg>
           <input
             type="text"
-            placeholder="Search for playlist or songs..."
+            placeholder="Search albums..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => {
@@ -55,83 +44,7 @@ const TopBar = ({
 
       {/* Right Section - Controls */}
       <div className="right-controls-flex">
-        {/* Albums Button */}
-        <button
-          onClick={onShowAlbums}
-          className="albums-btn-top topbar-nav-btn"
-          title="Albums"
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="10"></circle>
-            <circle cx="12" cy="12" r="3"></circle>
-          </svg>
-          Albums
-        </button>
-
-        {/* Custom Dropdown for Modern Look */}
-        <div
-          className="custom-theme-dropdown"
-          onClick={() => setThemeMenuOpen(!themeMenuOpen)}
-        >
-          <button className="theme-btn-trigger">
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
-            </svg>
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className={`theme-arrow-icon ${themeMenuOpen ? "rotate-180" : "rotate-0"}`}
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </button>
-
-          {themeMenuOpen && (
-            <div className="theme-dropdown-menu">
-              {themes.map((t) => (
-                <div
-                  key={t.id}
-                  className={`theme-dropdown-item ${currentTheme === t.id ? "active" : ""
-                    }`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setCurrentTheme(t.id);
-                    setThemeMenuOpen(false);
-                  }}
-                >
-                  {t.name}
-                  {currentTheme === t.id && <span className="check">✓</span>}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <button onClick={logout} className="logout-btn-top">
+        <button onClick={logout} className="logout-btn-top" title="Logout">
           <svg
             width="18"
             height="18"

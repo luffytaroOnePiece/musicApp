@@ -32,12 +32,6 @@ const AlbumsHeader = ({
                         All Songs
                     </button>
                     <button
-                        className={`toggle-btn ${viewMode === 'live' ? 'active' : ''}`}
-                        onClick={() => setViewMode('live')}
-                    >
-                        Live
-                    </button>
-                    <button
                         className={`toggle-btn ${viewMode === 'others' ? 'active' : ''}`}
                         onClick={() => setViewMode('others')}
                     >

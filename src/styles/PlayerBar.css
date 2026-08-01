@@ -122,6 +122,8 @@
     border-radius: 4px;
     cursor: pointer;
     position: relative;
+    outline: none;
+    overflow: visible;
     /* Filled Progress Gradient */
     background-image: linear-gradient(to right,
             var(--accent-color),
@@ -130,7 +132,14 @@
     background-size: var(--progress, 0%) 100%;
 }
 
-/* Custom Thumb for Main Progress */
+/* Webkit Track (Chrome/Safari) */
+.progress-slider::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 4px;
+    background: transparent;
+}
+
+/* Custom Thumb for Main Progress (Chrome/Safari) */
 .progress-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 14px;
@@ -139,10 +148,14 @@
     background: white;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
     cursor: pointer;
-    /* Position fix for webkit thumbs on some browsers */
     margin-top: -5px;
-    transform: scale(1);
-    /* Always visible per design */
+}
+
+/* Firefox Track */
+.progress-slider::-moz-range-track {
+    height: 4px;
+    border-radius: 4px;
+    background: transparent;
 }
 
 /* Firefox Thumb */
