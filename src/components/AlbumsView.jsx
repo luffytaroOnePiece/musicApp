@@ -308,13 +308,9 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
   // Playback Handlers
   // 1. All Songs Playback (Play in Spotify)
   const handlePlayAllSongsItem = (item) => {
-    // item has trackUri
-    // Logic requires playing with context of the 'allSongs' list?
-    // Original code: handlePlay(trackUri, allSongs.map(t => t.uri), 0, allSongs);
-    // So we play this track, with the current shuffled list as queue.
     if (item.trackUri) {
-      const queueUris = songsList.map((s) => s.trackUri).filter(Boolean);
-      handlePlay(item.trackUri, queueUris, 0, songsList);
+      const queueUris = sortedSongs.map((s) => s.trackUri).filter(Boolean);
+      handlePlay(item.trackUri, queueUris, 0, sortedSongs);
     }
   };
 
@@ -452,6 +448,22 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
     });
   }, [filteredItems, selectedSort]);
 
+  // Sort Logic for SongsList (All Songs view)
+  const sortedSongs = useMemo(() => {
+    if (selectedSort === "Default") return songsList;
+
+    return [...songsList].sort((a, b) => {
+      const dateA = new Date(a.album?.release_date || 0);
+      const dateB = new Date(b.album?.release_date || 0);
+
+      if (selectedSort === "Date (Newest)") {
+        return dateB - dateA;
+      } else {
+        return dateA - dateB;
+      }
+    });
+  }, [songsList, selectedSort]);
+
   // RENDER
   if (error) {
     return (
@@ -513,7 +525,7 @@ const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
           ) : (
             <AggregatedGrid
               viewMode={viewMode}
-              items={songsList}
+              items={sortedSongs}
               loading={loadingSongs}
               searchTerm={searchTerm}
               onPlay={handleGridPlay}

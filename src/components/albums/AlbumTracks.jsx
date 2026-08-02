@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import YouTubeCard from '../youtube/YouTubeCard';
 import '../../styles/albums/AlbumDetail.css';
+import '../../styles/AlbumFilters.css';
 
 const AlbumTracks = ({
     viewMode,
@@ -21,6 +22,8 @@ const AlbumTracks = ({
         const [isOpen, setIsOpen] = useState(false);
         const dropdownRef = useRef(null);
 
+        const isActive = selected && selected !== "Original" && selected !== "Default";
+
         useEffect(() => {
             const handleClickOutside = (event) => {
                 if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -34,14 +37,13 @@ const AlbumTracks = ({
         }, []);
 
         return (
-            <div className="yt-filter-dropdown" ref={dropdownRef}>
+            <div className="filter-chip-dropdown" ref={dropdownRef}>
                 <button
-                    className="yt-filter-btn"
+                    className={`filter-chip ${isActive ? 'filter-chip--active' : ''} ${isOpen ? 'filter-chip--open' : ''}`}
                     onClick={() => setIsOpen(!isOpen)}
-                    style={{ color: 'var(--text-secondary)', fontWeight: 500 }}
                 >
-                    <span className="yt-dropdown-label" style={{ marginRight: 6 }}>{label}:</span>
-                    <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{selected}</span>
+                    <span className="filter-chip-label">{label}</span>
+                    <span className="filter-chip-value">{selected}</span>
                     <svg
                         width="12"
                         height="12"
@@ -51,27 +53,30 @@ const AlbumTracks = ({
                         strokeWidth="3"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        className={`yt-arrow-icon ${isOpen ? 'open' : ''}`}
-                        style={{ marginLeft: 6 }}
+                        className={`filter-chip-arrow ${isOpen ? 'open' : ''}`}
                     >
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
                 </button>
 
                 {isOpen && (
-                    <div className="yt-dropdown-menu" style={{ minWidth: 160, right: 0, left: 'auto' }}>
+                    <div className="filter-dropdown-menu" style={{ right: 0, left: 'auto', minWidth: 160 }}>
                         {options.map((option) => (
-                            <div
+                            <button
                                 key={option}
-                                className={`yt-dropdown-item ${selected === option ? "active" : ""}`}
+                                className={`filter-dropdown-item ${selected === option ? "filter-dropdown-item--active" : ""}`}
                                 onClick={() => {
                                     onSelect(option);
                                     setIsOpen(false);
                                 }}
                             >
-                                {option}
-                                {selected === option && <span>✓</span>}
-                            </div>
+                                <span>{option}</span>
+                                {selected === option && (
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                )}
+                            </button>
                         ))}
                     </div>
                 )}

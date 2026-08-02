@@ -399,7 +399,11 @@ const AlbumDetail = ({
                     tracks={tracks}
                     localData={localData}
                     handleVideoClick={handleVideoClick}
-                    onPlay={onPlay}
+                    onPlay={(trackUri) => {
+                        const queueUris = visibleTracks.map(item => item.track?.uri).filter(Boolean);
+                        const queueTracks = visibleTracks.map(item => item.track).filter(Boolean);
+                        onPlay(trackUri, queueUris, queueTracks);
+                    }}
                     localSearchTerm={localSearchTerm}
                     setLocalSearchTerm={setLocalSearchTerm}
                     sortOrder={sortOrder}
