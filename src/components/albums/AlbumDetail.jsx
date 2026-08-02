@@ -53,6 +53,13 @@ const AlbumDetail = ({
     const formattedTotalDuration = formatTime(totalDurationMs);
     const releaseYear = fullItemData.release_date?.split('-')[0];
 
+    const backdropUrl = useMemo(() => {
+        if (tmdbInfo && tmdbInfo.backdrop_path) {
+            return getImageUrl(tmdbInfo.backdrop_path, 'original');
+        }
+        return null;
+    }, [tmdbInfo]);
+
     // -- Fetch TMDB Data --
     useEffect(() => {
         const fetchTmdbData = async () => {
@@ -315,6 +322,7 @@ const AlbumDetail = ({
                 onShuffleContext={onShuffleContext}
                 onBack={onBack}
                 hasOthers={albumOthers && albumOthers.length > 0}
+                backdropUrl={backdropUrl}
             />
 
             {viewMode === 'info' ? (

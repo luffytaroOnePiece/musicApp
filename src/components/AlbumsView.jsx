@@ -10,11 +10,17 @@ import AggregatedGrid from "./albums/AggregatedGrid";
 import VideoModal from "./common/VideoModal";
 import "../styles/AlbumsView.css";
 
-const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken }) => {
+const AlbumsView = ({ handlePlay, searchTerm, formatTime, resetToken, onDetailActiveChange }) => {
   // Selection state
   const [selectedId, setSelectedId] = useState(null);
   const [itemsMetadata, setItemsMetadata] = useState({});
   const [fullItemData, setFullItemData] = useState(null);
+
+  useEffect(() => {
+    if (onDetailActiveChange) {
+      onDetailActiveChange(!!selectedId);
+    }
+  }, [selectedId, onDetailActiveChange]);
 
   // UI State
   const [loading, setLoading] = useState(true);

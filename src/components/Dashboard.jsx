@@ -30,6 +30,7 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isFullPlayerOpen, setIsFullPlayerOpen] = useState(false);
   const [albumsResetToken, setAlbumsResetToken] = useState(0);
+  const [isDetailActive, setIsDetailActive] = useState(false);
 
   // Fetch Playlists on Mount
   useEffect(() => {
@@ -161,9 +162,16 @@ const Dashboard = () => {
           setSearchTerm={setSearchTerm}
           performSearch={performSearch}
           onShowAlbums={handleShowAlbums}
+          showSearch={!isDetailActive}
         />
 
-        <AlbumsView handlePlay={handlePlay} searchTerm={searchTerm} formatTime={formatTime} resetToken={albumsResetToken} />
+        <AlbumsView 
+          handlePlay={handlePlay} 
+          searchTerm={searchTerm} 
+          formatTime={formatTime} 
+          resetToken={albumsResetToken} 
+          onDetailActiveChange={setIsDetailActive}
+        />
       </div>
 
       {!isFullPlayerOpen && currentTrack && (
