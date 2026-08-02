@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-08-01T15:39:17.244Z",
+  "lastUpdated": "2026-08-02T02:44:43.254Z",
   "videos": {
     "us61eVD7Tps": {
       "id": "us61eVD7Tps",
@@ -32,6 +32,14 @@
       "duration": "1:54",
       "durationSec": 114,
       "cachedAt": "2026-08-01T15:24:26.633Z"
+    },
+    "qg1DHoFbn0I": {
+      "id": "qg1DHoFbn0I",
+      "title": "Full Video: Jaya Mangalam | Lenin | Akhil Akkineni | Bhagyashri Borse | Thaman S | Murali Kishor A",
+      "thumbnail": "https://img.youtube.com/vi/qg1DHoFbn0I/maxresdefault.jpg",
+      "duration": "3:23",
+      "durationSec": 203,
+      "cachedAt": "2026-08-02T02:44:42.948Z"
     }
   }
 }
