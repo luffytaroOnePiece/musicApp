@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { getPlaylist } from "../services/spotifyApi";
-import movieAlbums from "../data/movieAlbums.json";
-import privateAlbums from "../data/privateAlbums.json";
+import albumsData from "../data/albumsData.json";
 
-const albumsData = { ...movieAlbums, ...privateAlbums };
 import othersData from "../data/others.json";
 import AlbumsList from "./albums/AlbumsList";
 import AlbumDetail from "./albums/AlbumDetail";

@@ -3,8 +3,7 @@ import { getPlaylist } from '../../services/spotifyApi';
 import { searchMulti, getDetails, getImages, getImageUrl } from '../../services/tmdbApi';
 import othersData from '../../data/others.json';
 import AlbumCard from "./AlbumCard";
-import privateAlbums from '../../data/privateAlbums.json';
-import movieAlbums from '../../data/movieAlbums.json';
+import albumsData from '../../data/albumsData.json';
 import '../../styles/albums/AlbumDetail.css';
 
 // Sub-components
@@ -168,7 +167,7 @@ const AlbumDetail = ({
 
     const moreByArtist = useMemo(() => {
         if (!currentArtistName) return [];
-        const allAlbums = { ...movieAlbums, ...privateAlbums };
+        const allAlbums = albumsData;
 
         // Special Case: "Srikar" -> Show 10 random albums matching Type & Language
         if (currentArtistName.toLowerCase().includes("srikar")) {

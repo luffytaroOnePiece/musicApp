@@ -1,7 +1,10 @@
 {
   "6IU9xlFB5posvcDDkETDPU": {
-    "name": "Telugu Playlist",
+    "name": "Lenin",
     "youtubePlaylist": "https://youtube.com/playlist?list=PLLQM2eVZ57Rw",
+    "livePlaylist": "",
+    "type": "Movie",
+    "language": "Telugu",
     "youtubeIDs": [
       "us61eVD7Tps",
       "EjnJ0T5qqVM",
@@ -9,12 +12,20 @@
       "8r0QQKuNmDY",
       "qg1DHoFbn0I"
     ],
-    "type": "Movie",
-    "language": "Telugu"
+    "liveIDs": []
   },
   "1xG0IjyDlGaGwYYr9bJFad": {
-    "name": "Telugu Playlist",
+    "name": "Telugu Playlist 2",
     "youtubePlaylist": "https://youtube.com/playlist?list=PLWA6_wa76_FA",
+    "livePlaylist": "",
     "type": "Movie",
-    "language": "Telugu"
+    "language": "Telugu",
+    "youtubeIDs": [
+      "IRBEhaYydS8",
+      "RyzPweJKJ9M",
+      "p-dSzDYunL8",
+      "tlRlavbg3sY"
+    ],
+    "liveIDs": []
   }
+}

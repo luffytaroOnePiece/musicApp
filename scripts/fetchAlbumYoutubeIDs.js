@@ -8,8 +8,8 @@ const __dirname = path.dirname(__filename);
 
 // ─── Paths ───────────────────────────────────────────────────────────────────
 const DATA_DIR = path.join(__dirname, '../src/data');
-const MOVIE_ALBUMS_FILE = path.join(DATA_DIR, 'movieAlbums.json');
-const PRIVATE_ALBUMS_FILE = path.join(DATA_DIR, 'privateAlbums.json');
+const PLAYLISTS_FILE = path.join(DATA_DIR, 'playlists.json');       // Source of truth (human-edited)
+const ALBUMS_DATA_FILE = path.join(DATA_DIR, 'albumsData.json');    // Generated output (app reads this)
 const CACHE_FILE = path.join(DATA_DIR, 'albumYoutubeCache.json');
 
 // ─── Config ──────────────────────────────────────────────────────────────────
@@ -18,31 +18,17 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-/**
- * Extract YouTube playlist ID from various URL formats.
- */
 function extractPlaylistId(urlOrId) {
   if (!urlOrId) return null;
   const str = urlOrId.trim();
-
-  // Full URL: extract `list=` param
   if (str.includes('list=')) {
     const match = str.match(/list=([A-Za-z0-9_-]+)/);
     return match ? match[1] : null;
   }
-
-  // Bare playlist ID (starts with PL usually)
-  if (/^[A-Za-z0-9_-]{10,}$/.test(str)) {
-    return str;
-  }
-
+  if (/^[A-Za-z0-9_-]{10,}$/.test(str)) return str;
   return null;
 }
 
-/**
- * Fetch playlist items via yt-dlp --flat-playlist.
- * Returns array of { id, title, index } in playlist order.
- */
 function fetchPlaylistItems(playlistId) {
   const url = `https://www.youtube.com/playlist?list=${playlistId}`;
   try {
@@ -65,9 +51,6 @@ function fetchPlaylistItems(playlistId) {
   }
 }
 
-/**
- * Format seconds → "M:SS" or "H:MM:SS"
- */
 function formatDuration(seconds) {
   const hrs = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
@@ -80,11 +63,8 @@ function formatDuration(seconds) {
 
 function loadCache() {
   if (fs.existsSync(CACHE_FILE)) {
-    try {
-      return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf-8'));
-    } catch {
-      console.warn('⚠️  Could not parse cache file, starting fresh.');
-    }
+    try { return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf-8')); }
+    catch { console.warn('⚠️  Could not parse cache, starting fresh.'); }
   }
   return { lastUpdated: null, videos: {} };
 }
@@ -94,65 +74,32 @@ function saveCache(cache) {
   fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
 }
 
-// ─── Main Logic ──────────────────────────────────────────────────────────────
+// ─── Process a single playlist URL → array of video IDs ─────────────────────
 
-function loadAlbumsFile(filePath) {
-  if (!fs.existsSync(filePath)) {
-    console.warn(`⚠️  File not found: ${filePath}`);
-    return {};
-  }
-  return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-}
-
-function saveAlbumsFile(filePath, data) {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n');
-}
-
-/**
- * Process a single album entry that has a youtubePlaylist field.
- * - Fetches the YouTube playlist
- * - Populates youtubeIDs in order
- * - Updates the cache with video metadata
- * 
- * Returns { updated: boolean, newCount: number, cachedCount: number }
- */
-async function processAlbum(spotifyId, albumData, cache) {
-  const playlistUrl = albumData.youtubePlaylist;
+function processPlaylist(playlistUrl, cache, label) {
   const playlistId = extractPlaylistId(playlistUrl);
-
   if (!playlistId) {
     console.error(`  ⚠️  Could not extract playlist ID from: ${playlistUrl}`);
-    return { updated: false, newCount: 0, cachedCount: 0 };
+    return { ids: [], newCount: 0, cachedCount: 0 };
   }
 
-  console.log(`  📋 Fetching YouTube playlist: ${playlistId}`);
+  console.log(`  📋 Fetching ${label}: ${playlistId}`);
   const items = fetchPlaylistItems(playlistId);
 
   if (items.length === 0) {
-    console.error(`  ❌ No videos found in playlist ${playlistId}`);
-    return { updated: false, newCount: 0, cachedCount: 0 };
+    console.error(`  ❌ No videos found in ${label} ${playlistId}`);
+    return { ids: [], newCount: 0, cachedCount: 0 };
   }
 
-  // Check if youtubeIDs already match (cache hit = no change needed)
-  const existingIds = albumData.youtubeIDs || [];
-  const newIds = items.map(item => item.id);
+  let newCount = 0, cachedCount = 0;
 
-  const idsChanged = existingIds.length !== newIds.length ||
-    existingIds.some((id, i) => id !== newIds[i]);
-
-  let newCount = 0;
-  let cachedCount = 0;
-
-  // Update cache with video metadata
   for (const item of items) {
     if (cache.videos[item.id]) {
-      // Already cached — just update title if different
       if (cache.videos[item.id].title !== item.title && item.title !== 'Untitled') {
         cache.videos[item.id].title = item.title;
       }
       cachedCount++;
     } else {
-      // New video — add to cache
       cache.videos[item.id] = {
         id: item.id,
         title: item.title,
@@ -165,25 +112,11 @@ async function processAlbum(spotifyId, albumData, cache) {
     }
   }
 
-  // Update album's youtubeIDs (always write in playlist order)
-  albumData.youtubeIDs = newIds;
-
-  if (idsChanged) {
-    console.log(`  ✅ Updated: ${newIds.length} videos (${newCount} new, ${cachedCount} cached)`);
-  } else {
-    console.log(`  ⚡ No changes: ${newIds.length} videos (all cached)`);
-  }
-
-  return { updated: idsChanged, newCount, cachedCount };
+  return { ids: items.map(i => i.id), newCount, cachedCount };
 }
 
-/**
- * Main entry point.
- * Options:
- *   --language <lang>   Only process albums matching this language
- *   --file <filename>   Only process a specific file (movieAlbums or privateAlbums)
- *   --id <spotifyId>    Only process a specific album by Spotify ID
- */
+// ─── Main ────────────────────────────────────────────────────────────────────
+
 async function main() {
   const args = process.argv.slice(2);
   const flags = {};
@@ -195,95 +128,103 @@ async function main() {
   }
 
   const filterLanguage = flags.language || null;
-  const filterFile = flags.file || null;
   const filterId = flags.id || null;
 
   console.log('\n🎵 Album YouTube IDs Fetch Script');
   console.log('═'.repeat(50));
-
   if (filterLanguage) console.log(`🔍 Filter: language = "${filterLanguage}"`);
-  if (filterFile) console.log(`🔍 Filter: file = "${filterFile}"`);
   if (filterId) console.log(`🔍 Filter: id = "${filterId}"`);
-  console.log('');
+
+  // Load source config
+  if (!fs.existsSync(PLAYLISTS_FILE)) {
+    console.error('❌ playlists.json not found!');
+    process.exit(1);
+  }
+  const playlists = JSON.parse(fs.readFileSync(PLAYLISTS_FILE, 'utf-8'));
+
+  // Load existing output (for merging/preserving fields like tmdbID)
+  let existingOutput = {};
+  if (fs.existsSync(ALBUMS_DATA_FILE)) {
+    try { existingOutput = JSON.parse(fs.readFileSync(ALBUMS_DATA_FILE, 'utf-8')); }
+    catch { /* fresh start */ }
+  }
 
   // Load cache
   const cache = loadCache();
-  const cachedVideoCount = Object.keys(cache.videos).length;
-  console.log(`📦 Cache: ${cachedVideoCount} videos loaded.`);
+  console.log(`\n📦 Cache: ${Object.keys(cache.videos).length} videos loaded.`);
   if (cache.lastUpdated) console.log(`📅 Last updated: ${cache.lastUpdated}`);
-  console.log('');
 
-  // Load album files
-  const files = [];
-  if (!filterFile || filterFile === 'movieAlbums') {
-    files.push({ path: MOVIE_ALBUMS_FILE, name: 'movieAlbums' });
-  }
-  if (!filterFile || filterFile === 'privateAlbums') {
-    files.push({ path: PRIVATE_ALBUMS_FILE, name: 'privateAlbums' });
-  }
+  const output = {};
+  let totalProcessed = 0, totalUpdated = 0, totalNew = 0;
 
-  let totalProcessed = 0;
-  let totalUpdated = 0;
-  let totalNew = 0;
-  let totalSkipped = 0;
+  const entries = Object.entries(playlists);
+  console.log(`\n📂 Processing ${entries.length} playlists`);
+  console.log('─'.repeat(50));
 
-  for (const file of files) {
-    const albums = loadAlbumsFile(file.path);
-    const entries = Object.entries(albums);
-    let fileModified = false;
+  for (const [spotifyId, config] of entries) {
+    if (filterId && spotifyId !== filterId) continue;
+    if (filterLanguage && config.language !== filterLanguage) continue;
 
-    console.log(`\n📂 Processing ${file.name}.json (${entries.length} albums)`);
-    console.log('─'.repeat(50));
+    console.log(`\n🎬 ${config.name} [${config.language || '?'}]`);
+    totalProcessed++;
 
-    for (const [spotifyId, albumData] of entries) {
-      // Filter by ID
-      if (filterId && spotifyId !== filterId) continue;
+    // Start with config fields
+    const entry = {
+      name: config.name,
+      youtubePlaylist: config.youtubePlaylist || '',
+      livePlaylist: config.livePlaylist || '',
+      type: config.type || 'Movie',
+      language: config.language || '',
+    };
 
-      // Filter by language
-      if (filterLanguage && albumData.language !== filterLanguage) continue;
-
-      // Skip albums without youtubePlaylist field
-      if (!albumData.youtubePlaylist) {
-        totalSkipped++;
-        continue;
-      }
-
-      console.log(`\n🎬 ${albumData.name || spotifyId} [${albumData.language || '?'}]`);
-      totalProcessed++;
-
-      try {
-        const result = await processAlbum(spotifyId, albumData, cache);
-        if (result.updated) {
-          totalUpdated++;
-          fileModified = true;
-        }
-        totalNew += result.newCount;
-      } catch (err) {
-        console.error(`  ❌ Error processing ${spotifyId}: ${err.message}`);
-      }
-
-      // Small delay between albums to be nice to YouTube
-      await sleep(DELAY_MS);
+    // Preserve extra fields from existing output (e.g. tmdbID)
+    if (existingOutput[spotifyId]) {
+      const prev = existingOutput[spotifyId];
+      if (prev.tmdbID) entry.tmdbID = prev.tmdbID;
     }
 
-    // Write back if modified
-    if (fileModified) {
-      saveAlbumsFile(file.path, albums);
-      console.log(`\n💾 Saved ${file.name}.json`);
+    // Fetch main YouTube playlist
+    if (config.youtubePlaylist) {
+      const result = processPlaylist(config.youtubePlaylist, cache, 'YouTube playlist');
+      entry.youtubeIDs = result.ids;
+      totalNew += result.newCount;
+
+      const prevIds = existingOutput[spotifyId]?.youtubeIDs || [];
+      if (JSON.stringify(prevIds) !== JSON.stringify(result.ids)) totalUpdated++;
+
+      console.log(`  ✅ ${result.ids.length} videos (${result.newCount} new, ${result.cachedCount} cached)`);
+    } else {
+      entry.youtubeIDs = existingOutput[spotifyId]?.youtubeIDs || [];
     }
+
+    // Fetch live playlist
+    if (config.livePlaylist) {
+      const result = processPlaylist(config.livePlaylist, cache, 'Live playlist');
+      entry.liveIDs = result.ids;
+      totalNew += result.newCount;
+      console.log(`  🎤 ${result.ids.length} live videos (${result.newCount} new, ${result.cachedCount} cached)`);
+    } else {
+      entry.liveIDs = existingOutput[spotifyId]?.liveIDs || [];
+    }
+
+    output[spotifyId] = entry;
+    await sleep(DELAY_MS);
   }
+
+  // Write output
+  fs.writeFileSync(ALBUMS_DATA_FILE, JSON.stringify(output, null, 2) + '\n');
+  console.log(`\n💾 Saved albumsData.json (${Object.keys(output).length} albums)`);
 
   // Save cache
   saveCache(cache);
-  console.log(`\n💾 Saved cache (${Object.keys(cache.videos).length} total videos)`);
+  console.log(`💾 Saved cache (${Object.keys(cache.videos).length} total videos)`);
 
   // Summary
   console.log('\n' + '═'.repeat(50));
   console.log(`📊 Summary:`);
-  console.log(`   Processed: ${totalProcessed} albums with youtubePlaylist`);
-  console.log(`   Updated:   ${totalUpdated} albums had changes`);
+  console.log(`   Processed:  ${totalProcessed} albums`);
+  console.log(`   Updated:    ${totalUpdated} albums had changes`);
   console.log(`   New videos: ${totalNew}`);
-  console.log(`   Skipped:   ${totalSkipped} albums (no youtubePlaylist field)`);
   console.log('═'.repeat(50) + '\n');
 }
 

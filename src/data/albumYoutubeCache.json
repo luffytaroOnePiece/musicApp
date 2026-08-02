@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-08-02T02:44:43.254Z",
+  "lastUpdated": "2026-08-02T03:03:31.633Z",
   "videos": {
     "us61eVD7Tps": {
       "id": "us61eVD7Tps",
@@ -40,6 +40,38 @@
       "duration": "3:23",
       "durationSec": 203,
       "cachedAt": "2026-08-02T02:44:42.948Z"
+    },
+    "IRBEhaYydS8": {
+      "id": "IRBEhaYydS8",
+      "title": "Full Video: Hellallallo | Peddi | Ram Charan | Buchi Babu | Shruthi Haasan | Janhvi | AR Rahman",
+      "thumbnail": "https://img.youtube.com/vi/IRBEhaYydS8/maxresdefault.jpg",
+      "duration": "4:00",
+      "durationSec": 240,
+      "cachedAt": "2026-08-02T03:02:48.425Z"
+    },
+    "RyzPweJKJ9M": {
+      "id": "RyzPweJKJ9M",
+      "title": "Full Video: Chikiri Chikiri | Peddi | Ram Charan | Janhvi | Buchi Babu | AR Rahman | Mohit Chauhan",
+      "thumbnail": "https://img.youtube.com/vi/RyzPweJKJ9M/maxresdefault.jpg",
+      "duration": "4:38",
+      "durationSec": 278,
+      "cachedAt": "2026-08-02T03:02:48.427Z"
+    },
+    "p-dSzDYunL8": {
+      "id": "p-dSzDYunL8",
+      "title": "Full Video: Rai Rai Raa Raa Song | Peddi | Ram Charan | Janhvi | Buchi Babu Sana | AR Rahman",
+      "thumbnail": "https://img.youtube.com/vi/p-dSzDYunL8/maxresdefault.jpg",
+      "duration": "4:44",
+      "durationSec": 284,
+      "cachedAt": "2026-08-02T03:02:48.427Z"
+    },
+    "tlRlavbg3sY": {
+      "id": "tlRlavbg3sY",
+      "title": "Full Video: Massa Massa | Peddi | Ram Charan | Buchi Babu | Janhvi | AR Rahman |Vishal Mishra",
+      "thumbnail": "https://img.youtube.com/vi/tlRlavbg3sY/maxresdefault.jpg",
+      "duration": "4:23",
+      "durationSec": 263,
+      "cachedAt": "2026-08-02T03:02:48.427Z"
     }
   }
 }
