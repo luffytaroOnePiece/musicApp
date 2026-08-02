@@ -175,12 +175,15 @@ async function main() {
       livePlaylist: config.livePlaylist || '',
       type: config.type || 'Movie',
       language: config.language || '',
+      movieId: config.movieId || '',
+      tmdbID: config.movieId || '',
     };
 
-    // Preserve extra fields from existing output (e.g. tmdbID)
+    // Preserve extra fields from existing output (e.g. tmdbID if not set in config)
     if (existingOutput[spotifyId]) {
       const prev = existingOutput[spotifyId];
-      if (prev.tmdbID) entry.tmdbID = prev.tmdbID;
+      if (prev.tmdbID && !entry.tmdbID) entry.tmdbID = prev.tmdbID;
+      if (prev.movieId && !entry.movieId) entry.movieId = prev.movieId;
     }
 
     // Fetch main YouTube playlist

@@ -60,7 +60,22 @@ const AlbumDetail = ({
 
             setLoadingTmdb(true);
             try {
-                // Priority 1: Check if personID exists in localData (Private/Artist Albums)
+                // Priority 1: Check if movieId or tmdbID exists in localData (Movie Albums)
+                const targetMovieId = localData?.movieId || localData?.tmdbID;
+                if (targetMovieId) {
+                    const type = 'movie';
+                    const details = await getDetails(targetMovieId, type);
+                    const images = await getImages(targetMovieId, type);
+
+                    setTmdbInfo(details);
+                    if (images) {
+                        const allImages = [...(images.backdrops || []), ...(images.posters || [])];
+                        setTmdbImages(allImages);
+                    }
+                    return; // Exit if ID was found and used
+                }
+
+                // Priority 2: Check if personID exists in localData (Private/Artist Albums)
                 if (localData?.personID) {
                     const personIdRaw = localData.personID.split('-')[0];
                     if (personIdRaw) {
@@ -96,22 +111,6 @@ const AlbumDetail = ({
                         setTmdbImages(finalImages);
                         return;
                     }
-                }
-
-                // Priority 2: Check if tmdbID exists in localData (Movie Albums)
-                if (localData?.tmdbID) {
-                    // Assume 'movie' as default for now, or check localData.type
-                    // Since the user said "Movie Albums", prioritizing movie.
-                    const type = 'movie';
-                    const details = await getDetails(localData.tmdbID, type);
-                    const images = await getImages(localData.tmdbID, type);
-
-                    setTmdbInfo(details);
-                    if (images) {
-                        const allImages = [...(images.backdrops || []), ...(images.posters || [])];
-                        setTmdbImages(allImages);
-                    }
-                    return; // Exit if ID was found and used
                 }
 
                 // Priority 2: Search by Name
