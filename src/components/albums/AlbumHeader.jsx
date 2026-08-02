@@ -1,6 +1,23 @@
 import React from 'react';
 import '../../styles/albums/AlbumDetail.css';
 
+function formatRevenue(amount) {
+    if (!amount) return null;
+    if (amount >= 1e9) {
+        return `$${(amount / 1e9).toFixed(2)}B`;
+    }
+    if (amount >= 1e6) {
+        return `$${(amount / 1e6).toFixed(1)}M`;
+    }
+    return `$${amount.toLocaleString()}`;
+}
+
+function formatReleaseDate(dateString) {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 const AlbumHeader = ({
     fullItemData,
     localData = {},
@@ -13,8 +30,15 @@ const AlbumHeader = ({
     onShuffleContext,
     onBack,
     hasOthers,
-    backdropUrl
+    backdropUrl,
+    tmdbInfo,
+    trailerId,
+    onWatchTrailer
 }) => {
+    const formattedRelease = tmdbInfo?.release_date ? formatReleaseDate(tmdbInfo.release_date) : null;
+    const formattedRevenue = tmdbInfo?.revenue ? formatRevenue(tmdbInfo.revenue) : null;
+    const rating = tmdbInfo?.vote_average ? tmdbInfo.vote_average.toFixed(1) : null;
+
     return (
         <div className={`album-banner-hero-container ${backdropUrl ? 'has-backdrop' : ''}`}>
             {backdropUrl && (
@@ -54,7 +78,10 @@ const AlbumHeader = ({
                     <span className="album-type-badge">{localData.type || "Playlist"}</span>
                     <h1>{fullItemData.name}</h1>
                     <p className="album-meta-text">
-                        {fullItemData.owner?.display_name} • {releaseYear ? `${releaseYear} • ` : ""}{tracksCount} songs, {totalDuration}
+                        {fullItemData.owner?.display_name} • {tracksCount} songs, {totalDuration}
+                        {formattedRelease && ` • Released: ${formattedRelease}`}
+                        {formattedRevenue && ` • Box Office: ${formattedRevenue}`}
+                        {rating && ` • ★ ${rating}`}
                     </p>
                     {fullItemData.description && (
                         <p className="description" dangerouslySetInnerHTML={{ __html: fullItemData.description }}></p>
@@ -83,6 +110,15 @@ const AlbumHeader = ({
                             </svg>
                             Live Performance
                         </button>
+
+                        {trailerId && (
+                            <button className="shuffle-btn-secondary" onClick={() => onWatchTrailer(trailerId)}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                </svg>
+                                Trailer
+                            </button>
+                        )}
 
                         {hasOthers && (
                             <button

@@ -5,7 +5,8 @@
     "livePlaylist": "",
     "type": "Movie",
     "language": "Telugu",
-    "movieId": "1408170"
+    "movieId": "1408170",
+    "TrailerId": "i0j94mF3otA"
   },
   "1xG0IjyDlGaGwYYr9bJFad": {
     "name": "Peddi",
@@ -13,7 +14,8 @@
     "livePlaylist": "",
     "type": "Movie",
     "language": "Telugu",
-    "movieId": "1057265"
+    "movieId": "1057265",
+    "TrailerId": "sF2dj7ycZvA"
   },
   "2MuwhECVrQ82UkVmMT3YUL": {
     "name": "Alpha Girls",
@@ -21,6 +23,7 @@
     "livePlaylist": "",
     "type": "Movie",
     "language": "Hindi",
-    "movieId": "1122030"
+    "movieId": "1122030",
+    "TrailerId": "QRqGwGwo1Y0"
   }
 }

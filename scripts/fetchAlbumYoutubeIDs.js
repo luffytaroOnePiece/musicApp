@@ -177,6 +177,7 @@ async function main() {
       language: config.language || '',
       movieId: config.movieId || '',
       tmdbID: config.movieId || '',
+      trailerId: config.TrailerId || config.trailerId || '',
     };
 
     // Preserve extra fields from existing output (e.g. tmdbID if not set in config)
@@ -184,6 +185,7 @@ async function main() {
       const prev = existingOutput[spotifyId];
       if (prev.tmdbID && !entry.tmdbID) entry.tmdbID = prev.tmdbID;
       if (prev.movieId && !entry.movieId) entry.movieId = prev.movieId;
+      if (prev.trailerId && !entry.trailerId) entry.trailerId = prev.trailerId;
     }
 
     // Fetch main YouTube playlist

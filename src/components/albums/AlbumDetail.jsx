@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { getPlaylist } from '../../services/spotifyApi';
-import { searchMulti, getDetails, getImages, getImageUrl } from '../../services/tmdbApi';
+import { searchMulti, getDetails, getImages, getImageUrl, getVideos } from '../../services/tmdbApi';
 import othersData from '../../data/others.json';
 import AlbumCard from "./AlbumCard";
 import albumsData from '../../data/albumsData.json';
@@ -32,6 +32,7 @@ const AlbumDetail = ({
     const [tmdbInfo, setTmdbInfo] = useState(null);
     const [tmdbImages, setTmdbImages] = useState([]);
     const [loadingTmdb, setLoadingTmdb] = useState(false);
+    const [trailerId, setTrailerId] = useState(null);
 
     // Lightbox State
     const [selectedImage, setSelectedImage] = useState(null);
@@ -66,6 +67,7 @@ const AlbumDetail = ({
             if (!fullItemData.name) return;
 
             setLoadingTmdb(true);
+            setTrailerId(null);
             try {
                 // Priority 1: Check if movieId or tmdbID exists in localData (Movie Albums)
                 const targetMovieId = localData?.movieId || localData?.tmdbID;
@@ -73,11 +75,20 @@ const AlbumDetail = ({
                     const type = 'movie';
                     const details = await getDetails(targetMovieId, type);
                     const images = await getImages(targetMovieId, type);
+                    const videoData = await getVideos(targetMovieId, type);
 
                     setTmdbInfo(details);
                     if (images) {
                         const allImages = [...(images.backdrops || []), ...(images.posters || [])];
                         setTmdbImages(allImages);
+                    }
+                    if (videoData && videoData.results) {
+                        const trailer = videoData.results.find(
+                            (v) => v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser")
+                        );
+                        if (trailer) {
+                            setTrailerId(trailer.key);
+                        }
                     }
                     return; // Exit if ID was found and used
                 }
@@ -121,24 +132,29 @@ const AlbumDetail = ({
                 }
 
                 // Priority 2: Search by Name
-                // Heuristic: remove "Soundtrack", "OST", "(Original Motion Picture Soundtrack)" etc. 
                 const query = fullItemData.name.replace(/\(.*\)/g, '').trim();
-
                 const searchRes = await searchMulti(query);
 
                 if (searchRes && searchRes.results && searchRes.results.length > 0) {
-                    // Prioritize Movie and TV
                     const match = searchRes.results.find(r => r.media_type === 'movie' || r.media_type === 'tv');
 
                     if (match) {
                         const details = await getDetails(match.id, match.media_type);
                         const images = await getImages(match.id, match.media_type);
+                        const videoData = await getVideos(match.id, match.media_type);
 
                         setTmdbInfo(details);
                         if (images) {
-                            // Combine backdrops and posters
                             const allImages = [...(images.backdrops || []), ...(images.posters || [])];
                             setTmdbImages(allImages);
+                        }
+                        if (videoData && videoData.results) {
+                            const trailer = videoData.results.find(
+                                (v) => v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser")
+                            );
+                            if (trailer) {
+                                setTrailerId(trailer.key);
+                            }
                         }
                     }
                 }
@@ -323,6 +339,9 @@ const AlbumDetail = ({
                 onBack={onBack}
                 hasOthers={albumOthers && albumOthers.length > 0}
                 backdropUrl={backdropUrl}
+                tmdbInfo={tmdbInfo}
+                trailerId={localData?.trailerId || trailerId}
+                onWatchTrailer={(id) => handleVideoClick(id, `${fullItemData.name} - Trailer`)}
             />
 
             {viewMode === 'info' ? (
