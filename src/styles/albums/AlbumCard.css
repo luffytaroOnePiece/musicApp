@@ -1,9 +1,10 @@
 .album-card {
+    position: relative;
     background: var(--card-bg);
     border-radius: 12px;
     padding: 16px;
     cursor: pointer;
-    transition: transform 0.2s, background 0.2s;
+    transition: transform 0.2s, background 0.2s, border-color 0.2s;
     border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
@@ -11,6 +12,31 @@
     content-visibility: auto;
     contain-intrinsic-size: 1px 300px;
     /* Width (auto-ish) Height (approx card height) */
+}
+
+.album-card-watched-badge {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    z-index: 5;
+    background: rgba(100, 189, 172, 0.95);
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    transition: transform 0.2s;
+}
+
+.album-card:hover .album-card-watched-badge {
+    transform: translateY(-2px);
 }
 
 .album-card:hover {

@@ -75,7 +75,14 @@ const AlbumHeader = ({
                     className="album-details-cover"
                 />
                 <div className="album-details-info">
-                    <span className="album-type-badge">{localData.type || "Playlist"}</span>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <span className="album-type-badge">{localData.type || "Playlist"}</span>
+                        {localData.watched && (
+                            <span className="album-type-badge" style={{ background: 'rgba(100, 189, 172, 0.15)', borderColor: 'rgba(100, 189, 172, 0.35)', color: '#7dd4c0' }}>
+                                Watched
+                            </span>
+                        )}
+                    </div>
                     <h1>{fullItemData.name}</h1>
                     <p className="album-meta-text">
                         {fullItemData.owner?.display_name} • {tracksCount} songs, {totalDuration}
