@@ -6,7 +6,8 @@
     "type": "Movie",
     "language": "Telugu",
     "movieId": "1408170",
-    "TrailerId": "i0j94mF3otA"
+    "TrailerId": "i0j94mF3otA",
+    "Watched": false
   },
   "1xG0IjyDlGaGwYYr9bJFad": {
     "name": "Peddi",
@@ -15,7 +16,8 @@
     "type": "Movie",
     "language": "Telugu",
     "movieId": "1057265",
-    "TrailerId": "sF2dj7ycZvA"
+    "TrailerId": "sF2dj7ycZvA",
+    "Watched": false
   },
   "2MuwhECVrQ82UkVmMT3YUL": {
     "name": "Alpha Girls",
@@ -24,6 +26,17 @@
     "type": "Movie",
     "language": "Hindi",
     "movieId": "1122030",
-    "TrailerId": "QRqGwGwo1Y0"
+    "TrailerId": "QRqGwGwo1Y0",
+    "Watched": false
+  },
+  "2zgdkQdJLLbKhho2C1K1Sh": {
+    "name": "Toxic",
+    "youtubePlaylist": "https://youtube.com/playlist?list=PLatFDEsIEAN8",
+    "livePlaylist": "",
+    "type": "Movie",
+    "language": "Telugu",
+    "movieId": "1213243",
+    "TrailerId": "TeOM-FyBQJg",
+    "Watched": false
   }
 }

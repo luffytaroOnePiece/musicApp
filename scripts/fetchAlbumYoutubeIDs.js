@@ -178,6 +178,7 @@ async function main() {
       movieId: config.movieId || '',
       tmdbID: config.movieId || '',
       trailerId: config.TrailerId || config.trailerId || '',
+      watched: config.Watched !== undefined ? config.Watched : (config.watched !== undefined ? config.watched : false),
     };
 
     // Preserve extra fields from existing output (e.g. tmdbID if not set in config)
@@ -186,6 +187,7 @@ async function main() {
       if (prev.tmdbID && !entry.tmdbID) entry.tmdbID = prev.tmdbID;
       if (prev.movieId && !entry.movieId) entry.movieId = prev.movieId;
       if (prev.trailerId && !entry.trailerId) entry.trailerId = prev.trailerId;
+      if (prev.watched !== undefined && entry.watched === undefined) entry.watched = prev.watched;
     }
 
     // Fetch main YouTube playlist
